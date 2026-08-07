@@ -1,0 +1,61 @@
+cmake_minimum_required(VERSION 3.20)
+
+set(CMAKE_GENERATOR_PLATFORM x64)
+project(Gallus)
+
+if (MSVC)
+    add_compile_options(/MP)
+endif()
+
+# Configurations
+set(RELEASE "Release")
+set(DEBUG "Debug")
+set(CMAKE_CONFIGURATION_TYPES "${RELEASE};${DEBUG}" CACHE STRING "" FORCE)
+set(CMAKE_BUILD_TYPE Debug)
+
+# Linker flags
+set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/DEBUG" CACHE STRING "Debug linker flags" FORCE)
+set(CMAKE_EXE_LINKER_FLAGS_RELEASE "/OPT:REF /OPT:ICF" CACHE STRING "Release linker flags" FORCE)
+set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /DEBUG")
+
+# Predefinitions
+set(PREDEFINITIONS_SHARED "RAPIDJSON_NOMEMBERITERATORCLASS;TINYGLTF_NO_INCLUDE_STB_IMAGE;TINYGLTF_NO_STB_IMAGE;TINYGLTF_NO_STB_IMAGE_WRITE;")
+set(PREDEFINITIONS_GAME "IMGUI_DISABLE;")
+set(PREDEFINITIONS_DEBUG_SHARED "_DEBUG;${PREDEFINITIONS_SHARED}")
+set(PREDEFINITIONS_RELEASE_SHARED "NDEBUG;${PREDEFINITIONS_SHARED}")
+set(PREDEFINITIONS_EDITOR_SHARED "_EDITOR;IMGUI_DEFINE_MATH_OPERATORS;${PREDEFINITIONS_SHARED}")
+set(PREDEFINITIONS_EDITOR_DEBUG "${PREDEFINITIONS_EDITOR_SHARED};${PREDEFINITIONS_DEBUG_SHARED};_RENDER_TEX")
+set(PREDEFINITIONS_EDITOR_RELEASE "${PREDEFINITIONS_EDITOR_SHARED};${PREDEFINITIONS_RELEASE_SHARED};_RENDER_TEX")
+set(PREDEFINITIONS_GAME_DEBUG "${PREDEFINITIONS_DEBUG_SHARED};${PREDEFINITIONS_GAME}")
+set(PREDEFINITIONS_GAME_RELEASE "${PREDEFINITIONS_RELEASE_SHARED};${PREDEFINITIONS_GAME}")
+
+# Global settings
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER CMakePredefinedTargets)
+
+# Third-party libraries
+
+# IMGUI
+set(IMGUI_SOURCES
+    ${CMAKE_SOURCE_DIR}/external/imgui/imgui.cpp
+    ${CMAKE_SOURCE_DIR}/external/imgui/imgui_draw.cpp
+    ${CMAKE_SOURCE_DIR}/external/imgui/backends/imgui_impl_dx11.cpp
+    ${CMAKE_SOURCE_DIR}/external/imgui/backends/imgui_impl_win32.cpp
+    ${CMAKE_SOURCE_DIR}/external/imgui/imgui_widgets.cpp
+    ${CMAKE_SOURCE_DIR}/external/imgui/imgui_tables.cpp
+    ${CMAKE_SOURCE_DIR}/external/imgui/windows/BaseWindow.cpp
+    ${CMAKE_SOURCE_DIR}/external/imgui/windows/MainWindowDock.cpp
+    ${CMAKE_SOURCE_DIR}/external/imgui/font_arial.cpp
+)
+add_library(imgui STATIC ${IMGUI_SOURCES})
+target_include_directories(imgui PUBLIC ${CMAKE_SOURCE_DIR}/external/imgui)
+set_target_properties(imgui PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON FOLDER "ThirdParty")
+source_group(TREE ${CMAKE_SOURCE_DIR}/external/imgui PREFIX "" FILES ${IMGUI_SOURCES})
+
+# Additional IMGUI helpers
+set(IMGUI
+    ${CMAKE_SOURCE_DIR}/external/imgui/imgui_helpers.cpp
+)
+
+# Include modules
+include(humongousexplorer.cmake)
