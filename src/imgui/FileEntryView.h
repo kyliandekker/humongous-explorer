@@ -3,7 +3,11 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <memory>
 #include <imgui/imgui.h>
+#include <imgui_internal.h>
+
+struct ID3D11ShaderResourceView;
 
 namespace humongousexplorer::imgui
 {
@@ -15,18 +19,57 @@ namespace humongousexplorer::imgui
 
 	struct RowInfo
 	{
-		RowInfo(const std::string& a_sName, ImColor a_Color, float a_fExtraOffset, RowInfoTextAlignment a_RowInfoTextAlignment = RowInfoTextAlignment::Left) :
-			m_sName(a_sName),
-			m_Color(a_Color),
+		RowInfo(float a_fExtraOffset, RowInfoTextAlignment a_RowInfoTextAlignment = RowInfoTextAlignment::Left) :
 			m_fExtraOffset(a_fExtraOffset),
 			m_RowInfoTextAlignment(a_RowInfoTextAlignment)
 		{
 		}
 
-		std::string m_sName;
-		ImColor m_Color;
 		float m_fExtraOffset;
 		RowInfoTextAlignment m_RowInfoTextAlignment;
+	};
+
+	struct RowEntry
+	{
+		RowEntry(RowInfo a_RowInfo) :
+			m_RowInfo(a_RowInfo)
+		{}
+
+		virtual ~RowEntry() = default;
+
+		RowInfo m_RowInfo;
+
+		virtual void Render(const ImVec2& a_vPos) = 0;
+		virtual ImVec2 GetSize() = 0;
+	};
+
+	struct TextRowEntry : public RowEntry
+	{
+		TextRowEntry(RowInfo a_RowInfo, const std::string& a_sText, ImColor a_Color) : RowEntry(a_RowInfo),
+			m_sText(a_sText),
+			m_Color(a_Color)
+		{}
+
+		std::string m_sText;
+		ImColor m_Color;
+
+		void Render(const ImVec2& a_vPos) override;
+		ImVec2 GetSize() override;
+	};
+
+	struct IconRowEntry : public RowEntry
+	{
+		IconRowEntry(RowInfo a_RowInfo, const std::string& a_sIconName, float a_fSize = 0) : RowEntry(a_RowInfo),
+			m_sIconName(a_sIconName),
+			m_fSize(a_fSize)
+		{}
+
+		float m_fSize = 0;
+		std::string m_sIconName;
+		ID3D11ShaderResourceView* m_pTexture;
+
+		void Render(const ImVec2& a_vPos) override;
+		ImVec2 GetSize() override;
 	};
 
 	enum class FileEntryInteractionType
@@ -39,13 +82,11 @@ namespace humongousexplorer::imgui
 
 	struct FileEntryView
 	{
-		FileEntryView(const std::string& a_sIcon, const std::vector<RowInfo>& a_aRows) : 
-			m_sIcon(a_sIcon),
-			m_aRows(a_aRows)
+		FileEntryView(std::vector<std::unique_ptr<RowEntry>> a_aRows) :
+			m_aRows(std::move(a_aRows))
 		{}
 
-		std::string m_sIcon;
-		std::vector<RowInfo> m_aRows;
+		std::vector<std::unique_ptr<RowEntry>> m_aRows;
 
 		virtual FileEntryInteractionType Render(std::function<bool()> a_fnSelected);
 	};

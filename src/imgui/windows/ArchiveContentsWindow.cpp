@@ -3,8 +3,6 @@
 #include <imgui/imgui.h>
 #include <string>
 
-#include "dx11/SVGTextureCache.h"
-
 #include "imgui/ImGuiSetup.h"
 #include "imgui/FileEntryView.h"
 

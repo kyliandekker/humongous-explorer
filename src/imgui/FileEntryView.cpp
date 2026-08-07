@@ -7,6 +7,66 @@
 namespace humongousexplorer::imgui
 {
 	//---------------------------------------------------------------------
+	void TextRowEntry::Render(const ImVec2& a_vPos)
+	{
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+		drawList->AddText(a_vPos, m_Color, m_sText.c_str());
+	}
+
+	//---------------------------------------------------------------------
+	ImVec2 TextRowEntry::GetSize()
+	{
+		return ImGui::CalcTextSize(m_sText.c_str());
+	}
+
+	//---------------------------------------------------------------------
+	void IconRowEntry::Render(const ImVec2& a_vPos)
+	{
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+		// Icon
+		ID3D11ShaderResourceView* tex = dx11::SVGTextureCache::Get(m_sIconName);
+		if (tex)
+		{
+			int nativeW = dx11::SVGTextureCache::GetWidth(m_sIconName);
+			int nativeH = dx11::SVGTextureCache::GetHeight(m_sIconName);
+			float scale = m_fSize / static_cast<float>((nativeW > nativeH) ? nativeW : nativeH);
+			float drawW = nativeW * scale;
+			float drawH = nativeH * scale;
+
+			ImVec2 iconMin = ImVec2(a_vPos.x + 4.0f, a_vPos.y);
+			ImVec2 iconMax = ImVec2(iconMin.x + drawW, iconMin.y + drawH);
+			drawList->AddImage(
+				static_cast<ImTextureID>(reinterpret_cast<intptr_t>(tex)),
+				iconMin,
+				iconMax,
+				ImVec2(0, 0), ImVec2(1, 1),
+				IM_COL32(255, 255, 255, 255));
+		}
+	}
+
+	//---------------------------------------------------------------------
+	ImVec2 IconRowEntry::GetSize()
+	{
+		float drawW = 0;
+		float drawH = 0;
+		ID3D11ShaderResourceView* tex = dx11::SVGTextureCache::Get(m_sIconName);
+		if (tex)
+		{
+			int nativeW = dx11::SVGTextureCache::GetWidth(m_sIconName);
+			int nativeH = dx11::SVGTextureCache::GetHeight(m_sIconName);
+			float scale = m_fSize / static_cast<float>((nativeW > nativeH) ? nativeW : nativeH);
+			drawW = nativeW * scale;
+			drawH = nativeH * scale;
+		}
+
+		return {
+			drawW, drawH
+		};
+	}
+
+	//---------------------------------------------------------------------
 	FileEntryInteractionType FileEntryView::Render(std::function<bool()> a_fnSelected)
 	{
 		FileEntryInteractionType interaction = FileEntryInteractionType::None;
@@ -15,8 +75,7 @@ namespace humongousexplorer::imgui
 
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 
-		const float iconSize = ImGui::GetFontSize() + 12.0f;
-		const float rowHeight = iconSize + 4.0f;
+		const float rowHeight = ImGui::GetFontSize() + 15;
 
 		float windowWidth = ImGui::GetContentRegionAvail().x;
 		ImVec2 windowPos = ImGui::GetCursorScreenPos();
@@ -51,46 +110,28 @@ namespace humongousexplorer::imgui
 			}
 		}
 
-		// Icon
-		ID3D11ShaderResourceView* tex = dx11::SVGTextureCache::Get(m_sIcon);
-		if (tex)
+		float previousOffset = 0;
+		for (const std::unique_ptr<RowEntry>& row : m_aRows)
 		{
-			int nativeW = dx11::SVGTextureCache::GetWidth(m_sIcon);
-			int nativeH = dx11::SVGTextureCache::GetHeight(m_sIcon);
-			float scale = iconSize / static_cast<float>((nativeW > nativeH) ? nativeW : nativeH);
-			float drawW = nativeW * scale;
-			float drawH = nativeH * scale;
+			ImVec2 entryPos = ImVec2(previousOffset, rowMin.y);
+			entryPos.y = entryPos.y + ((rowHeight - row->GetSize().y) * 0.5f);
 
-			ImVec2 iconPos = ImVec2(rowMin.x + 4.0f, rowMin.y + (rowHeight - drawH) * 0.5f);
-			drawList->AddImage(
-				static_cast<ImTextureID>(reinterpret_cast<intptr_t>(tex)),
-				iconPos,
-				ImVec2(iconPos.x + drawW, iconPos.y + drawH),
-				ImVec2(0, 0), ImVec2(1, 1),
-				IM_COL32(255, 255, 255, 255));
-		}
-
-		for (const RowInfo& row : m_aRows)
-		{
-			// Label
-			ImVec2 labelSize = ImGui::CalcTextSize(row.m_sName.c_str());
-			ImVec2 labelPos = ImVec2(0, rowMin.y + ((rowHeight - labelSize.y) / 2));
-
-			switch (row.m_RowInfoTextAlignment)
+			switch (row->m_RowInfo.m_RowInfoTextAlignment)
 			{
 				case RowInfoTextAlignment::Left:
 				{
-					labelPos.x = rowMin.x + iconSize + row.m_fExtraOffset;
+					entryPos.x = rowMin.x + previousOffset + row->m_RowInfo.m_fExtraOffset;
 					break;
 				}
 				case RowInfoTextAlignment::Right:
 				{
-					labelPos.x = rowMax.x - (labelSize.x + row.m_fExtraOffset);
+					entryPos.x = rowMax.x - (row->GetSize().x + row->m_RowInfo.m_fExtraOffset);
 					break;
 				}
 			}
+			previousOffset = entryPos.x + row->GetSize().x;
 
-			drawList->AddText(labelPos, row.m_Color, row.m_sName.c_str());
+			row->Render(entryPos);
 		}
 
 		ImGui::Dummy({ windowWidth, rowHeight });

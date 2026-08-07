@@ -3,8 +3,6 @@
 #include <imgui/imgui.h>
 #include <string>
 
-#include "dx11/SVGTextureCache.h"
-
 #include "imgui/ImGuiSetup.h"
 #include "imgui/FileEntryView.h"
 
@@ -14,13 +12,46 @@
 
 namespace humongousexplorer::imgui
 {
+	//---------------------------------------------------------------------
 	struct FilterFileEntryView : public FileEntryView
 	{
-		FilterFileEntryView(resources::ResourceType a_ResourceType, const std::string& a_sIcon, const std::vector<RowInfo>& a_aRows) : FileEntryView(a_sIcon, a_aRows),
+		FilterFileEntryView(resources::ResourceType a_ResourceType, std::vector<std::unique_ptr<RowEntry>> a_aRows) : FileEntryView(std::move(a_aRows)),
 			m_ResourceType(a_ResourceType)
 		{}
 		resources::ResourceType m_ResourceType;
 	};
+
+	//---------------------------------------------------------------------
+	std::unique_ptr<RowEntry> MakeTextRow(const RowInfo& a_RowInfo, const std::string& a_sLabel)
+	{
+		return std::make_unique<TextRowEntry>(RowInfo(50), a_sLabel, IM_COL32(236, 239, 244, 255));
+	}
+
+	//---------------------------------------------------------------------
+	std::unique_ptr<RowEntry> MakeNameRow(const std::string& a_sLabel)
+	{
+		return std::make_unique<TextRowEntry>(RowInfo(5), a_sLabel, IM_COL32(236, 239, 244, 255));
+	}
+
+	//---------------------------------------------------------------------
+	std::unique_ptr<RowEntry> MakeCountRow(const std::string& a_sLabel)
+	{
+		return std::make_unique<TextRowEntry>(RowInfo(50, RowInfoTextAlignment::Right), a_sLabel, IM_COL32(236, 239, 244, 255));
+	}
+
+	//---------------------------------------------------------------------
+	std::unique_ptr<RowEntry> MakeIconRow(const std::string& a_sLabel)
+	{
+		return std::make_unique<IconRowEntry>(RowInfo(4), a_sLabel, ImGui::GetFontSize() + 32.0f);
+	}
+
+	template<typename... Args>
+	std::vector<std::unique_ptr<RowEntry>> MakeRows(Args... args)
+	{
+		std::vector<std::unique_ptr<RowEntry>> rows;
+		(rows.push_back(std::move(args)), ...);
+		return rows;
+	}
 
 	static std::vector<FilterFileEntryView> s_aFileEntries;
 
@@ -34,191 +65,50 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	bool imgui::FilterWindow::Initialize()
 	{
-		ImColor typeColor = IM_COL32(236, 239, 244, 255);
-		float typeOffset = 50;
+		s_aFileEntries.push_back(FilterFileEntryView(
+			resources::ResourceType::Unknown,
+			MakeRows(MakeIconRow("../icons/icon_all_files.svg"), MakeNameRow("All Types"), MakeCountRow("UNINITIALIZED"))
+		));
 
-		ImColor countColor = IM_COL32(135, 145, 165, 255);
-		float countOffset = 8;
+		s_aFileEntries.push_back(FilterFileEntryView(
+			resources::ResourceType::RoomBackground,
+			MakeRows(MakeIconRow("../icons/icon_background.svg"), MakeNameRow("Room Backgrounds"), MakeCountRow("UNINITIALIZED"))
+		));
 
-		s_aFileEntries.push_back(
-			{
-				resources::ResourceType::Unknown,
-				"../icons/icon_all_files.svg",
-				{
-					{
-						"All Types",
-						typeColor,
-						typeOffset
-					},
-					{
-						"UNINITIALIZED",
-						countColor,
-						countOffset,
-						RowInfoTextAlignment::Right
-					},
-				}
-			}
-		);
+		s_aFileEntries.push_back(FilterFileEntryView(
+			resources::ResourceType::RoomImage,
+			MakeRows(MakeIconRow("../icons/icon_image.svg"), MakeNameRow("Sprites"), MakeCountRow("UNINITIALIZED"))
+		));
 
-		s_aFileEntries.push_back(
-			{
-				resources::ResourceType::RoomBackground,
-				"../icons/icon_background.svg",
-				{
-					{
-						"Backgrounds",
-						typeColor,
-						typeOffset
-					},
-					{
-						"UNINITIALIZED",
-						countColor,
-						countOffset,
-						RowInfoTextAlignment::Right
-					},
-				}
-			}
-		);
+		s_aFileEntries.push_back(FilterFileEntryView(
+			resources::ResourceType::Talkie,
+			MakeRows(MakeIconRow("../icons/icon_talkie.svg"), MakeNameRow("Talkies"), MakeCountRow("UNINITIALIZED"))
+		));
 
-		s_aFileEntries.push_back(
-			{
-				resources::ResourceType::RoomImage,
-				"../icons/icon_image.svg",
-				{
-					{
-						"Sprites",
-						typeColor,
-						typeOffset
-					},
-					{
-						"UNINITIALIZED",
-						countColor,
-						countOffset,
-						RowInfoTextAlignment::Right
-					},
-				}
-			}
-		);
+		s_aFileEntries.push_back(FilterFileEntryView(
+			resources::ResourceType::Song,
+			MakeRows(MakeIconRow("../icons/icon_song.svg"), MakeNameRow("Songs"), MakeCountRow("UNINITIALIZED"))
+		));
 
-		s_aFileEntries.push_back(
-			{
-				resources::ResourceType::Talkie,
-				"../icons/icon_talkie.svg",
-				{
-					{
-						"Talkies",
-						typeColor,
-						typeOffset
-					},
-					{
-						"UNINITIALIZED",
-						countColor,
-						countOffset,
-						RowInfoTextAlignment::Right
-					},
-				}
-			}
-		);
+		s_aFileEntries.push_back(FilterFileEntryView(
+			resources::ResourceType::SFX,
+			MakeRows(MakeIconRow("../icons/icon_sfx.svg"), MakeNameRow("SFX"), MakeCountRow("UNINITIALIZED"))
+		));
 
-		s_aFileEntries.push_back(
-			{
-				resources::ResourceType::Song,
-				"../icons/icon_song.svg",
-				{
-					{
-						"Songs",
-						typeColor,
-						typeOffset
-					},
-					{
-						"UNINITIALIZED",
-						countColor,
-						countOffset,
-						RowInfoTextAlignment::Right
-					},
-				}
-			}
-		);
+		s_aFileEntries.push_back(FilterFileEntryView(
+			resources::ResourceType::LocalScript,
+			MakeRows(MakeIconRow("../icons/icon_local_script.svg"), MakeNameRow("Local Scripts"), MakeCountRow("UNINITIALIZED"))
+		));
 
-		s_aFileEntries.push_back(
-			{
-				resources::ResourceType::SFX,
-				"../icons/icon_sfx.svg",
-				{
-					{
-						"Sfx",
-						typeColor,
-						typeOffset
-					},
-					{
-						"UNINITIALIZED",
-						countColor,
-						countOffset,
-						RowInfoTextAlignment::Right
-					},
-				}
-			}
-		);
+		s_aFileEntries.push_back(FilterFileEntryView(
+			resources::ResourceType::GlobalScript,
+			MakeRows(MakeIconRow("../icons/icon_global_script.svg"), MakeNameRow("Global Scripts"), MakeCountRow("UNINITIALIZED"))
+		));
 
-		s_aFileEntries.push_back(
-			{
-				resources::ResourceType::LocalScript,
-				"../icons/icon_local_script.svg",
-				{
-					{
-						"Local Scripts",
-						typeColor,
-						typeOffset
-					},
-					{
-						"UNINITIALIZED",
-						countColor,
-						countOffset,
-						RowInfoTextAlignment::Right
-					},
-				}
-			}
-		);
-
-		s_aFileEntries.push_back(
-			{
-				resources::ResourceType::GlobalScript,
-				"../icons/icon_global_script.svg",
-				{
-					{
-						"Global Scripts",
-						typeColor,
-						typeOffset
-					},
-					{
-						"UNINITIALIZED",
-						countColor,
-						countOffset,
-						RowInfoTextAlignment::Right
-					},
-				}
-			}
-		);
-
-		s_aFileEntries.push_back(
-			{
-				resources::ResourceType::VerbScript,
-				"../icons/icon_verb_script.svg",
-				{
-					{
-						"Verb Scripts",
-						typeColor,
-						typeOffset
-					},
-					{
-						"UNINITIALIZED",
-						countColor,
-						countOffset,
-						RowInfoTextAlignment::Right
-					},
-				}
-			}
-		);
+		s_aFileEntries.push_back(FilterFileEntryView(
+			resources::ResourceType::VerbScript,
+			MakeRows(MakeIconRow("../icons/icon_verb_script.svg"), MakeNameRow("Verb Scripts"), MakeCountRow("UNINITIALIZED"))
+		));
 
 		UpdateResourceCount();
 
@@ -247,11 +137,14 @@ namespace humongousexplorer::imgui
 	{
 		for (FilterFileEntryView& view : s_aFileEntries)
 		{
-			if (view.m_aRows.size() < 1)
+			if (view.m_aRows.size() < 2)
 			{
 				continue;
 			}
-			view.m_aRows[1].m_sName = "1";
+			if (auto* textEntry = dynamic_cast<TextRowEntry*>(view.m_aRows[2].get()))
+			{
+				textEntry->m_sText = "1";
+			}
 		}
 	}
 }
