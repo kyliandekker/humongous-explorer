@@ -117,11 +117,11 @@ namespace humongousexplorer::imgui
 			{
 				interaction = FileEntryInteractionType::LeftClicked;
 			}
-			else if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 			{
 				interaction = FileEntryInteractionType::DoubleClicked;
 			}
-			else if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 			{
 				interaction = FileEntryInteractionType::RightClicked;
 			}

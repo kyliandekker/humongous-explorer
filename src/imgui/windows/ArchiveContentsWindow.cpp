@@ -50,24 +50,17 @@ namespace humongousexplorer::imgui
 	}
 
 	//---------------------------------------------------------------------
-	std::unique_ptr<TreeFileEntryView> MakeRoomEntryView(
+	std::unique_ptr<FileEntryView> MakeRoomEntryView(
 		const std::string& a_sName,
 		const std::string& a_sCount = "UNINITIALIZED"
 	)
 	{
-		return std::make_unique<TreeFileEntryView>(
+		return std::make_unique<FileEntryView>(
 			MakeRows(
 				MakeIconRow(resources::GetIconFromResourceType(resources::ResourceType::Room)),
 				MakeNameRow(a_sName),
 				MakeCountRow(a_sCount)
-			),
-			[]()
-			{
-				std::vector<std::unique_ptr<FileEntryView>> children;
-				children.push_back(MakeArchiveResourceEntryView("Test.png", resources::ResourceType::RoomImage));
-				children.push_back(MakeArchiveResourceEntryView("Aaah.png", resources::ResourceType::RoomImage));
-				return children;
-			}()
+			)
 		);
 	}
 
@@ -143,9 +136,33 @@ namespace humongousexplorer::imgui
 				},
 				[this](FileEntryInteractionType interaction, FileEntryView* fileEntry)
 				{
-					if (interaction == FileEntryInteractionType::LeftClicked)
+					switch (interaction)
 					{
-						m_pFilterFileEntryView = fileEntry;
+						case FileEntryInteractionType::None:
+						{
+							break;
+						}
+						case FileEntryInteractionType::LeftClicked:
+						{
+							m_pFilterFileEntryView = fileEntry;
+							break;
+						}
+						case FileEntryInteractionType::RightClicked:
+						{
+							break;
+						}
+						case FileEntryInteractionType::DoubleClicked:
+						{
+							if (TreeFileEntryView* treeView = dynamic_cast<TreeFileEntryView*>(fileEntry))
+							{
+								treeView->m_bExpanded = !treeView->m_bExpanded;
+							}
+							else
+							{
+								// TODO: Read room.
+							}
+							break;
+						}
 					}
 				}
 			);
