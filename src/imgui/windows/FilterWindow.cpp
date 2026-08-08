@@ -58,6 +58,7 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void FilterWindow::Update()
 	{
+		ImGui::PopFont();
 		for (auto& view : s_aFilters)
 		{
 			FileEntryInteractionType interaction = view->Render([&view]()

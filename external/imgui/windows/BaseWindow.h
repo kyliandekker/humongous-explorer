@@ -56,7 +56,7 @@ namespace humongousexplorer::imgui
 		/// <summary>
 		/// Update loop for the window. This is where all ImGui interaction should be like buttons, etc.
 		/// </summary>
-		void Render() override;
+		virtual void Render() override;
 
 		/// <summary>
 		/// Sets the size of the window.
