@@ -11,12 +11,14 @@ struct ID3D11ShaderResourceView;
 
 namespace humongousexplorer::imgui
 {
+	//---------------------------------------------------------------------
 	enum class RowInfoTextAlignment
 	{
 		Left,
 		Right
 	};
 
+	//---------------------------------------------------------------------
 	struct RowInfo
 	{
 		RowInfo(float a_fExtraOffset, RowInfoTextAlignment a_RowInfoTextAlignment = RowInfoTextAlignment::Left) :
@@ -29,6 +31,7 @@ namespace humongousexplorer::imgui
 		RowInfoTextAlignment m_RowInfoTextAlignment;
 	};
 
+	//---------------------------------------------------------------------
 	struct RowEntry
 	{
 		RowEntry(RowInfo a_RowInfo) :
@@ -43,6 +46,7 @@ namespace humongousexplorer::imgui
 		virtual ImVec2 GetSize() = 0;
 	};
 
+	//---------------------------------------------------------------------
 	struct TextRowEntry : public RowEntry
 	{
 		TextRowEntry(RowInfo a_RowInfo, const std::string& a_sText, ImColor a_Color) : RowEntry(a_RowInfo),
@@ -57,6 +61,7 @@ namespace humongousexplorer::imgui
 		ImVec2 GetSize() override;
 	};
 
+	//---------------------------------------------------------------------
 	struct IconRowEntry : public RowEntry
 	{
 		IconRowEntry(RowInfo a_RowInfo, const std::string& a_sIconName, float a_fSize = 0) : RowEntry(a_RowInfo),
@@ -72,6 +77,7 @@ namespace humongousexplorer::imgui
 		ImVec2 GetSize() override;
 	};
 
+	//---------------------------------------------------------------------
 	enum class FileEntryInteractionType
 	{
 		None,
@@ -80,6 +86,7 @@ namespace humongousexplorer::imgui
 		DoubleClicked
 	};
 
+	//---------------------------------------------------------------------
 	struct FileEntryView
 	{
 		FileEntryView(std::vector<std::unique_ptr<RowEntry>> a_aRows) :
@@ -91,10 +98,46 @@ namespace humongousexplorer::imgui
 		virtual FileEntryInteractionType Render(std::function<bool()> a_fnSelected);
 	};
 
+	//---------------------------------------------------------------------
 	struct TreeFileEntryView : public FileEntryView
 	{
-		std::vector<TreeFileEntryView> m_aChildren;
+		TreeFileEntryView(std::vector<std::unique_ptr<RowEntry>> a_aRows, std::vector<std::unique_ptr<TreeFileEntryView>> a_aChildren = {}) : FileEntryView(std::move(a_aRows)),
+			m_aChildren(std::move(a_aChildren))
+		{}
 
+		std::vector<std::unique_ptr<TreeFileEntryView>> m_aChildren;
 		FileEntryInteractionType Render(std::function<bool()> a_fnSelected) override;
 	};
+
+	//---------------------------------------------------------------------
+	inline std::unique_ptr<RowEntry> MakeTextRow(const RowInfo& a_RowInfo, const std::string& a_sLabel)
+	{
+		return std::make_unique<TextRowEntry>(RowInfo(50), a_sLabel, IM_COL32(236, 239, 244, 255));
+	}
+
+	//---------------------------------------------------------------------
+	inline std::unique_ptr<RowEntry> MakeNameRow(const std::string& a_sLabel)
+	{
+		return std::make_unique<TextRowEntry>(RowInfo(5), a_sLabel, IM_COL32(236, 239, 244, 255));
+	}
+
+	//---------------------------------------------------------------------
+	inline std::unique_ptr<RowEntry> MakeCountRow(const std::string& a_sLabel)
+	{
+		return std::make_unique<TextRowEntry>(RowInfo(50, RowInfoTextAlignment::Right), a_sLabel, IM_COL32(236, 239, 244, 255));
+	}
+
+	//---------------------------------------------------------------------
+	inline std::unique_ptr<RowEntry> MakeIconRow(const std::string& a_sLabel)
+	{
+		return std::make_unique<IconRowEntry>(RowInfo(4), a_sLabel, ImGui::GetFontSize() + 32.0f);
+	}
+
+	template<typename... Args>
+	inline std::vector<std::unique_ptr<RowEntry>> MakeRows(Args... args)
+	{
+		std::vector<std::unique_ptr<RowEntry>> rows;
+		(rows.push_back(std::move(args)), ...);
+		return rows;
+	}
 }

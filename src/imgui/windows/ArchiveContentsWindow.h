@@ -4,6 +4,8 @@
 
 namespace humongousexplorer::imgui
 {
+	class TreeFileEntryView;
+
 	//---------------------------------------------------------------------
 	// ArchiveContentsWindow
 	//---------------------------------------------------------------------
@@ -28,5 +30,7 @@ namespace humongousexplorer::imgui
 		/// </summary>
 		/// <returns>True if initialization is successful, otherwise false.</returns>
 		bool Initialize() override;
+	private:
+		TreeFileEntryView* m_pFilterFileEntryView = nullptr; // TODO: move
 	};
 }
