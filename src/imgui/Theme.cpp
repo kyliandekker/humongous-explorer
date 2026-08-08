@@ -228,5 +228,6 @@ namespace humongousexplorer::imgui
         ImVec4* extraColors = imgui::ExtraColors;
         extraColors[imgui::ImGuiExtraCol_Accent] = RGB(80, 60, 135, 255);
         extraColors[imgui::ImGuiExtraCol_AccentHovered] = RGB(55, 67, 90, 255);
+        extraColors[imgui::ImGuiExtraCol_TabInactive] = RGB(20, 29, 40, 255);
     }
 }

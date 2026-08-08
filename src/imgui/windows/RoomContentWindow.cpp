@@ -1,6 +1,7 @@
 #include "./RoomContentWindow.h"
 
 #include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -18,16 +19,18 @@ namespace humongousexplorer::imgui
 	{
 		const char* sLabel;
 		const char* sIconPath;
+		std::vector<resources::ResourceType> m_aResourceTypes;
 	};
 
 	static const TabInfo s_aTabs[] =
 	{
-		{ "All Files",  "../icons/icon_all_files.svg" },
-		{ "Images",  "../icons/icon_image.svg" },
-		{ "Sounds",  "../icons/icon_song.svg" },
-		{ "SFX",     "../icons/icon_sfx.svg" },
-		{ "Talkies", "../icons/icon_talkie.svg" },
-		{ "Scripts", "../icons/icon_local_script.svg" },
+		{ "All Files",  "../icons/icon_all_files.svg", { resources::ResourceType::Unknown } },
+		{ "Room Backgrounds",  "../icons/icon_background.svg", { resources::ResourceType::RoomBackground } },
+		{ "Room Images",  "../icons/icon_image.svg", { resources::ResourceType::RoomImage, resources::ResourceType::RoomImageLayer } },
+		{ "SFX",     "../icons/icon_sfx.svg", { resources::ResourceType::SFX } },
+		{ "Talkies",     "../icons/icon_sfx.svg", { resources::ResourceType::Talkie } },
+		{ "Songs",     "../icons/icon_sfx.svg", { resources::ResourceType::Song } },
+		{ "Scripts", "../icons/icon_local_script.svg", { resources::ResourceType::GlobalScript, resources::ResourceType::LocalScript, resources::ResourceType::VerbScript } },
 	};
 	static const int s_iTabCount = sizeof(s_aTabs) / sizeof(s_aTabs[0]);
 
@@ -106,26 +109,14 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	bool RoomContentWindow::MatchesTabFilter(resources::ResourceType a_eType, int a_iTab) const
 	{
-		switch (a_iTab)
+		for (resources::ResourceType resourceType : s_aTabs[a_iTab].m_aResourceTypes)
 		{
-			case 0: // All Files
+			if (resourceType == resources::ResourceType::Unknown || resourceType == a_eType)
+			{
 				return true;
-			case 1: // Images
-				return a_eType == resources::ResourceType::RoomBackground ||
-					a_eType == resources::ResourceType::RoomImage ||
-					a_eType == resources::ResourceType::RoomImageLayer;
-			case 2: // Sounds
-				return a_eType == resources::ResourceType::Song;
-			case 3: // SFX
-				return a_eType == resources::ResourceType::SFX;
-			case 4: // Talkies
-				return a_eType == resources::ResourceType::Talkie;
-			case 5: // Scripts
-				return a_eType == resources::ResourceType::LocalScript ||
-					a_eType == resources::ResourceType::GlobalScript ||
-					a_eType == resources::ResourceType::VerbScript;
+			}
 		}
-		return true;
+		return false;
 	}
 
 	//---------------------------------------------------------------------
@@ -176,18 +167,51 @@ namespace humongousexplorer::imgui
 		// Tab bar
 		if (ImGui::BeginTabBar("##RoomTabs", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll))
 		{
+			float tabIconSize = ImGui::GetFontSize();
+
 			for (int i = 0; i < s_iTabCount; i++)
 			{
 				int count = CountResourcesForTab(i);
 				char label[64];
-				snprintf(label, sizeof(label), "%s (%d)", s_aTabs[i].sLabel, count);
-
+				snprintf(label, sizeof(label), "  %s (%d)", s_aTabs[i].sLabel, count);
+				
+				ImGui::PushStyleColor(ImGuiCol_Tab, ImGui::ColorConvertFloat4ToU32(imgui::ExtraColors[imgui::ImGuiExtraCol_TabInactive]));
+				ImGui::PushStyleColor(ImGuiCol_TabSelected, ImGui::ColorConvertFloat4ToU32(imgui::ExtraColors[imgui::ImGuiExtraCol_Accent]));
+				ImGui::PushStyleColor(ImGuiCol_TabHovered, ImGui::ColorConvertFloat4ToU32(imgui::ExtraColors[imgui::ImGuiExtraCol_AccentHovered]));
 				if (ImGui::BeginTabItem(label))
 				{
 					m_iSelectedTab = i;
 					ImGui::EndTabItem();
 				}
+				ImGui::PopStyleColor(3);
 			}
+
+			// Draw icons on all tabs using internal tab bar state
+			ImGuiTabBar* tab_bar = ImGui::GetCurrentTabBar();
+			if (tab_bar)
+			{
+				ImDrawList* drawList = ImGui::GetWindowDrawList();
+				for (int i = 0; i < tab_bar->Tabs.Size; i++)
+				{
+					ImGuiTabItem& tab = tab_bar->Tabs[i];
+					if (tab.LastFrameVisible < ImGui::GetFrameCount())
+						continue;
+
+					ID3D11ShaderResourceView* pTex = dx11::SVGTextureCache::Get(s_aTabs[i].sIconPath);
+					if (!pTex)
+						continue;
+
+					float tab_x = tab_bar->BarRect.Min.x + tab.Offset - tab_bar->ScrollingAnim;
+					float tab_center_y = tab_bar->BarRect.Min.y + (tab_bar->BarRect.GetHeight() - tabIconSize) * 0.5f;
+
+					drawList->AddImage(
+						(ImTextureID)pTex,
+						ImVec2(tab_x + 6.0f, tab_center_y),
+						ImVec2(tab_x + 6.0f + tabIconSize, tab_center_y + tabIconSize)
+					);
+				}
+			}
+
 			ImGui::EndTabBar();
 		}
 
@@ -310,39 +334,39 @@ namespace humongousexplorer::imgui
 					sortSpecs->SpecsDirty = false;
 
 					std::sort(s_aResources.begin(), s_aResources.end(), [this](const ResourceEntry& a, const ResourceEntry& b)
-					{
-						int cmp = 0;
-						switch (m_iSortColumn)
 						{
-							case 0:
-							case 1:
+							int cmp = 0;
+							switch (m_iSortColumn)
 							{
-								cmp = compare_size_t(a.m_iOrder, b.m_iOrder);
-								break;
+								case 0:
+								case 1:
+								{
+									cmp = compare_size_t(a.m_iOrder, b.m_iOrder);
+									break;
+								}
+								case 2:
+								{
+									cmp = a.sName.compare(b.sName);
+									break;
+								}
+								case 3:
+								{
+									cmp = resources::GetNameFromResourceType(a.eType).compare(resources::GetNameFromResourceType(b.eType));
+									break;
+								}
+								case 4:
+								{
+									cmp = a.sSize.compare(b.sSize);
+									break;
+								}
+								case 5:
+								{
+									cmp = a.sDimensions.compare(b.sDimensions);
+									break;
+								}
 							}
-							case 2:
-							{
-								cmp = a.sName.compare(b.sName); 
-								break;
-							}
-							case 3:
-							{
-								cmp = resources::GetNameFromResourceType(a.eType).compare(resources::GetNameFromResourceType(b.eType)); 
-								break;
-							}
-							case 4:
-							{
-								cmp = a.sSize.compare(b.sSize); 
-								break;
-							}
-							case 5:
-							{
-								cmp = a.sDimensions.compare(b.sDimensions); 
-								break;
-							}
-						}
-						return m_bSortAscending ? cmp < 0 : cmp > 0;
-					});
+							return m_bSortAscending ? cmp < 0 : cmp > 0;
+						});
 				}
 			}
 
