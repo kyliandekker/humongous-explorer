@@ -82,7 +82,7 @@ namespace humongousexplorer::resources
 			}
 			case ResourceType::Talkie:
 			{
-				return "Talkies";
+				return "Talkie";
 			}
 			case ResourceType::SFX:
 			{
@@ -90,35 +90,35 @@ namespace humongousexplorer::resources
 			}
 			case ResourceType::Song:
 			{
-				return "Songs";
+				return "Song";
 			}
 			case ResourceType::RoomBackground:
 			{
-				return "Room Backgrounds";
+				return "Room Background";
 			}
 			case ResourceType::RoomImage:
 			{
-				return "Sprites";
+				return "Room Sprite";
 			}
 			case ResourceType::RoomImageLayer:
 			{
-				return "Room Image Layers";
+				return "Room Sprite (Layered)";
 			}
 			case ResourceType::LocalScript:
 			{
-				return "Local Scripts";
+				return "Local Script";
 			}
 			case ResourceType::GlobalScript:
 			{
-				return "Global Scripts";
+				return "Global Script";
 			}
 			case ResourceType::VerbScript:
 			{
-				return "Verb Scripts";
+				return "Verb Script";
 			}
 			case ResourceType::Room:
 			{
-				return "Rooms";
+				return "Room";
 			}
 		}
 		return "";

@@ -156,12 +156,14 @@ namespace humongousexplorer::imgui
         // Tabs
         //==========================================================
 
-        colors[ImGuiCol_Tab] = RGB(28, 35, 47);
-        colors[ImGuiCol_TabHovered] = RGB(55, 67, 90);
+        colors[ImGuiCol_Tab] = RGB(21, 26, 36);
+        colors[ImGuiCol_TabHovered] = RGB(21, 26, 36);
         colors[ImGuiCol_TabActive] = RGB(21, 26, 36);
         colors[ImGuiCol_TabSelected] = RGB(21, 26, 36);
         colors[ImGuiCol_TabDimmed] = RGB(21, 26, 36);
-        colors[ImGuiCol_TabDimmedSelected] = RGB(28, 35, 47);
+        colors[ImGuiCol_TabDimmedSelected] = RGB(21, 26, 36);
+        colors[ImGuiCol_TabDimmedSelectedOverline] = RGB(0, 0, 0, 0);
+        colors[ImGuiCol_TabSelectedOverline] = RGB(0, 0, 0, 0);
 
         //==========================================================
         // Resize grips
@@ -184,11 +186,11 @@ namespace humongousexplorer::imgui
         //==========================================================
 
         colors[ImGuiCol_TableHeaderBg] = RGB(34, 41, 55);
-        colors[ImGuiCol_TableBorderStrong] = RGB(60, 70, 90);
-        colors[ImGuiCol_TableBorderLight] = RGB(48, 56, 72);
+        colors[ImGuiCol_TableBorderStrong] = RGB(0, 0, 0, 0);
+        colors[ImGuiCol_TableBorderLight] = RGB(0, 0, 0, 0);
 
-        colors[ImGuiCol_TableRowBg] = RGB(0, 0, 0, 0);
-        colors[ImGuiCol_TableRowBgAlt] = RGB(255, 255, 255, 8);
+        colors[ImGuiCol_TableRowBg] = RGB(21, 26, 36);
+        colors[ImGuiCol_TableRowBgAlt] = RGB(26, 38, 51);
 
         //==========================================================
         // Selection

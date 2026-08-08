@@ -5,14 +5,14 @@
 
 #include "imgui/Theme.h"
 #include "imgui/windows/EditorWindowDock.h"
-#include "imgui/windows/FilterWindow.h"
+#include "imgui/windows/RoomContentWindow.h"
 #include "imgui/windows/ArchiveContentsWindow.h"
 #include "editor/Workspace.h"
 
 namespace humongousexplorer::imgui
 {
 	EditorWindowDock m_MainDock;
-	FilterWindow m_FilterWindow;
+	RoomContentWindow m_RoomContentWindow;
 	ArchiveContentsWindow m_ArchiveContentsWindow;
 
 	bool m_bDockLayoutSetup = false;
@@ -57,8 +57,8 @@ namespace humongousexplorer::imgui
 
 		ApplyTheme();
 		m_MainDock.Initialize();
-		m_FilterWindow.Initialize();
 		m_ArchiveContentsWindow.Initialize();
+		m_RoomContentWindow.Initialize();
 	}
 
 	//---------------------------------------------------------------------
@@ -67,8 +67,8 @@ namespace humongousexplorer::imgui
 		const ImGuiViewport* viewport = ImGui::GetMainViewport();
 
 		m_MainDock.Render();
-		m_FilterWindow.Render();
 		m_ArchiveContentsWindow.Render();
+		m_RoomContentWindow.Render();
 
 		if (!m_bDockLayoutSetup)
 		{
