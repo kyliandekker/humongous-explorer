@@ -75,7 +75,7 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	bool imgui::ArchiveContentsWindow::Initialize()
 	{
-		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.(a)", resources::ArchiveType::A));
+		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.(a)", resources::ArchiveType::A, {}, ""));
 
 		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.HE0", resources::ArchiveType::HE0,
 			[]()
@@ -87,25 +87,24 @@ namespace humongousexplorer::imgui
 				children.push_back(MakeRoomEntryView("Spywatch"));
 				children.push_back(MakeRoomEntryView("Mobcom"));
 				return children;
-			}()
+			}(), "5 ROOMS"
 		));
 
-		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.HE1", resources::ArchiveType::HE1));
+		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.HE1", resources::ArchiveType::HE1, {}, "253"));
+		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.HE2", resources::ArchiveType::HE2, {}, "32"));
+		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.HE3", resources::ArchiveType::HE3, {}, "12"));
+		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.HE4", resources::ArchiveType::HE4, {}, "54"));
+		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.HE7", resources::ArchiveType::HE7, {}, "68"));
+		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.HE8", resources::ArchiveType::HE8, {}, "43"));
 
-		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.HE2", resources::ArchiveType::HE2));
-
-		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.HE3", resources::ArchiveType::HE3));
-
-		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.HE4", resources::ArchiveType::HE4));
-
-		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.HE7", resources::ArchiveType::HE7));
-
-		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.HE8", resources::ArchiveType::HE8));
-
-		for (size_t i = 0; i < s_aArchives.size(); i++)
-		{
-			s_aArchives[i]->Filter("");
-		}
+		//for (size_t i = 0; i < s_aArchives.size(); i++)
+		//{
+		//	s_aArchives[i]->Filter("");
+		//	if (TextRowEntry* rowEntry = dynamic_cast<TextRowEntry*>(s_aArchives[i]->m_aRows[2].get()))
+		//	{
+		//		rowEntry->m_sText = "";
+		//	}
+		//}
 
 		return HEBaseWindow::Initialize();
 	}

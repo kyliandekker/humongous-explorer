@@ -47,8 +47,6 @@ namespace humongousexplorer::imgui
 	{
 		{ "HELOGO_BACKGROUND", resources::ResourceType::RoomBackground, "245 KB", "320x200" },
 		{ "HELOGO_IMAGE", resources::ResourceType::RoomImage, "128 KB", "320x200" },
-		{ "HELOGO_SCRIPT", resources::ResourceType::LocalScript, "12 KB", "-" },
-		{ "SHARED_SFX_HEINTRO", resources::ResourceType::SFX, "12 KB", "-" },
 		{ "PUTT_IMAGE", resources::ResourceType::RoomImage, "45 KB", "72x72" },
 		{ "PUP_IMAGE", resources::ResourceType::RoomImage, "22 KB", "64x64" },
 		{ "TREE_IMAGE", resources::ResourceType::RoomImage, "68 KB", "128x256" },
@@ -60,7 +58,6 @@ namespace humongousexplorer::imgui
 		{ "CLOUD1_IMAGE", resources::ResourceType::RoomImage, "102 KB", "128x64" },
 		{ "CLOUD2_IMAGE", resources::ResourceType::RoomImage, "99 KB", "160x80" },
 		{ "FENCE_IMAGE", resources::ResourceType::RoomImage, "2 KB", "320x48" },
-		{ "YARD_BACKGROUND", resources::ResourceType::RoomBackground, "312 KB", "640x480" },
 		{ "TALKIE_INTRO_VO", resources::ResourceType::Talkie, "1200 KB", "-" },
 		{ "TALKIE_GREET_VO", resources::ResourceType::Talkie, "850 KB", "-" },
 		{ "TALKIE_BYE_VO", resources::ResourceType::Talkie, "620 KB", "-" },
@@ -164,8 +161,10 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void RoomContentWindow::Update()
 	{
+		// TODO: Set ": Room_Name".
+
 		// Tab bar
-		if (ImGui::BeginTabBar("##RoomTabs", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll))
+		if (ImGui::BeginTabBar(FormatId("", TAB_ID, "RoomResources").c_str(), ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll))
 		{
 			float tabIconSize = ImGui::GetFontSize();
 
