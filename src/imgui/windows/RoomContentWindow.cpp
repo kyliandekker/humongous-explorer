@@ -21,6 +21,7 @@ namespace humongousexplorer::imgui
 		std::string sSize;
 		std::string sDimensions;
 		std::string sFormat;
+		size_t m_iOrder;
 	};
 
 	static std::vector<ResourceEntry> s_aResources =
@@ -55,7 +56,20 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	bool RoomContentWindow::Initialize()
 	{
+		size_t i = 0;
+		for (auto& entry : s_aResources)
+		{
+			entry.m_iOrder = i;
+			i++;
+		}
 		return HEBaseWindow::Initialize();
+	}
+
+	//---------------------------------------------------------------------
+	int compare_size_t(size_t a, size_t b) {
+		if (a < b) return -1;
+		if (a > b) return 1;
+		return 0;
 	}
 
 	//---------------------------------------------------------------------
@@ -181,11 +195,37 @@ namespace humongousexplorer::imgui
 						int cmp = 0;
 						switch (m_iSortColumn)
 						{
-							case 1: cmp = a.sName.compare(b.sName); break;
-							case 2: cmp = resources::GetNameFromResourceType(a.eType).compare(resources::GetNameFromResourceType(b.eType)); break;
-							case 3: cmp = a.sSize.compare(b.sSize); break;
-							case 4: cmp = a.sDimensions.compare(b.sDimensions); break;
-							case 5: cmp = a.sFormat.compare(b.sFormat); break;
+							case 0:
+							case 1:
+							{
+								cmp = compare_size_t(a.m_iOrder, b.m_iOrder);
+								break;
+							}
+							case 2:
+							{
+								cmp = a.sName.compare(b.sName); 
+								break;
+							}
+							case 3:
+							{
+								cmp = resources::GetNameFromResourceType(a.eType).compare(resources::GetNameFromResourceType(b.eType)); 
+								break;
+							}
+							case 4:
+							{
+								cmp = a.sSize.compare(b.sSize); 
+								break;
+							}
+							case 5:
+							{
+								cmp = a.sDimensions.compare(b.sDimensions); 
+								break;
+							}
+							case 6:
+							{
+								cmp = a.sFormat.compare(b.sFormat);
+								break;
+							}
 						}
 						return m_bSortAscending ? cmp < 0 : cmp > 0;
 					});
