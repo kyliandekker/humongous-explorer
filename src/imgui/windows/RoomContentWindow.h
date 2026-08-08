@@ -2,6 +2,7 @@
 
 #include "imgui/windows/HEBaseWindow.h"
 #include "imgui/views/SearchBar.h"
+#include "resources/ResourceType.h"
 
 namespace humongousexplorer::imgui
 {
@@ -34,5 +35,9 @@ namespace humongousexplorer::imgui
 		int m_iSortColumn = -1;
 		bool m_bSortAscending = true;
 		int m_iSelectedRow = -1;
+		int m_iSelectedTab = 0;
+
+		bool MatchesTabFilter(resources::ResourceType a_eType, int a_iTab) const;
+		int CountResourcesForTab(int a_iTab) const;
 	};
 }
