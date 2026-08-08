@@ -67,7 +67,7 @@ namespace humongousexplorer::imgui
 	}
 
 	//---------------------------------------------------------------------
-	FileEntryInteractionType FileEntryView::Render(std::function<bool()> a_fnSelected)
+	FileEntryInteractionType FileEntryView::Render(std::function<bool()> a_fnSelected, float a_fIndent)
 	{
 		FileEntryInteractionType interaction = FileEntryInteractionType::None;
 
@@ -80,7 +80,7 @@ namespace humongousexplorer::imgui
 		float windowWidth = ImGui::GetContentRegionAvail().x;
 		ImVec2 windowPos = ImGui::GetCursorScreenPos();
 
-		ImVec2 rowMin = ImVec2(windowPos.x, windowPos.y);
+		ImVec2 rowMin = ImVec2(windowPos.x + a_fIndent, windowPos.y);
 		ImVec2 rowMax = ImVec2(windowPos.x + windowWidth, rowMin.y + rowHeight);
 
 		// Row background
@@ -140,8 +140,60 @@ namespace humongousexplorer::imgui
 	}
 
 	//---------------------------------------------------------------------
-	FileEntryInteractionType TreeFileEntryView::Render(std::function<bool()> a_fnSelected)
+	FileEntryInteractionType TreeFileEntryView::Render(std::function<bool()> a_fnSelected, float a_fIndent)
 	{
-		return FileEntryInteractionType::None;
+		const float arrowSize = ImGui::GetFontSize();
+		const float indentStep = 20.0f;
+		float arrowIndent = a_fIndent + arrowSize + 4.0f;
+
+		// Draw expand/collapse arrow only if has children
+		if (!m_aChildren.empty())
+		{
+			ImDrawList* drawList = ImGui::GetWindowDrawList();
+			ImVec2 pos = ImGui::GetCursorScreenPos();
+			float rowHeight = ImGui::GetFontSize() + 15;
+
+			ImVec2 center = ImVec2(pos.x + a_fIndent + arrowSize * 0.5f, pos.y + rowHeight * 0.5f);
+			float half = arrowSize * 0.3f;
+
+			if (m_bExpanded)
+			{
+				drawList->AddTriangleFilled(
+					ImVec2(center.x - half, center.y - half * 0.6f),
+					ImVec2(center.x + half, center.y - half * 0.6f),
+					ImVec2(center.x, center.y + half * 0.6f),
+					IM_COL32(135, 145, 165, 255));
+			}
+			else
+			{
+				drawList->AddTriangleFilled(
+					ImVec2(center.x - half * 0.6f, center.y - half),
+					ImVec2(center.x - half * 0.6f, center.y + half),
+					ImVec2(center.x + half * 0.6f, center.y),
+					IM_COL32(135, 145, 165, 255));
+			}
+
+			// Click on arrow toggles expand
+			ImVec2 arrowMin = ImVec2(pos.x + a_fIndent, pos.y);
+			ImVec2 arrowMax = ImVec2(arrowMin.x + arrowSize, arrowMin.y + rowHeight);
+			if (ImGui::IsMouseHoveringRect(arrowMin, arrowMax) && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+			{
+				m_bExpanded = !m_bExpanded;
+			}
+		}
+
+		// Reuse base class rendering for own content
+		FileEntryInteractionType interaction = FileEntryView::Render(a_fnSelected, arrowIndent);
+
+		// Render children if expanded
+		if (m_bExpanded)
+		{
+			for (const std::unique_ptr<FileEntryView>& child : m_aChildren)
+			{
+				child->Render(a_fnSelected, a_fIndent + indentStep);
+			}
+		}
+
+		return interaction;
 	}
 }

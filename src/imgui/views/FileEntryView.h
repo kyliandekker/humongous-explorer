@@ -95,18 +95,20 @@ namespace humongousexplorer::imgui
 
 		std::vector<std::unique_ptr<RowEntry>> m_aRows;
 
-		virtual FileEntryInteractionType Render(std::function<bool()> a_fnSelected);
+		virtual FileEntryInteractionType Render(std::function<bool()> a_fnSelected, float a_fIndent = 0.0f);
 	};
 
 	//---------------------------------------------------------------------
 	struct TreeFileEntryView : public FileEntryView
 	{
-		TreeFileEntryView(std::vector<std::unique_ptr<RowEntry>> a_aRows, std::vector<std::unique_ptr<TreeFileEntryView>> a_aChildren = {}) : FileEntryView(std::move(a_aRows)),
+		TreeFileEntryView(std::vector<std::unique_ptr<RowEntry>> a_aRows, std::vector<std::unique_ptr<FileEntryView>> a_aChildren = {}) : FileEntryView(std::move(a_aRows)),
 			m_aChildren(std::move(a_aChildren))
 		{}
 
-		std::vector<std::unique_ptr<TreeFileEntryView>> m_aChildren;
-		FileEntryInteractionType Render(std::function<bool()> a_fnSelected) override;
+		std::vector<std::unique_ptr<FileEntryView>> m_aChildren;
+		bool m_bExpanded = false;
+
+		FileEntryInteractionType Render(std::function<bool()> a_fnSelected, float a_fIndent = 0.0f);
 	};
 
 	//---------------------------------------------------------------------

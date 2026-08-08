@@ -4,7 +4,7 @@
 #include <string>
 
 #include "imgui/ImGuiSetup.h"
-#include "imgui/FileEntryView.h"
+#include "imgui/views/ResourceFileEntryView.h"
 
 #include "editor/Workspace.h"
 
@@ -12,16 +12,7 @@
 
 namespace humongousexplorer::imgui
 {
-	//---------------------------------------------------------------------
-	struct FilterFileEntryView : public FileEntryView
-	{
-		FilterFileEntryView(resources::ResourceType a_ResourceType, std::vector<std::unique_ptr<RowEntry>> a_aRows) : FileEntryView(std::move(a_aRows)),
-			m_ResourceType(a_ResourceType)
-		{}
-		resources::ResourceType m_ResourceType;
-	};
-
-	static std::vector<FilterFileEntryView> s_aFilters;
+	static std::vector<std::unique_ptr<ResourceFileEntryView>> s_aFilters;
 
 	//---------------------------------------------------------------------
 	// FilterWindow
@@ -31,52 +22,17 @@ namespace humongousexplorer::imgui
 	{}
 
 	//---------------------------------------------------------------------
-	bool imgui::FilterWindow::Initialize()
+	bool FilterWindow::Initialize()
 	{
-		s_aFilters.push_back(FilterFileEntryView(
-			resources::ResourceType::Unknown,
-			MakeRows(MakeIconRow("../icons/icon_all_files.svg"), MakeNameRow("All Types"), MakeCountRow("UNINITIALIZED"))
-		));
-
-		s_aFilters.push_back(FilterFileEntryView(
-			resources::ResourceType::RoomBackground,
-			MakeRows(MakeIconRow("../icons/icon_background.svg"), MakeNameRow("Room Backgrounds"), MakeCountRow("UNINITIALIZED"))
-		));
-
-		s_aFilters.push_back(FilterFileEntryView(
-			resources::ResourceType::RoomImage,
-			MakeRows(MakeIconRow("../icons/icon_image.svg"), MakeNameRow("Sprites"), MakeCountRow("UNINITIALIZED"))
-		));
-
-		s_aFilters.push_back(FilterFileEntryView(
-			resources::ResourceType::Talkie,
-			MakeRows(MakeIconRow("../icons/icon_talkie.svg"), MakeNameRow("Talkies"), MakeCountRow("UNINITIALIZED"))
-		));
-
-		s_aFilters.push_back(FilterFileEntryView(
-			resources::ResourceType::Song,
-			MakeRows(MakeIconRow("../icons/icon_song.svg"), MakeNameRow("Songs"), MakeCountRow("UNINITIALIZED"))
-		));
-
-		s_aFilters.push_back(FilterFileEntryView(
-			resources::ResourceType::SFX,
-			MakeRows(MakeIconRow("../icons/icon_sfx.svg"), MakeNameRow("SFX"), MakeCountRow("UNINITIALIZED"))
-		));
-
-		s_aFilters.push_back(FilterFileEntryView(
-			resources::ResourceType::LocalScript,
-			MakeRows(MakeIconRow("../icons/icon_local_script.svg"), MakeNameRow("Local Scripts"), MakeCountRow("UNINITIALIZED"))
-		));
-
-		s_aFilters.push_back(FilterFileEntryView(
-			resources::ResourceType::GlobalScript,
-			MakeRows(MakeIconRow("../icons/icon_global_script.svg"), MakeNameRow("Global Scripts"), MakeCountRow("UNINITIALIZED"))
-		));
-
-		s_aFilters.push_back(FilterFileEntryView(
-			resources::ResourceType::VerbScript,
-			MakeRows(MakeIconRow("../icons/icon_verb_script.svg"), MakeNameRow("Verb Scripts"), MakeCountRow("UNINITIALIZED"))
-		));
+		s_aFilters.push_back(MakeResourceEntryView(resources::ResourceType::Unknown));
+		s_aFilters.push_back(MakeResourceEntryView(resources::ResourceType::RoomBackground));
+		s_aFilters.push_back(MakeResourceEntryView(resources::ResourceType::RoomImage));
+		s_aFilters.push_back(MakeResourceEntryView(resources::ResourceType::Talkie));
+		s_aFilters.push_back(MakeResourceEntryView(resources::ResourceType::Song));
+		s_aFilters.push_back(MakeResourceEntryView(resources::ResourceType::SFX));
+		s_aFilters.push_back(MakeResourceEntryView(resources::ResourceType::LocalScript));
+		s_aFilters.push_back(MakeResourceEntryView(resources::ResourceType::GlobalScript));
+		s_aFilters.push_back(MakeResourceEntryView(resources::ResourceType::VerbScript));
 
 		UpdateResourceCount();
 
@@ -86,16 +42,16 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void FilterWindow::Update()
 	{
-		for (FilterFileEntryView& view : s_aFilters)
+		for (auto& view : s_aFilters)
 		{
-			FileEntryInteractionType interaction = view.Render([&view]()
+			FileEntryInteractionType interaction = view->Render([&view]()
 			{
-				return GetWorkspace().GetResourceTypeFilter() == view.m_ResourceType;
+				return GetWorkspace().GetResourceTypeFilter() == view->m_ResourceType;
 			});
 
 			if (interaction == FileEntryInteractionType::LeftClicked)
 			{
-				GetWorkspace().SetResourceTypeFilter(view.m_ResourceType);
+				GetWorkspace().SetResourceTypeFilter(view->m_ResourceType);
 			}
 		}
 	}
@@ -103,14 +59,14 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void imgui::FilterWindow::UpdateResourceCount()
 	{
-		for (FilterFileEntryView& view : s_aFilters)
+		for (auto& view : s_aFilters)
 		{
-			if (view.m_aRows.size() < 2)
+			if (view->m_aRows.size() < 2)
 			{
 				continue;
 			}
 
-			if (auto* textEntry = dynamic_cast<TextRowEntry*>(view.m_aRows[2].get()))
+			if (auto* textEntry = dynamic_cast<TextRowEntry*>(view->m_aRows[2].get()))
 			{
 				textEntry->m_sText = "1";
 			}
