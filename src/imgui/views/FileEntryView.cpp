@@ -129,7 +129,7 @@ namespace humongousexplorer::imgui
 					break;
 				}
 			}
-			previousOffset = entryPos.x + row->GetSize().x;
+			previousOffset = entryPos.x - rowMin.x + row->GetSize().x;
 
 			row->Render(entryPos);
 		}

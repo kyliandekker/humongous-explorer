@@ -65,7 +65,7 @@ namespace humongousexplorer::resources
 			}
 			case ResourceType::Room:
 			{
-				return base + "icon_folder_open.svg";
+				return base + "icon_room.svg";
 			}
 		}
 		return "";
