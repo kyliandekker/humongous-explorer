@@ -190,7 +190,7 @@ namespace humongousexplorer::imgui
 		{
 			for (const std::unique_ptr<FileEntryView>& child : m_aChildren)
 			{
-				child->Render(a_fnSelected, a_fIndent + indentStep);
+				child->Render(a_fnSelected, arrowIndent + indentStep);
 			}
 		}
 

@@ -15,6 +15,22 @@ namespace humongousexplorer::imgui
 	static std::vector<std::unique_ptr<ResourceFileEntryView>> s_aFilters;
 
 	//---------------------------------------------------------------------
+	std::unique_ptr<ResourceFileEntryView> MakeFilterEntryView(
+		resources::ResourceType a_eType,
+		const std::string& a_sCount = "UNINITIALIZED"
+	)
+	{
+		return std::make_unique<ResourceFileEntryView>(
+			a_eType,
+			MakeRows(
+				MakeIconRow(resources::GetIconFromResourceType(a_eType)),
+				MakeNameRow(resources::GetNameFromResourceType(a_eType)),
+				MakeCountRow(a_sCount)
+			)
+		);
+	}
+
+	//---------------------------------------------------------------------
 	// FilterWindow
 	//---------------------------------------------------------------------
 	FilterWindow::FilterWindow()
@@ -24,15 +40,15 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	bool FilterWindow::Initialize()
 	{
-		s_aFilters.push_back(MakeResourceEntryView(resources::ResourceType::Unknown));
-		s_aFilters.push_back(MakeResourceEntryView(resources::ResourceType::RoomBackground));
-		s_aFilters.push_back(MakeResourceEntryView(resources::ResourceType::RoomImage));
-		s_aFilters.push_back(MakeResourceEntryView(resources::ResourceType::Talkie));
-		s_aFilters.push_back(MakeResourceEntryView(resources::ResourceType::Song));
-		s_aFilters.push_back(MakeResourceEntryView(resources::ResourceType::SFX));
-		s_aFilters.push_back(MakeResourceEntryView(resources::ResourceType::LocalScript));
-		s_aFilters.push_back(MakeResourceEntryView(resources::ResourceType::GlobalScript));
-		s_aFilters.push_back(MakeResourceEntryView(resources::ResourceType::VerbScript));
+		s_aFilters.push_back(MakeFilterEntryView(resources::ResourceType::Unknown));
+		s_aFilters.push_back(MakeFilterEntryView(resources::ResourceType::RoomBackground));
+		s_aFilters.push_back(MakeFilterEntryView(resources::ResourceType::RoomImage));
+		s_aFilters.push_back(MakeFilterEntryView(resources::ResourceType::Talkie));
+		s_aFilters.push_back(MakeFilterEntryView(resources::ResourceType::Song));
+		s_aFilters.push_back(MakeFilterEntryView(resources::ResourceType::SFX));
+		s_aFilters.push_back(MakeFilterEntryView(resources::ResourceType::LocalScript));
+		s_aFilters.push_back(MakeFilterEntryView(resources::ResourceType::GlobalScript));
+		s_aFilters.push_back(MakeFilterEntryView(resources::ResourceType::VerbScript));
 
 		UpdateResourceCount();
 

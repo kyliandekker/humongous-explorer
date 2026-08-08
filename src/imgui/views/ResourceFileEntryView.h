@@ -1,8 +1,11 @@
 #pragma once
 
 #include "imgui/views/FileEntryView.h"
-#include "resources/ResourceType.h"
 
+namespace humongousexplorer::resources
+{
+	enum class ResourceType;
+}
 namespace humongousexplorer::imgui
 {
 	//---------------------------------------------------------------------
@@ -12,20 +15,4 @@ namespace humongousexplorer::imgui
 
 		resources::ResourceType m_ResourceType;
 	};
-
-	//---------------------------------------------------------------------
-	inline std::unique_ptr<ResourceFileEntryView> MakeResourceEntryView(
-		resources::ResourceType a_eType,
-		const std::string& a_sCount = "UNINITIALIZED"
-	)
-	{
-		return std::make_unique<ResourceFileEntryView>(
-			a_eType,
-			MakeRows(
-				MakeIconRow(resources::GetIconFromResourceType(a_eType)),
-				MakeNameRow(resources::GetNameFromResourceType(a_eType)),
-				MakeCountRow(a_sCount)
-			)
-		);
-	}
 }

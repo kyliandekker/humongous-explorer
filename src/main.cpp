@@ -56,7 +56,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX11_Init(humongousexplorer::GetDX11System().GetDevice(), humongousexplorer::GetDX11System().GetDeviceContext());
 
-    ImVec4 clearColor = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
+    ImColor clearColor = IM_COL32(21, 26, 36, 255);
 
     humongousexplorer::GetWorkspace().Initialize();
     humongousexplorer::imgui::Initialize();
@@ -82,7 +82,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
         humongousexplorer::imgui::Render();
 
         ImGui::Render();
-        const float clear_color_with_alpha[4] = { clearColor.x * clearColor.w, clearColor.y * clearColor.w, clearColor.z * clearColor.w, clearColor.w };
+        const float clear_color_with_alpha[4] = { clearColor.Value.x * clearColor.Value.w, clearColor.Value.y * clearColor.Value.w, clearColor.Value.z * clearColor.Value.w, clearColor.Value.w };
         humongousexplorer::GetDX11System().BeginFrame(clear_color_with_alpha);
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 

@@ -68,6 +68,7 @@ namespace humongousexplorer::resources
 				return base + "icon_folder_open.svg";
 			}
 		}
+		return "";
 	}
 
 	//---------------------------------------------------------------------
