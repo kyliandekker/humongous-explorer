@@ -1,6 +1,6 @@
 #pragma once
 
-#include "imgui/windows/BaseWindow.h"
+#include "imgui/windows/HEBaseWindow.h"
 #include "imgui/views/SearchBar.h"
 
 namespace humongousexplorer::imgui
@@ -11,7 +11,7 @@ namespace humongousexplorer::imgui
 	/// <summary>
 	/// A window for inspecting resources in a room.
 	/// </summary>
-	class RoomContentWindow : public BaseWindow
+	class RoomContentWindow : public HEBaseWindow
 	{
 	public:
 		/// <summary>

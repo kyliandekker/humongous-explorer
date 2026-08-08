@@ -34,7 +34,7 @@ namespace humongousexplorer::imgui
 	// FilterWindow
 	//---------------------------------------------------------------------
 	FilterWindow::FilterWindow()
-		: BaseWindow(ImGuiWindowFlags_NoCollapse, "FILTER BY TYPE", "FilterWindow")
+		: HEBaseWindow(ImGuiWindowFlags_NoCollapse, "FILTER BY TYPE", "FilterWindow")
 	{}
 
 	//---------------------------------------------------------------------
@@ -52,13 +52,12 @@ namespace humongousexplorer::imgui
 
 		UpdateResourceCount();
 
-		return BaseWindow::Initialize();
+		return HEBaseWindow::Initialize();
 	}
 
 	//---------------------------------------------------------------------
 	void FilterWindow::Update()
 	{
-		ImGui::PopFont();
 		for (auto& view : s_aFilters)
 		{
 			FileEntryInteractionType interaction = view->Render([&view]()

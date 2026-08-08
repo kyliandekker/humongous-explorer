@@ -7,6 +7,12 @@
 
 namespace humongousexplorer::imgui
 {
+	ImFont* GetBoldFont();
+	ImFont* GetDefaultFont();
+}
+
+namespace humongousexplorer::imgui
+{
 	//---------------------------------------------------------------------
 	// BaseWindow
 	//---------------------------------------------------------------------
@@ -36,11 +42,13 @@ namespace humongousexplorer::imgui
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetFontSize(), ImGui::GetFontSize()));
 		if (m_bHideCloseButton)
 		{
-			return ImGui::Begin(FormatId(m_sName, WINDOW_ID, m_sWindowID).c_str(), nullptr, m_Flags);
+			bool open = ImGui::Begin(FormatId(m_sName, WINDOW_ID, m_sWindowID).c_str(), nullptr, m_Flags);
+			return open;
 		}
 		else
 		{
-			return ImGui::Begin(FormatId(m_sName, WINDOW_ID, m_sWindowID).c_str(), &m_bEnabled, m_Flags);
+			bool open = ImGui::Begin(FormatId(m_sName, WINDOW_ID, m_sWindowID).c_str(), &m_bEnabled, m_Flags);
+			return open;
 		}
 	}
 

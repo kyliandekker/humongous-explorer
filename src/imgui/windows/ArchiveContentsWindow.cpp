@@ -74,7 +74,7 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	// ArchiveContentsWindow
 	//---------------------------------------------------------------------
-	ArchiveContentsWindow::ArchiveContentsWindow() : BaseWindow(ImGuiWindowFlags_NoCollapse, "ARCHIVE CONTENTS", "ArchiveContentsWindow"),
+	ArchiveContentsWindow::ArchiveContentsWindow() : HEBaseWindow(ImGuiWindowFlags_NoCollapse, "ARCHIVE CONTENTS", "ArchiveContentsWindow"),
 		m_SearchBar("ArchiveSearchbar", "Search archives...")
 	{
 	}
@@ -114,7 +114,7 @@ namespace humongousexplorer::imgui
 			s_aArchives[i]->Filter("");
 		}
 
-		return BaseWindow::Initialize();
+		return HEBaseWindow::Initialize();
 	}
 
 	//---------------------------------------------------------------------

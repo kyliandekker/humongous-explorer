@@ -110,6 +110,7 @@ namespace humongousexplorer::imgui
 		// Click detection
 		if (ImGui::IsMouseHoveringRect(rowMin, rowMax))
 		{
+			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
 			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 			{
 				interaction = FileEntryInteractionType::LeftClicked;

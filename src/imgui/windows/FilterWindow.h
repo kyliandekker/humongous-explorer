@@ -1,6 +1,6 @@
 #pragma once
 
-#include "imgui/windows/BaseWindow.h"
+#include "imgui/windows/HEBaseWindow.h"
 
 namespace humongousexplorer::imgui
 {
@@ -10,7 +10,7 @@ namespace humongousexplorer::imgui
 	/// <summary>
 	/// A window for filtering by type.
 	/// </summary>
-	class FilterWindow : public BaseWindow
+	class FilterWindow : public HEBaseWindow
 	{
 	public:
 		/// <summary>

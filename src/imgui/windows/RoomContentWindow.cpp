@@ -10,6 +10,7 @@
 #include "resources/ResourceType.h"
 #include "dx11/SVGTextureCache.h"
 #include "utils/string_extensions.h"
+#include "imgui/Helpers.h"
 
 namespace humongousexplorer::imgui
 {
@@ -24,21 +25,21 @@ namespace humongousexplorer::imgui
 
 	static std::vector<ResourceEntry> s_aResources =
 	{
-		{ "HELOGO_BACKGROUND", resources::ResourceType::RoomBackground, "245 KB", "320x200", "WAL" }, 
-		{ "HELOGO_IMAGE", resources::ResourceType::RoomImage, "128 KB", "320x200", "BMP" }, 
-		{ "HELOGO_SCRIPT", resources::ResourceType::LocalScript, "12 KB", "-", "SCRP" }, 
-		{ "INTERFACE_IMAGE", resources::ResourceType::RoomImage, "96 KB", "640x480", "BMP" }, 
-		{ "INTERFACE_GLOBALSCRIPT", resources::ResourceType::GlobalScript, "8 KB", "-", "SCRP" }, 
-		{ "SAVELOAD_IMAGE", resources::ResourceType::RoomImage, "64 KB", "320x200", "BMP" }, 
-		{ "SAVELOAD_VERBSCRIPT", resources::ResourceType::VerbScript, "16 KB", "-", "SCRP" }, 
-		{ "SPYWATCH_IMAGE", resources::ResourceType::RoomImage, "112 KB", "640x480", "BMP" }, 
-		{ "SPYWATCH_LOCALSCRIPT", resources::ResourceType::LocalScript, "10 KB", "-", "SCRP" }, 
-		{ "MOBCOM_IMAGE", resources::ResourceType::RoomImage, "84 KB", "640x480", "BMP" }, 
-		{ "MOBCOM_LOCALSCRIPT", resources::ResourceType::LocalScript, "14 KB", "-", "SCRP" }, 
-		{ "SHARED_TALKIE_VOICE1", resources::ResourceType::Talkie, "1.2 MB", "-", "SOU" }, 
-		{ "SHARED_TALKIE_VOICE2", resources::ResourceType::Talkie, "980 KB", "-", "SOU" }, 
-		{ "SHARED_SONG_BACKGROUND", resources::ResourceType::Song, "3.4 MB", "-", "SOU" }, 
-		{ "SHARED_SFX_DOOR", resources::ResourceType::SFX, "24 KB", "-", "SOU" }, 
+		{ "HELOGO_BACKGROUND", resources::ResourceType::RoomBackground, "245 KB", "320x200", "WAL" },
+		{ "HELOGO_IMAGE", resources::ResourceType::RoomImage, "128 KB", "320x200", "BMP" },
+		{ "HELOGO_SCRIPT", resources::ResourceType::LocalScript, "12 KB", "-", "SCRP" },
+		{ "INTERFACE_IMAGE", resources::ResourceType::RoomImage, "96 KB", "640x480", "BMP" },
+		{ "INTERFACE_GLOBALSCRIPT", resources::ResourceType::GlobalScript, "8 KB", "-", "SCRP" },
+		{ "SAVELOAD_IMAGE", resources::ResourceType::RoomImage, "64 KB", "320x200", "BMP" },
+		{ "SAVELOAD_VERBSCRIPT", resources::ResourceType::VerbScript, "16 KB", "-", "SCRP" },
+		{ "SPYWATCH_IMAGE", resources::ResourceType::RoomImage, "112 KB", "640x480", "BMP" },
+		{ "SPYWATCH_LOCALSCRIPT", resources::ResourceType::LocalScript, "10 KB", "-", "SCRP" },
+		{ "MOBCOM_IMAGE", resources::ResourceType::RoomImage, "84 KB", "640x480", "BMP" },
+		{ "MOBCOM_LOCALSCRIPT", resources::ResourceType::LocalScript, "14 KB", "-", "SCRP" },
+		{ "SHARED_TALKIE_VOICE1", resources::ResourceType::Talkie, "1.2 MB", "-", "SOU" },
+		{ "SHARED_TALKIE_VOICE2", resources::ResourceType::Talkie, "980 KB", "-", "SOU" },
+		{ "SHARED_SONG_BACKGROUND", resources::ResourceType::Song, "3.4 MB", "-", "SOU" },
+		{ "SHARED_SFX_DOOR", resources::ResourceType::SFX, "24 KB", "-", "SOU" },
 		{ "SHARED_SFX_FOOTSTEP", resources::ResourceType::SFX, "12 KB", "-", "SOU" },
 	};
 
@@ -46,7 +47,7 @@ namespace humongousexplorer::imgui
 	// RoomContentWindow
 	//---------------------------------------------------------------------
 	RoomContentWindow::RoomContentWindow()
-		: BaseWindow(ImGuiWindowFlags_NoCollapse, "ROOM CONTENT", "RoomContentWindow"),
+		: HEBaseWindow(ImGuiWindowFlags_NoCollapse, "ROOM CONTENT", "RoomContentWindow"),
 		m_SearchBar("RoomSearchbar", "Search resources...")
 	{
 	}
@@ -54,7 +55,7 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	bool RoomContentWindow::Initialize()
 	{
-		return BaseWindow::Initialize();
+		return HEBaseWindow::Initialize();
 	}
 
 	//---------------------------------------------------------------------
@@ -66,7 +67,7 @@ namespace humongousexplorer::imgui
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.0f, 2.0f));
 
-		if (ImGui::BeginTable("ResourceTable", 6,
+		if (ImGui::BeginTable("ResourceTable", 7,
 			ImGuiTableFlags_Borders |
 			ImGuiTableFlags_RowBg |
 			ImGuiTableFlags_Resizable |
@@ -75,6 +76,7 @@ namespace humongousexplorer::imgui
 			ImGuiTableFlags_SizingStretchProp))
 		{
 			ImGui::TableSetupScrollFreeze(0, 1);
+			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, 0);
 			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, ImGui::GetFontSize() + 8.0f);
 			ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 3.0f);
 			ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch, 2.0f);
@@ -102,11 +104,33 @@ namespace humongousexplorer::imgui
 
 				ImGui::TableNextRow();
 
+				ImGui::TableNextColumn();
+
+				ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0, 0, 0, 0));          // disables background
+				ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0, 0, 0, 0));   // disables hover highlight
+				ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0, 0, 0, 0));    // disables pressed highlight
+
 				bool isSelected = (m_iSelectedRow == static_cast<int>(i));
 				if (isSelected)
 				{
-					ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, IM_COL32(80, 60, 135, 255));
+					ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0,
+						IM_COL32(80, 60, 135, 255));
 				}
+
+				// This spans the entire row internally.
+				if (ImGui::Selectable(
+					FormatId("", SELECTABLE_ID, m_sName, "ROW", std::to_string(i)).c_str(),
+					isSelected,
+					ImGuiSelectableFlags_SpanAllColumns,
+					ImVec2(0.0f, 0.0f)
+				))
+				{
+					m_iSelectedRow = static_cast<int>(i);
+				}
+
+				ImGui::PopStyleColor();
+				ImGui::PopStyleColor();
+				ImGui::PopStyleColor();
 
 				ImGui::TableNextColumn();
 				{
@@ -120,52 +144,27 @@ namespace humongousexplorer::imgui
 							ImVec2(pos.x + iconSize, pos.y + (rowHeight + iconSize) * 0.5f)
 						);
 					}
-					ImGui::Dummy(ImVec2(iconSize, rowHeight));
-					if (ImGui::IsItemClicked())
-					{
-						m_iSelectedRow = static_cast<int>(i);
-					}
 				}
 
 				ImGui::TableNextColumn();
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(entry.sName.c_str());
-				if (ImGui::IsItemClicked())
-				{
-					m_iSelectedRow = static_cast<int>(i);
-				}
 
 				ImGui::TableNextColumn();
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(resources::GetNameFromResourceType(entry.eType).c_str());
-				if (ImGui::IsItemClicked())
-				{
-					m_iSelectedRow = static_cast<int>(i);
-				}
 
 				ImGui::TableNextColumn();
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(entry.sSize.c_str());
-				if (ImGui::IsItemClicked())
-				{
-					m_iSelectedRow = static_cast<int>(i);
-				}
 
 				ImGui::TableNextColumn();
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(entry.sDimensions.c_str());
-				if (ImGui::IsItemClicked())
-				{
-					m_iSelectedRow = static_cast<int>(i);
-				}
 
 				ImGui::TableNextColumn();
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(entry.sFormat.c_str());
-				if (ImGui::IsItemClicked())
-				{
-					m_iSelectedRow = static_cast<int>(i);
-				}
 			}
 
 			if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs())

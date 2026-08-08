@@ -2,6 +2,7 @@
 
 #include <imgui/imgui_internal.h>
 #include <imgui/font_arial.h>
+#include <win32/WINPCH.h>
 
 #include "imgui/Theme.h"
 #include "imgui/windows/EditorWindowDock.h"
@@ -42,13 +43,13 @@ namespace humongousexplorer::imgui
 
 		(void)io;
 
-		ImFontConfig font_config_default;
-		font_config_default.FontDataOwnedByAtlas = false;
-		m_pDefaultFont = io.Fonts->AddFontFromMemoryTTF(&font::arial, sizeof(font::arial), 15, &font_config_default);
-
 		ImFontConfig font_config_bold;
 		font_config_bold.FontDataOwnedByAtlas = false;
 		m_pBoldFont = io.Fonts->AddFontFromMemoryTTF(&font::arialBold, sizeof(font::arialBold), 15, &font_config_bold);
+
+		ImFontConfig font_config_default;
+		font_config_default.FontDataOwnedByAtlas = false;
+		m_pDefaultFont = io.Fonts->AddFontFromMemoryTTF(&font::arial, sizeof(font::arial), 15, &font_config_default);
 
 		io.Fonts->Build();
 
@@ -78,6 +79,68 @@ namespace humongousexplorer::imgui
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
 
 		ImGui::PopStyleVar();
+	}
+
+	void UpdateMouseCursor()
+	{
+		if (ImGui::IsAnyItemHovered() && ImGui::GetMouseCursor() == ImGuiMouseCursor_Arrow)
+		{
+			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+		}
+
+		LPTSTR win32_cursor = IDC_ARROW;
+		ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
+		switch (imgui_cursor)
+		{
+			case ImGuiMouseCursor_TextInput:
+			{
+				win32_cursor = IDC_IBEAM;
+				break;
+			}
+			case ImGuiMouseCursor_ResizeAll:
+			{
+				win32_cursor = IDC_SIZEALL;
+				break;
+			}
+			case ImGuiMouseCursor_ResizeNS:
+			{
+				win32_cursor = IDC_SIZENS;
+				break;
+			}
+			case ImGuiMouseCursor_ResizeEW:
+			{
+				win32_cursor = IDC_SIZEWE;
+				break;
+			}
+			case ImGuiMouseCursor_ResizeNESW:
+			{
+				win32_cursor = IDC_SIZENESW;
+				break;
+			}
+			case ImGuiMouseCursor_ResizeNWSE:
+			{
+				win32_cursor = IDC_SIZENWSE;
+				break;
+			}
+			case ImGuiMouseCursor_Hand:
+			{
+				win32_cursor = IDC_HAND;
+				break;
+			}
+			case ImGuiMouseCursor_NotAllowed:
+			{
+				win32_cursor = IDC_NO;
+				break;
+			}
+			default:
+			{
+				win32_cursor = IDC_ARROW;
+				break;
+			}
+		}
+
+		// Set the system cursor using Win32 API
+		::SetCursor(LoadCursor(NULL, win32_cursor));
 	}
 
 	//---------------------------------------------------------------------

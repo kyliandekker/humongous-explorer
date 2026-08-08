@@ -81,6 +81,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
 
         humongousexplorer::imgui::Render();
 
+        humongousexplorer::imgui::UpdateMouseCursor();
+
         ImGui::Render();
         const float clear_color_with_alpha[4] = { clearColor.Value.x * clearColor.Value.w, clearColor.Value.y * clearColor.Value.w, clearColor.Value.z * clearColor.Value.w, clearColor.Value.w };
         humongousexplorer::GetDX11System().BeginFrame(clear_color_with_alpha);
