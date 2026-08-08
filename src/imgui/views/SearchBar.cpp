@@ -19,7 +19,7 @@ namespace humongousexplorer::imgui
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(textOffset, 6.0f));
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(35, 42, 58, 255));
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1);
 
 		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 		changed = ImGui::InputTextWithHint(FormatId("", SEARCHBAR_ID, m_sName).c_str(), m_sHint.c_str(), m_aBuffer, sizeof(m_aBuffer));
@@ -37,8 +37,7 @@ namespace humongousexplorer::imgui
 			);
 		}
 
-		ImGui::PopStyleColor();
-		ImGui::PopStyleVar(2);
+		ImGui::PopStyleVar(3);
 
 		return changed;
 	}

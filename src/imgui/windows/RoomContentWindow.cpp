@@ -20,28 +20,15 @@ namespace humongousexplorer::imgui
 		resources::ResourceType eType;
 		std::string sSize;
 		std::string sDimensions;
-		std::string sFormat;
 		size_t m_iOrder;
 	};
 
 	static std::vector<ResourceEntry> s_aResources =
 	{
-		{ "HELOGO_BACKGROUND", resources::ResourceType::RoomBackground, "245 KB", "320x200", "WAL" },
-		{ "HELOGO_IMAGE", resources::ResourceType::RoomImage, "128 KB", "320x200", "BMP" },
-		{ "HELOGO_SCRIPT", resources::ResourceType::LocalScript, "12 KB", "-", "SCRP" },
-		{ "INTERFACE_IMAGE", resources::ResourceType::RoomImage, "96 KB", "640x480", "BMP" },
-		{ "INTERFACE_GLOBALSCRIPT", resources::ResourceType::GlobalScript, "8 KB", "-", "SCRP" },
-		{ "SAVELOAD_IMAGE", resources::ResourceType::RoomImage, "64 KB", "320x200", "BMP" },
-		{ "SAVELOAD_VERBSCRIPT", resources::ResourceType::VerbScript, "16 KB", "-", "SCRP" },
-		{ "SPYWATCH_IMAGE", resources::ResourceType::RoomImage, "112 KB", "640x480", "BMP" },
-		{ "SPYWATCH_LOCALSCRIPT", resources::ResourceType::LocalScript, "10 KB", "-", "SCRP" },
-		{ "MOBCOM_IMAGE", resources::ResourceType::RoomImage, "84 KB", "640x480", "BMP" },
-		{ "MOBCOM_LOCALSCRIPT", resources::ResourceType::LocalScript, "14 KB", "-", "SCRP" },
-		{ "SHARED_TALKIE_VOICE1", resources::ResourceType::Talkie, "1.2 MB", "-", "SOU" },
-		{ "SHARED_TALKIE_VOICE2", resources::ResourceType::Talkie, "980 KB", "-", "SOU" },
-		{ "SHARED_SONG_BACKGROUND", resources::ResourceType::Song, "3.4 MB", "-", "SOU" },
-		{ "SHARED_SFX_DOOR", resources::ResourceType::SFX, "24 KB", "-", "SOU" },
-		{ "SHARED_SFX_FOOTSTEP", resources::ResourceType::SFX, "12 KB", "-", "SOU" },
+		{ "HELOGO_BACKGROUND", resources::ResourceType::RoomBackground, "245 KB", "320x200" },
+		{ "HELOGO_IMAGE", resources::ResourceType::RoomImage, "128 KB", "320x200" },
+		{ "HELOGO_SCRIPT", resources::ResourceType::LocalScript, "12 KB", "-" },
+		{ "SHARED_SFX_HEINTRO", resources::ResourceType::SFX, "12 KB", "-" },
 	};
 
 	//---------------------------------------------------------------------
@@ -96,7 +83,6 @@ namespace humongousexplorer::imgui
 			ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch, 2.0f);
 			ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthStretch, 1.0f);
 			ImGui::TableSetupColumn("Dimensions", ImGuiTableColumnFlags_WidthStretch, 1.0f);
-			ImGui::TableSetupColumn("Format", ImGuiTableColumnFlags_WidthStretch, 1.0f);
 			ImGui::TableHeadersRow();
 
 			ImVec2 avail = ImGui::GetContentRegionAvail();
@@ -125,11 +111,6 @@ namespace humongousexplorer::imgui
 				ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0, 0, 0, 0));    // disables pressed highlight
 
 				bool isSelected = (m_iSelectedRow == static_cast<int>(i));
-				if (isSelected)
-				{
-					ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0,
-						IM_COL32(80, 60, 135, 255));
-				}
 
 				// This spans the entire row internally.
 				if (ImGui::Selectable(
@@ -140,6 +121,16 @@ namespace humongousexplorer::imgui
 				))
 				{
 					m_iSelectedRow = static_cast<int>(i);
+				}
+				if (ImGui::IsItemHovered())
+				{
+					ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0,
+						ImGui::ColorConvertFloat4ToU32(imgui::ExtraColors[imgui::ImGuiExtraCol_AccentHovered]));
+				}
+				if (isSelected)
+				{
+					ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0,
+						ImGui::ColorConvertFloat4ToU32(imgui::ExtraColors[imgui::ImGuiExtraCol_Accent]));
 				}
 
 				ImGui::PopStyleColor();
@@ -175,10 +166,6 @@ namespace humongousexplorer::imgui
 				ImGui::TableNextColumn();
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(entry.sDimensions.c_str());
-
-				ImGui::TableNextColumn();
-				ImGui::AlignTextToFramePadding();
-				ImGui::TextUnformatted(entry.sFormat.c_str());
 			}
 
 			if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs())
@@ -219,11 +206,6 @@ namespace humongousexplorer::imgui
 							case 5:
 							{
 								cmp = a.sDimensions.compare(b.sDimensions); 
-								break;
-							}
-							case 6:
-							{
-								cmp = a.sFormat.compare(b.sFormat);
 								break;
 							}
 						}

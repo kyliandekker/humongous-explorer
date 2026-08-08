@@ -2,6 +2,8 @@
 
 #include <imgui/imgui.h>
 
+#include "imgui/ImGuiSetup.h"
+
 namespace humongousexplorer::imgui
 {
     //---------------------------------------------------------------------
@@ -74,14 +76,23 @@ namespace humongousexplorer::imgui
         // Text
         //==========================================================
 
-        colors[ImGuiCol_Text] = RGB(236, 239, 244);
+        colors[ImGuiCol_Text] = RGB(209, 211, 212);
         colors[ImGuiCol_TextDisabled] = RGB(135, 145, 165);
+
+        //==========================================================
+        // Frames
+        //==========================================================
+
+        ImColor fr = RGB(24, 35, 47);
+        colors[ImGuiCol_FrameBg] = RGB(20, 30, 41);
+        colors[ImGuiCol_FrameBgHovered] = RGB(55, 67, 90);
+        colors[ImGuiCol_FrameBgActive] = RGB(80, 60, 135);
 
         //==========================================================
         // Windows
         //==========================================================
 
-        colors[ImGuiCol_WindowBg] = RGB(21, 26, 36);
+        colors[ImGuiCol_WindowBg] = fr;
         colors[ImGuiCol_ChildBg] = RGB(28, 35, 47);
         colors[ImGuiCol_PopupBg] = RGB(33, 40, 55);
 
@@ -89,24 +100,16 @@ namespace humongousexplorer::imgui
         // Borders
         //==========================================================
 
-        colors[ImGuiCol_Border] = RGB(60, 70, 90);
+        colors[ImGuiCol_Border] = RGB(44, 54, 69);
         colors[ImGuiCol_BorderShadow] = RGB(0, 0, 0, 0);
-
-        //==========================================================
-        // Frames
-        //==========================================================
-
-        colors[ImGuiCol_FrameBg] = RGB(36, 45, 60);
-        colors[ImGuiCol_FrameBgHovered] = RGB(55, 67, 90);
-        colors[ImGuiCol_FrameBgActive] = RGB(80, 60, 135);
 
         //==========================================================
         // Title
         //==========================================================
 
-        colors[ImGuiCol_TitleBg] = RGB(21, 26, 36);
-        colors[ImGuiCol_TitleBgActive] = RGB(21, 26, 36);
-        colors[ImGuiCol_TitleBgCollapsed] = RGB(21, 26, 36);
+        colors[ImGuiCol_TitleBg] = fr;
+        colors[ImGuiCol_TitleBgActive] = fr;
+        colors[ImGuiCol_TitleBgCollapsed] = fr;
 
         //==========================================================
         // Menu
@@ -156,12 +159,12 @@ namespace humongousexplorer::imgui
         // Tabs
         //==========================================================
 
-        colors[ImGuiCol_Tab] = RGB(21, 26, 36);
-        colors[ImGuiCol_TabHovered] = RGB(21, 26, 36);
-        colors[ImGuiCol_TabActive] = RGB(21, 26, 36);
-        colors[ImGuiCol_TabSelected] = RGB(21, 26, 36);
-        colors[ImGuiCol_TabDimmed] = RGB(21, 26, 36);
-        colors[ImGuiCol_TabDimmedSelected] = RGB(21, 26, 36);
+        colors[ImGuiCol_Tab] = fr;
+        colors[ImGuiCol_TabHovered] = fr;
+        colors[ImGuiCol_TabActive] = fr;
+        colors[ImGuiCol_TabSelected] = fr;
+        colors[ImGuiCol_TabDimmed] = fr;
+        colors[ImGuiCol_TabDimmedSelected] = fr;
         colors[ImGuiCol_TabDimmedSelectedOverline] = RGB(0, 0, 0, 0);
         colors[ImGuiCol_TabSelectedOverline] = RGB(0, 0, 0, 0);
 
@@ -189,8 +192,8 @@ namespace humongousexplorer::imgui
         colors[ImGuiCol_TableBorderStrong] = RGB(0, 0, 0, 0);
         colors[ImGuiCol_TableBorderLight] = RGB(0, 0, 0, 0);
 
-        colors[ImGuiCol_TableRowBg] = RGB(21, 26, 36);
-        colors[ImGuiCol_TableRowBgAlt] = RGB(26, 38, 51);
+        colors[ImGuiCol_TableRowBg] = RGB(27, 37, 50);
+        colors[ImGuiCol_TableRowBgAlt] = RGB(25, 35, 47);
 
         //==========================================================
         // Selection
@@ -203,7 +206,7 @@ namespace humongousexplorer::imgui
         //==========================================================
 
         colors[ImGuiCol_DockingPreview] = RGB(138, 94, 255, 180);
-        colors[ImGuiCol_DockingEmptyBg] = RGB(21, 26, 36);
+        colors[ImGuiCol_DockingEmptyBg] = fr;
 
         //==========================================================
         // Navigation
@@ -213,9 +216,17 @@ namespace humongousexplorer::imgui
         colors[ImGuiCol_NavWindowingHighlight] = RGB(170, 135, 255);
 
         //----------------------------------------------------------
-        // Optional: make everything slightly larger
+        // Make everything slightly larger
         //----------------------------------------------------------
 
         style.ScaleAllSizes(1.05f);
+
+        //----------------------------------------------------------
+        // Extra colors
+        //----------------------------------------------------------
+
+        ImVec4* extraColors = imgui::ExtraColors;
+        extraColors[imgui::ImGuiExtraCol_Accent] = RGB(80, 60, 135, 255);
+        extraColors[imgui::ImGuiExtraCol_AccentHovered] = RGB(55, 67, 90, 255);
     }
 }

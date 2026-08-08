@@ -6,6 +6,8 @@
 
 #include "utils/string_extensions.h"
 
+#include "imgui/ImGuiSetup.h"
+
 namespace humongousexplorer::imgui
 {
 	//---------------------------------------------------------------------
@@ -81,11 +83,11 @@ namespace humongousexplorer::imgui
 	}
 
 	//---------------------------------------------------------------------
-	FileEntryInteractionType FileEntryView::Render(std::function<bool()> a_fnSelected, float a_fIndent)
+	void FileEntryView::Render(std::function<bool(FileEntryView* fileEntry)> a_fnSelected, std::function<void(FileEntryInteractionType, FileEntryView*)> a_fnOnInteraction, float a_fIndent)
 	{
 		FileEntryInteractionType interaction = FileEntryInteractionType::None;
 
-		bool selected = a_fnSelected();
+		bool selected = a_fnSelected(this);
 
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 
@@ -100,11 +102,11 @@ namespace humongousexplorer::imgui
 		// Row background
 		if (selected)
 		{
-			drawList->AddRectFilled(rowMin, rowMax, IM_COL32(80, 60, 135, 255), 4.0f);
+			drawList->AddRectFilled(rowMin, rowMax, ImGui::ColorConvertFloat4ToU32(imgui::ExtraColors[imgui::ImGuiExtraCol_Accent]), 4.0f);
 		}
 		else if (ImGui::IsMouseHoveringRect(rowMin, rowMax))
 		{
-			drawList->AddRectFilled(rowMin, rowMax, IM_COL32(55, 67, 90, 255), 4.0f);
+			drawList->AddRectFilled(rowMin, rowMax, ImGui::ColorConvertFloat4ToU32(imgui::ExtraColors[imgui::ImGuiExtraCol_AccentHovered]), 4.0f);
 		}
 
 		// Click detection
@@ -149,9 +151,12 @@ namespace humongousexplorer::imgui
 			row->Render(entryPos);
 		}
 
-		ImGui::Dummy({ windowWidth, rowHeight });
+		if (interaction != FileEntryInteractionType::None)
+		{
+			a_fnOnInteraction(interaction, this);
+		}
 
-		return interaction;
+		ImGui::Dummy({ windowWidth, rowHeight });
 	}
 
 	//---------------------------------------------------------------------
@@ -174,9 +179,9 @@ namespace humongousexplorer::imgui
 	}
 
 	//---------------------------------------------------------------------
-	FileEntryInteractionType TreeFileEntryView::Render(std::function<bool()> a_fnSelected, float a_fIndent)
+	void TreeFileEntryView::Render(std::function<bool(FileEntryView* fileEntry)> a_fnSelected, std::function<void(FileEntryInteractionType, FileEntryView*)> a_fnOnInteraction, float a_fIndent)
 	{
-		const float arrowSize = ImGui::GetFontSize();
+		const float arrowSize = ImGui::GetFontSize() * 0.7f;
 		const float indentStep = 20.0f;
 		float arrowIndent = a_fIndent + arrowSize + 4.0f;
 
@@ -188,23 +193,28 @@ namespace humongousexplorer::imgui
 			float rowHeight = ImGui::GetFontSize() + 15;
 
 			ImVec2 center = ImVec2(pos.x + a_fIndent + arrowSize * 0.5f, pos.y + rowHeight * 0.5f);
-			float half = arrowSize * 0.3f;
 
-			if (m_bExpanded)
+			std::string iconName = m_bExpanded ?
+				"../icons/icon_arrow_expanded.svg" : "../icons/icon_arrow.svg";
+			ID3D11ShaderResourceView* tex = dx11::SVGTextureCache::Get(iconName);
+			if (tex)
 			{
-				drawList->AddTriangleFilled(
-					ImVec2(center.x - half, center.y - half * 0.6f),
-					ImVec2(center.x + half, center.y - half * 0.6f),
-					ImVec2(center.x, center.y + half * 0.6f),
-					IM_COL32(135, 145, 165, 255));
-			}
-			else
-			{
-				drawList->AddTriangleFilled(
-					ImVec2(center.x - half * 0.6f, center.y - half),
-					ImVec2(center.x - half * 0.6f, center.y + half),
-					ImVec2(center.x + half * 0.6f, center.y),
-					IM_COL32(135, 145, 165, 255));
+				int nativeW = dx11::SVGTextureCache::GetWidth(iconName);
+				int nativeH = dx11::SVGTextureCache::GetHeight(iconName);
+				float scale = arrowSize / static_cast<float>((nativeW > nativeH) ? nativeW : nativeH);
+				float drawW = nativeW * scale;
+				float drawH = nativeH * scale;
+				float halfX = drawW * 0.5f;
+				float halfY = drawH * 0.5f;
+
+				ImVec2 iconMin = ImVec2(center.x - halfX, pos.y + (rowHeight - drawH) * 0.5f);
+				ImVec2 iconMax = ImVec2(center.x + halfX, pos.y + (rowHeight + drawH) * 0.5f);
+				drawList->AddImage(
+					static_cast<ImTextureID>(reinterpret_cast<intptr_t>(tex)),
+					iconMin,
+					iconMax,
+					ImVec2(0, 0), ImVec2(1, 1),
+					IM_COL32(255, 255, 255, 255));
 			}
 
 			// Click on arrow toggles expand
@@ -217,7 +227,7 @@ namespace humongousexplorer::imgui
 		}
 
 		// Reuse base class rendering for own content
-		FileEntryInteractionType interaction = FileEntryView::Render(a_fnSelected, arrowIndent);
+		FileEntryView::Render(a_fnSelected, a_fnOnInteraction, arrowIndent);
 
 		// Render children if expanded
 		if (m_bExpanded)
@@ -229,11 +239,9 @@ namespace humongousexplorer::imgui
 					continue;
 				}
 
-				child->Render(a_fnSelected, arrowIndent + indentStep);
+				child->Render(a_fnSelected, a_fnOnInteraction, arrowIndent + indentStep);
 			}
 		}
-
-		return interaction;
 	}
 
 	//---------------------------------------------------------------------

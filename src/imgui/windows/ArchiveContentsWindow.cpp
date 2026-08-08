@@ -136,15 +136,19 @@ namespace humongousexplorer::imgui
 				continue;
 			}
 
-			FileEntryInteractionType interaction = view->Render([this, &view]()
+			view->Render(
+				[this, &view](FileEntryView* fileEntry)
 				{
-					return m_pFilterFileEntryView == view.get();
-				});
-
-			if (interaction == FileEntryInteractionType::LeftClicked)
-			{
-				m_pFilterFileEntryView = view.get();
-			}
+					return m_pFilterFileEntryView == fileEntry;
+				},
+				[this](FileEntryInteractionType interaction, FileEntryView* fileEntry)
+				{
+					if (interaction == FileEntryInteractionType::LeftClicked)
+					{
+						m_pFilterFileEntryView = fileEntry;
+					}
+				}
+			);
 		}
 	}
 }
