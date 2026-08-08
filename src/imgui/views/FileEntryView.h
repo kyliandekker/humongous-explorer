@@ -7,8 +7,6 @@
 #include <imgui/imgui.h>
 #include <imgui_internal.h>
 
-struct ID3D11ShaderResourceView;
-
 namespace humongousexplorer::imgui
 {
 	//---------------------------------------------------------------------
@@ -36,14 +34,17 @@ namespace humongousexplorer::imgui
 	{
 		RowEntry(RowInfo a_RowInfo) :
 			m_RowInfo(a_RowInfo)
-		{}
+		{
+		}
 
 		virtual ~RowEntry() = default;
 
 		RowInfo m_RowInfo;
 
 		virtual void Render(const ImVec2& a_vPos) = 0;
-		virtual ImVec2 GetSize() = 0;
+		virtual ImVec2 GetSize() const = 0;
+
+		virtual bool Find(const std::string& a_sObjective) const = 0;
 	};
 
 	//---------------------------------------------------------------------
@@ -52,13 +53,15 @@ namespace humongousexplorer::imgui
 		TextRowEntry(RowInfo a_RowInfo, const std::string& a_sText, ImColor a_Color) : RowEntry(a_RowInfo),
 			m_sText(a_sText),
 			m_Color(a_Color)
-		{}
+		{
+		}
 
 		std::string m_sText;
 		ImColor m_Color;
 
 		void Render(const ImVec2& a_vPos) override;
-		ImVec2 GetSize() override;
+		ImVec2 GetSize() const override;
+		bool Find(const std::string& a_sObjective) const override;
 	};
 
 	//---------------------------------------------------------------------
@@ -67,14 +70,15 @@ namespace humongousexplorer::imgui
 		IconRowEntry(RowInfo a_RowInfo, const std::string& a_sIconName, float a_fSize = 0) : RowEntry(a_RowInfo),
 			m_sIconName(a_sIconName),
 			m_fSize(a_fSize)
-		{}
+		{
+		}
 
 		float m_fSize = 0;
 		std::string m_sIconName;
-		ID3D11ShaderResourceView* m_pTexture;
 
 		void Render(const ImVec2& a_vPos) override;
-		ImVec2 GetSize() override;
+		ImVec2 GetSize() const override;
+		bool Find(const std::string& a_sObjective) const override;
 	};
 
 	//---------------------------------------------------------------------
@@ -91,11 +95,14 @@ namespace humongousexplorer::imgui
 	{
 		FileEntryView(std::vector<std::unique_ptr<RowEntry>> a_aRows) :
 			m_aRows(std::move(a_aRows))
-		{}
+		{
+		}
 
+		bool m_bVisible = true;
 		std::vector<std::unique_ptr<RowEntry>> m_aRows;
 
 		virtual FileEntryInteractionType Render(std::function<bool()> a_fnSelected, float a_fIndent = 0.0f);
+		virtual bool Filter(const std::string& a_sObjective);
 	};
 
 	//---------------------------------------------------------------------
@@ -103,12 +110,14 @@ namespace humongousexplorer::imgui
 	{
 		TreeFileEntryView(std::vector<std::unique_ptr<RowEntry>> a_aRows, std::vector<std::unique_ptr<FileEntryView>> a_aChildren = {}) : FileEntryView(std::move(a_aRows)),
 			m_aChildren(std::move(a_aChildren))
-		{}
+		{
+		}
 
 		std::vector<std::unique_ptr<FileEntryView>> m_aChildren;
 		bool m_bExpanded = false;
 
-		FileEntryInteractionType Render(std::function<bool()> a_fnSelected, float a_fIndent = 0.0f);
+		FileEntryInteractionType Render(std::function<bool()> a_fnSelected, float a_fIndent = 0.0f) override;
+		bool Filter(const std::string& a_sObjective) override;
 	};
 
 	//---------------------------------------------------------------------
@@ -120,7 +129,7 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	inline std::unique_ptr<RowEntry> MakeNameRow(const std::string& a_sLabel)
 	{
-		return std::make_unique<TextRowEntry>(RowInfo(5), a_sLabel, IM_COL32(236, 239, 244, 255));
+		return std::make_unique<TextRowEntry>(RowInfo(25), a_sLabel, IM_COL32(236, 239, 244, 255));
 	}
 
 	//---------------------------------------------------------------------

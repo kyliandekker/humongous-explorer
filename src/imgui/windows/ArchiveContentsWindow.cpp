@@ -7,6 +7,8 @@
 #include "resources/ResourceType.h"
 #include "resources/ArchiveType.h"
 #include "imgui/views/ResourceFileEntryView.h"
+#include "imgui/views/SearchBar.h"
+#include "utils/string_extensions.h"
 
 namespace humongousexplorer::imgui
 {
@@ -63,6 +65,7 @@ namespace humongousexplorer::imgui
 			{
 				std::vector<std::unique_ptr<FileEntryView>> children;
 				children.push_back(MakeArchiveResourceEntryView("Test.png", resources::ResourceType::RoomImage));
+				children.push_back(MakeArchiveResourceEntryView("Aaah.png", resources::ResourceType::RoomImage));
 				return children;
 			}()
 		);
@@ -71,8 +74,8 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	// ArchiveContentsWindow
 	//---------------------------------------------------------------------
-	ArchiveContentsWindow::ArchiveContentsWindow()
-		: BaseWindow(ImGuiWindowFlags_NoCollapse, "ARCHIVE CONTENTS", "ArchiveContentsWindow")
+	ArchiveContentsWindow::ArchiveContentsWindow() : BaseWindow(ImGuiWindowFlags_NoCollapse, "ARCHIVE CONTENTS", "ArchiveContentsWindow"),
+		m_SearchBar("ArchiveSearchbar", "Search archives...")
 	{
 	}
 
@@ -106,14 +109,33 @@ namespace humongousexplorer::imgui
 
 		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.HE8", resources::ArchiveType::HE8));
 
+		for (size_t i = 0; i < s_aArchives.size(); i++)
+		{
+			s_aArchives[i]->Filter("");
+		}
+
 		return BaseWindow::Initialize();
 	}
 
 	//---------------------------------------------------------------------
 	void ArchiveContentsWindow::Update()
 	{
+		if (m_SearchBar.Render())
+		{
+			std::string objective = string_extensions::StringToLower(m_SearchBar.GetText());
+			for (size_t i = 0; i < s_aArchives.size(); i++)
+			{
+				s_aArchives[i]->Filter(objective);
+			}
+		}
+
 		for (const std::unique_ptr<TreeFileEntryView>& view : s_aArchives)
 		{
+			if (!view->m_bVisible)
+			{
+				continue;
+			}
+
 			FileEntryInteractionType interaction = view->Render([this, &view]()
 				{
 					return m_pFilterFileEntryView == view.get();

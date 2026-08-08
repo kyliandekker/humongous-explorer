@@ -4,6 +4,8 @@
 
 #include "dx11/SVGTextureCache.h"
 
+#include "utils/string_extensions.h"
+
 namespace humongousexplorer::imgui
 {
 	//---------------------------------------------------------------------
@@ -15,9 +17,15 @@ namespace humongousexplorer::imgui
 	}
 
 	//---------------------------------------------------------------------
-	ImVec2 TextRowEntry::GetSize()
+	ImVec2 TextRowEntry::GetSize() const
 	{
 		return ImGui::CalcTextSize(m_sText.c_str());
+	}
+
+	//---------------------------------------------------------------------
+	bool TextRowEntry::Find(const std::string& a_sObjective) const
+	{
+		return string_extensions::StringToLower(m_sText).find(a_sObjective) != std::string::npos;
 	}
 
 	//---------------------------------------------------------------------
@@ -47,7 +55,7 @@ namespace humongousexplorer::imgui
 	}
 
 	//---------------------------------------------------------------------
-	ImVec2 IconRowEntry::GetSize()
+	ImVec2 IconRowEntry::GetSize() const
 	{
 		float drawW = 0;
 		float drawH = 0;
@@ -64,6 +72,12 @@ namespace humongousexplorer::imgui
 		return {
 			drawW, drawH
 		};
+	}
+
+	//---------------------------------------------------------------------
+	bool IconRowEntry::Find(const std::string& a_sObjective) const
+	{
+		return false;
 	}
 
 	//---------------------------------------------------------------------
@@ -140,6 +154,25 @@ namespace humongousexplorer::imgui
 	}
 
 	//---------------------------------------------------------------------
+	bool FileEntryView::Filter(const std::string& a_sObjective)
+	{
+		bool found = a_sObjective.empty();
+
+		if (!found)
+		{
+			for (size_t i = 0; i < m_aRows.size(); i++)
+			{
+				if (m_aRows[i]->Find(a_sObjective))
+				{
+					found |= true;
+				}
+			}
+		}
+		m_bVisible = found;
+		return found;
+	}
+
+	//---------------------------------------------------------------------
 	FileEntryInteractionType TreeFileEntryView::Render(std::function<bool()> a_fnSelected, float a_fIndent)
 	{
 		const float arrowSize = ImGui::GetFontSize();
@@ -190,10 +223,29 @@ namespace humongousexplorer::imgui
 		{
 			for (const std::unique_ptr<FileEntryView>& child : m_aChildren)
 			{
+				if (!child->m_bVisible)
+				{
+					continue;
+				}
+
 				child->Render(a_fnSelected, arrowIndent + indentStep);
 			}
 		}
 
 		return interaction;
+	}
+
+	//---------------------------------------------------------------------
+	bool TreeFileEntryView::Filter(const std::string& a_sObjective)
+	{
+		bool found = FileEntryView::Filter(a_sObjective);
+
+		for (const std::unique_ptr<FileEntryView>& entry : m_aChildren)
+		{
+			found |= entry->Filter(a_sObjective);
+		}
+
+		m_bVisible = found;
+		return found;
 	}
 }

@@ -1,10 +1,11 @@
 #pragma once
 
 #include "imgui/windows/BaseWindow.h"
+#include "imgui/views/SearchBar.h"
 
 namespace humongousexplorer::imgui
 {
-	class TreeFileEntryView;
+	class FileEntryView;
 
 	//---------------------------------------------------------------------
 	// ArchiveContentsWindow
@@ -31,6 +32,7 @@ namespace humongousexplorer::imgui
 		/// <returns>True if initialization is successful, otherwise false.</returns>
 		bool Initialize() override;
 	private:
-		TreeFileEntryView* m_pFilterFileEntryView = nullptr; // TODO: move
+		FileEntryView* m_pFilterFileEntryView = nullptr; // TODO: move
+		SearchBar m_SearchBar;
 	};
 }

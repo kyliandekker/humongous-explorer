@@ -22,6 +22,7 @@
 #define COLOR_WHEEL_ID "COLOR_WHEEL"
 #define TABLE_ID "TABLE"
 #define PLOT_ID "PLOT"
+#define SEARCHBAR_ID "SEARCHBAR"
 
 #ifdef _DEBUG
 	inline std::string ToUpperSnakeCase(const std::string& a_String)
