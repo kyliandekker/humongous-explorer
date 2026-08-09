@@ -27,33 +27,11 @@
 #define TAB_ID "TAB"
 #define PLOT_ID "PLOT"
 #define SEARCHBAR_ID "SEARCHBAR"
+#define KNOB_ID "KNOB"
 
 #ifdef _DEBUG
 	//---------------------------------------------------------------------
-	inline std::string ToUpperSnakeCase(const std::string& a_String)
-	{
-		std::string result;
-
-		for (size_t i = 0; i < a_String.size(); ++i)
-		{
-			const char current = a_String[i];
-
-			if (
-				(i > 0) &&
-				std::islower(static_cast<unsigned char>(a_String[i - 1])) &&
-				std::isupper(static_cast<unsigned char>(current))
-				)
-			{
-				result += '_';
-			}
-
-			result += static_cast<char>(
-				std::toupper(static_cast<unsigned char>(current))
-				);
-		}
-
-		return result;
-	}
+    std::string ToUpperSnakeCase(const std::string& a_String);
 
 	//---------------------------------------------------------------------
 	template<typename... TArgs>
@@ -83,15 +61,9 @@
 	
 	
 	//---------------------------------------------------------------------
-	inline bool TextButton(const std::string& a_Label, const ImVec2& a_Size = ImVec2(), const ImVec4& a_Color = ImVec4(1, 1, 1, 1))
-	{
-		ImVec2 pos = ImGui::GetCursorScreenPos(); // Get the top-left corner of the button
+    bool TextButton(const std::string& a_Label, const ImVec2& a_Size = ImVec2(), const ImVec4& a_Color = ImVec4(1, 1, 1, 1));
 
-		ImGui::PushStyleColor(ImGuiCol_Text, a_Color);
-		bool b = ImGui::Button(a_Label.c_str(), a_Size);
-		ImGui::PopStyleColor();
-
-		return b;
-	}
+	//---------------------------------------------------------------------
+	bool Knob(char const* label, float* p_value, float v_min, float v_max, ImVec2 const& size, float default_value);
 
 #endif

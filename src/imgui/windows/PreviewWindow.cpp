@@ -241,6 +241,8 @@ namespace humongousexplorer::imgui
 		RenderImageControlsBar();
 	}
 
+	constexpr float PLAY_BUTTON_PADDING = 50;
+
 	//---------------------------------------------------------------------
 	static int FormatTime(double value, char* buff, int size, void* user_data)
 	{
@@ -353,7 +355,7 @@ namespace humongousexplorer::imgui
 		}
 
 		ImVec2 avail = ImGui::GetContentRegionAvail();
-		float controlsBarHeight = ImGui::GetFrameHeight();
+		float controlsBarHeight = ImGui::GetFontSize() + PLAY_BUTTON_PADDING + ImGui::GetStyle().ItemSpacing.y;
 		ImVec2 plotSize(avail.x, avail.y - controlsBarHeight);
 
 		if (ImPlot::BeginPlot(FormatId("", PLOT_ID, "WAVEFORM").c_str(), plotSize, ImPlotFlags_NoFrame | ImPlotFlags_NoMouseText))
@@ -381,6 +383,17 @@ namespace humongousexplorer::imgui
 			ImPlot::PlotInfLines("##Playhead", &m_fAudioPosition, 1);
 			ImPlot::PopStyleVar();
 			ImPlot::PopStyleColor();
+
+			// Click to seek
+			if (ImPlot::IsPlotHovered() && (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseDragging(ImGuiMouseButton_Left)))
+			{
+				ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);
+
+				ImPlotPoint mousePos = ImPlot::GetPlotMousePos();
+				m_fAudioPosition = static_cast<float>(mousePos.x);
+				if (m_fAudioPosition < 0.0f) m_fAudioPosition = 0.0f;
+				if (m_fAudioPosition > m_fAudioDuration) m_fAudioPosition = m_fAudioDuration;
+			}
 
 			// Circle on top of the playhead
 			ImVec2 plotMin = ImPlot::GetPlotPos();
@@ -433,9 +446,11 @@ namespace humongousexplorer::imgui
 			ImPlot::EndPlot();
 		}
 
-		// Controls bar at the bottom
 		RenderSoundControlsBar();
 	}
+
+	bool m_bIsPlaying = false;
+	bool m_bMuted = false;
 
 	//---------------------------------------------------------------------
 	void PreviewWindow::RenderSoundControlsBar()
@@ -448,12 +463,13 @@ namespace humongousexplorer::imgui
 		const float rowY = ImGui::GetCursorPosY();
 
 		// Play
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(25.0f, 25.0f));
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(PLAY_BUTTON_PADDING / 2, PLAY_BUTTON_PADDING / 2));
 
 		ImGui::SetCursorPosY(rowY);
 
-		if (TextButton(FormatId(icon::ICON_PLAY, BUTTON_ID, "PLAY").c_str()))
+		if (TextButton(FormatId(m_bIsPlaying ? icon::ICON_PAUSE : icon::ICON_PLAY, BUTTON_ID, "PLAY").c_str()))
 		{
+			m_bIsPlaying = !m_bIsPlaying;
 		}
 		ImGui::PopStyleColor();
 		ImGui::PopStyleColor();
@@ -465,6 +481,8 @@ namespace humongousexplorer::imgui
 		ImGui::PopStyleVar();
 
 		// Stop
+		float smallBtnSize = ImGui::GetFontSize() + 30.0f;
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(15.0f, 15.0f));
 
 		const float smallHeight = ImGui::GetFrameHeight();
@@ -473,36 +491,74 @@ namespace humongousexplorer::imgui
 		ImGui::SameLine();
 		ImGui::SetCursorPosY(rowY + offset);
 
-		if (TextButton(FormatId(icon::ICON_STOP, BUTTON_ID, "STOP").c_str()))
+		if (TextButton(FormatId(icon::ICON_STOP, BUTTON_ID, "STOP").c_str(), ImVec2(smallBtnSize, smallBtnSize)))
 		{
+			m_bIsPlaying = false;
+			m_fAudioPosition = 0;
 		}
 
 		// Previous
 		ImGui::SameLine();
 		ImGui::SetCursorPosY(rowY + offset);
 
-		if (TextButton(FormatId(icon::ICON_PREVIOUS, BUTTON_ID, "PREVIOUS").c_str()))
+		if (TextButton(FormatId(icon::ICON_PREVIOUS, BUTTON_ID, "PREVIOUS").c_str(), ImVec2(smallBtnSize, smallBtnSize)))
 		{
+			m_bIsPlaying = false;
+			m_fAudioPosition -= 0.1f;
 		}
 
 		// Next
 		ImGui::SameLine();
 		ImGui::SetCursorPosY(rowY + offset);
 
-		if (TextButton(FormatId(icon::ICON_NEXT, BUTTON_ID, "NEXT").c_str()))
+		if (TextButton(FormatId(icon::ICON_NEXT, BUTTON_ID, "NEXT").c_str(), ImVec2(smallBtnSize, smallBtnSize)))
 		{
+			m_bIsPlaying = false;
+			m_fAudioPosition += 0.1f;
 		}
 
-		ImGui::PopStyleVar();
+		ImGui::PopStyleVar(); // FramePadding
+		ImGui::PopStyleVar(); // FrameRounding
+
+		// Next
+		ImGui::SameLine();
+
+		// Time label above circle
+		int currentPosMinS = static_cast<int>(m_fAudioPosition) / 60;
+		int currentPosSecS = static_cast<int>(m_fAudioPosition) % 60;
+		int currentPosMs = static_cast<int>((m_fAudioPosition - floorf(m_fAudioPosition)) * 1000);
+
+		// Time label above circle
+		int durationMinS = static_cast<int>(m_fAudioDuration) / 60;
+		int durationSecS = static_cast<int>(m_fAudioDuration) % 60;
+		int durationPosMs = static_cast<int>((m_fAudioDuration - floorf(m_fAudioDuration)) * 1000);
+
+		ImGui::Text("%d:%02d.%03d / %d:%02d.%03d", currentPosMinS, currentPosSecS, currentPosMs, durationMinS, durationSecS, durationPosMs);
+
+		// Push knob to the right and vertically centered
+		float availWidth = ImGui::GetContentRegionAvail().x;
+		float knobSize = 64.0f;
+		ImGui::SameLine(availWidth - knobSize);
+
+		Knob(FormatId("", KNOB_ID, "VOLUME").c_str(), &m_fAudioVolume, 0, 1, ImVec2(knobSize, knobSize), 0.0f);
+
+		if (m_bIsPlaying)
+		{
+			m_fAudioPosition += 0.005f;
+		}
+		if (m_fAudioPosition >= m_fAudioDuration)
+		{
+			m_fAudioPosition = 0.0f;
+		}
+		if (m_fAudioPosition < 0.0f)
+		{
+			m_fAudioPosition = 0.0f;
+		}
 	}
 
 	//---------------------------------------------------------------------
 	void PreviewWindow::Update()
 	{
-		m_fAudioPosition += 0.05f;
-		if (m_fAudioPosition >= m_fAudioDuration)
-			m_fAudioPosition = 0.0f;
-
 		RenderAudio();
 		//RenderImage();
 	}
