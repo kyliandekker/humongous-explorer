@@ -7,9 +7,10 @@
 
 #include "imgui/Theme.h"
 #include "imgui/windows/EditorWindowDock.h"
-#include "imgui/windows/RoomContentWindow.h"
 #include "imgui/windows/ArchiveContentsWindow.h"
+#include "imgui/windows/RoomContentWindow.h"
 #include "imgui/windows/PreviewWindow.h"
+#include "imgui/windows/InfoPanelWindow.h"
 #include "editor/Workspace.h"
 
 namespace humongousexplorer::imgui
@@ -18,6 +19,7 @@ namespace humongousexplorer::imgui
 	RoomContentWindow m_RoomContentWindow;
 	ArchiveContentsWindow m_ArchiveContentsWindow;
 	PreviewWindow m_PreviewWindow;
+	InfoPanelWindow m_InfoPanelWindow;
 
 	bool m_bDockLayoutSetup = false;
 	std::string m_sIniPath;
@@ -73,6 +75,7 @@ namespace humongousexplorer::imgui
 		m_ArchiveContentsWindow.Initialize();
 		m_RoomContentWindow.Initialize();
 		m_PreviewWindow.Initialize();
+		m_InfoPanelWindow.Initialize();
 	}
 
 	//---------------------------------------------------------------------
@@ -84,6 +87,7 @@ namespace humongousexplorer::imgui
 		m_ArchiveContentsWindow.Render();
 		m_RoomContentWindow.Render();
 		m_PreviewWindow.Render();
+		m_InfoPanelWindow.Render();
 
 		if (!m_bDockLayoutSetup)
 		{
