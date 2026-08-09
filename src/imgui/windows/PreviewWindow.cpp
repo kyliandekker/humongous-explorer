@@ -382,6 +382,54 @@ namespace humongousexplorer::imgui
 			ImPlot::PopStyleVar();
 			ImPlot::PopStyleColor();
 
+			// Circle on top of the playhead
+			ImVec2 plotMin = ImPlot::GetPlotPos();
+			ImVec2 plotSize = ImPlot::GetPlotSize();
+			float plotTop = plotMin.y;
+			ImPlotPoint pos(m_fAudioPosition, 0.0);
+			ImVec2 screenPos = ImPlot::PlotToPixels(pos);
+			ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+			// Time label above circle
+			int posMins = static_cast<int>(m_fAudioPosition) / 60;
+			int posSecs = static_cast<int>(m_fAudioPosition) % 60;
+			int posMs = static_cast<int>((m_fAudioPosition - floorf(m_fAudioPosition)) * 1000);
+			char timeLabel[16];
+			snprintf(timeLabel, sizeof(timeLabel), "%d:%02d.%03d", posMins, posSecs, posMs);
+
+			ImVec2 textSize = ImGui::CalcTextSize(timeLabel);
+			float padX = 6.0f;
+			float padY = 3.0f;
+			float boxW = textSize.x + padX * 2.0f;
+			float boxH = textSize.y + padY * 2.0f;
+			float boxX = screenPos.x - boxW * 0.5f;
+			float boxY = plotTop - boxH - 10.0f;
+
+			// Clamp to plot area
+			if (boxX < plotMin.x) boxX = plotMin.x;
+			if (boxX + boxW > plotMin.x + plotSize.x) boxX = plotMin.x + plotSize.x - boxW;
+
+			ImU32 bgColor = IM_COL32(80, 60, 135, 230);
+			drawList->AddRectFilled(
+				ImVec2(boxX, boxY),
+				ImVec2(boxX + boxW, boxY + boxH),
+				bgColor, 4.0f);
+			drawList->AddText(
+				ImVec2(boxX + padX, boxY + padY),
+				IM_COL32(255, 255, 255, 255),
+				timeLabel);
+
+			// Small triangle pointer below the label
+			float triX = screenPos.x;
+			float triY = boxY + boxH;
+			drawList->AddTriangleFilled(
+				ImVec2(triX - 4.0f, triY),
+				ImVec2(triX + 4.0f, triY),
+				ImVec2(triX, triY + 5.0f),
+				bgColor);
+
+			drawList->AddCircleFilled(ImVec2(screenPos.x, plotTop), 5.0f, IM_COL32(220, 220, 220, 255));
+
 			ImPlot::EndPlot();
 		}
 
@@ -451,7 +499,7 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void PreviewWindow::Update()
 	{
-		m_fAudioPosition += 0.2f;
+		m_fAudioPosition += 0.05f;
 		if (m_fAudioPosition >= m_fAudioDuration)
 			m_fAudioPosition = 0.0f;
 
