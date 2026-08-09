@@ -2,6 +2,7 @@
 
 #include <imgui/imgui_internal.h>
 #include <imgui/font_arial.h>
+#include <imgui/icon.h>
 #include <win32/WINPCH.h>
 
 #include "imgui/Theme.h"
@@ -37,6 +38,7 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	ImFont* m_pDefaultFont = nullptr;
 	ImFont* m_pBoldFont = nullptr;
+	ImFont* m_pIconFont = nullptr;
 	void Initialize()
 	{
 		ImGuiIO& io = ImGui::GetIO();
@@ -53,7 +55,15 @@ namespace humongousexplorer::imgui
 		font_config_default.FontDataOwnedByAtlas = false;
 		m_pDefaultFont = io.Fonts->AddFontFromMemoryTTF(&font::arial, sizeof(font::arial), 15, &font_config_default);
 
+		constexpr ImWchar icons_ranges_b[] = { icon::FONT_START, icon::FONT_END, 0 };
+		ImFontConfig icons_config_m;
+		icons_config_m.MergeMode = true;
+		icons_config_m.PixelSnapH = true;
+		icons_config_m.FontDataOwnedByAtlas = false;
+		m_pIconFont = io.Fonts->AddFontFromMemoryTTF(&icon::ICON, sizeof(icon::ICON), 15, &icons_config_m, icons_ranges_b);
+
 		io.Fonts->Build();
+
 
 		m_sIniPath = GetWorkspace().GetAppDataPath() + "/imgui.ini";
 		io.IniFilename = m_sIniPath.c_str();

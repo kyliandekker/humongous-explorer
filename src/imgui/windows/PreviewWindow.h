@@ -40,7 +40,17 @@ namespace humongousexplorer::imgui
 
 		bool m_bShowCheckerboard = true;
 
+		float m_fAudioPosition = 32.482f;
+		float m_fAudioDuration = 83.456f;
+		float m_fAudioVolume = 0.75f;
+		bool m_bAudioPlaying = false;
+		bool m_bAudioLoop = false;
+
 		void RenderCheckerboard(const ImVec2& a_vMin, const ImVec2& a_vMax);
-		void RenderControlsBar();
+		void RenderImageControlsBar();
+		void RenderImage();
+
+		void RenderAudio();
+		void RenderSoundControlsBar();
 	};
 }

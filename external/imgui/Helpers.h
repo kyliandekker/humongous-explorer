@@ -1,5 +1,8 @@
+#pragma once
+
 #include <vector>
 #include <string>
+#include <imgui.h>
 
 #define POPUP_WINDOW_ID "POPUP"
 #define POPUP_WINDOW_BUTTON_ID "POPUP_DIALOG_SAVE_BUTTON"
@@ -26,6 +29,7 @@
 #define SEARCHBAR_ID "SEARCHBAR"
 
 #ifdef _DEBUG
+	//---------------------------------------------------------------------
 	inline std::string ToUpperSnakeCase(const std::string& a_String)
 	{
 		std::string result;
@@ -51,6 +55,7 @@
 		return result;
 	}
 
+	//---------------------------------------------------------------------
 	template<typename... TArgs>
 	inline std::string FormatId(const std::string& a_sUIName, const TArgs&... a_Args)
 	{
@@ -75,4 +80,18 @@
 
 		return formatted;
 	}
+	
+	
+	//---------------------------------------------------------------------
+	inline bool TextButton(const std::string& a_Label, const ImVec2& a_Size = ImVec2(), const ImVec4& a_Color = ImVec4(1, 1, 1, 1))
+	{
+		ImVec2 pos = ImGui::GetCursorScreenPos(); // Get the top-left corner of the button
+
+		ImGui::PushStyleColor(ImGuiCol_Text, a_Color);
+		bool b = ImGui::Button(a_Label.c_str(), a_Size);
+		ImGui::PopStyleColor();
+
+		return b;
+	}
+
 #endif

@@ -1,6 +1,11 @@
 #include "PreviewWindow.h"
 
+#include <cmath>
 #include <imgui/imgui.h>
+#include <imgui/implot.h>
+#include <imgui/icon.h>
+#include <imgui/Helpers.h>
+#include <algorithm>
 
 #include "dx11/SVGTextureCache.h"
 
@@ -14,8 +19,7 @@ namespace humongousexplorer::imgui
 
 	//---------------------------------------------------------------------
 	PreviewWindow::PreviewWindow() : HEBaseWindow(ImGuiWindowFlags_NoCollapse, "PREVIEW", "PreviewWindow")
-	{
-	}
+	{}
 
 	//---------------------------------------------------------------------
 	bool PreviewWindow::Initialize()
@@ -71,7 +75,7 @@ namespace humongousexplorer::imgui
 	}
 
 	//---------------------------------------------------------------------
-	void PreviewWindow::RenderControlsBar()
+	void PreviewWindow::RenderImageControlsBar()
 	{
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.0f);
 
@@ -174,7 +178,7 @@ namespace humongousexplorer::imgui
 	}
 
 	//---------------------------------------------------------------------
-	void PreviewWindow::Update()
+	void PreviewWindow::RenderImage()
 	{
 		ImVec2 avail = ImGui::GetContentRegionAvail();
 		float controlsBarHeight = ImGui::GetFrameHeight() + 16.0f;
@@ -234,6 +238,224 @@ namespace humongousexplorer::imgui
 		ImGui::Dummy(previewArea);
 
 		// Controls bar at the bottom
-		RenderControlsBar();
+		RenderImageControlsBar();
+	}
+
+	//---------------------------------------------------------------------
+	static int FormatTime(double value, char* buff, int size, void* user_data)
+	{
+		int totalSeconds = static_cast<int>(value);
+
+		int minutes = totalSeconds / 60;
+		int seconds = totalSeconds % 60;
+
+		return snprintf(buff, size, "%d:%02d", minutes, seconds);
+	}
+
+	//---------------------------------------------------------------------
+	void PreviewWindow::RenderAudio()
+	{
+		static constexpr int SAMPLE_COUNT = 2000;
+		static constexpr float DURATION = 83.456f;
+
+		static float x_data[SAMPLE_COUNT];
+		static float y_data[SAMPLE_COUNT];
+		static bool s_bInitialized = false;
+
+		if (!s_bInitialized)
+		{
+			// Deterministic pseudo-random noise.
+			uint32_t seed = 0x12345678;
+
+			auto noise = [&]()
+				{
+					seed = seed * 1664525u + 1013904223u;
+					return (static_cast<float>(seed & 0xFFFF) / 32767.5f) - 1.0f;
+				};
+
+			for (int i = 0; i < SAMPLE_COUNT; i++)
+			{
+				float t = static_cast<float>(i) / (SAMPLE_COUNT - 1);
+				float time = t * DURATION;
+
+				x_data[i] = time;
+
+				// Several "spoken phrases" throughout the recording.
+				float envelope = 0.0f;
+
+				struct Segment
+				{
+					float start;
+					float end;
+					float amplitude;
+				};
+
+				static constexpr Segment segments[] =
+				{
+					{  1.0f,  6.5f, 0.75f },
+					{  8.0f, 14.0f, 0.55f },
+					{ 16.0f, 22.5f, 0.80f },
+					{ 25.0f, 29.0f, 0.45f },
+					{ 31.0f, 39.0f, 0.72f },
+					{ 41.5f, 47.0f, 0.58f },
+					{ 49.0f, 56.5f, 0.82f },
+					{ 59.0f, 64.0f, 0.50f },
+					{ 66.0f, 73.0f, 0.70f },
+					{ 75.0f, 81.5f, 0.62f },
+				};
+
+				for (const auto& s : segments)
+				{
+					if (time >= s.start && time <= s.end)
+					{
+						float local = (time - s.start) / (s.end - s.start);
+
+						// Smooth attack/release.
+						float fadeIn = std::min(local / 0.12f, 1.0f);
+						float fadeOut = std::min((1.0f - local) / 0.15f, 1.0f);
+						float fade = fadeIn * fadeOut;
+
+						// Changing syllable-like amplitude.
+						float syllables =
+							0.55f +
+							0.30f * sinf(time * 7.0f) +
+							0.15f * sinf(time * 13.0f);
+
+						envelope = std::max(
+							envelope,
+							s.amplitude * fade * syllables
+						);
+					}
+				}
+
+				// Fundamental-ish voice component.
+				float voice =
+					sinf(time * 2.0f * 3.14159f * 2.2f) +
+					0.45f * sinf(time * 2.0f * 3.14159f * 4.7f) +
+					0.20f * sinf(time * 2.0f * 3.14159f * 8.3f);
+
+				// Higher frequency content.
+				float harmonics =
+					0.18f * sinf(time * 2.0f * 3.14159f * 17.0f) +
+					0.10f * sinf(time * 2.0f * 3.14159f * 31.0f);
+
+				// Low-level noise makes it look less synthetic.
+				float noiseFloor = noise() * 0.025f;
+
+				float sample =
+					envelope * (voice * 0.42f + harmonics)
+					+ noiseFloor;
+
+				y_data[i] = std::clamp(sample, -1.0f, 1.0f);
+			}
+
+			s_bInitialized = true;
+		}
+
+		ImVec2 avail = ImGui::GetContentRegionAvail();
+		float controlsBarHeight = ImGui::GetFrameHeight();
+		ImVec2 plotSize(avail.x, avail.y - controlsBarHeight);
+
+		if (ImPlot::BeginPlot(FormatId("", PLOT_ID, "WAVEFORM").c_str(), plotSize, ImPlotFlags_NoFrame | ImPlotFlags_NoMouseText))
+		{
+			ImPlot::SetupAxis(ImAxis_X1, "",
+				ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_Opposite
+			); 
+			ImPlot::SetupAxisFormat(ImAxis_X1, FormatTime, nullptr);
+			ImPlot::SetupAxisTicks(ImAxis_Y1, -1.0, 1.0, 5);
+			ImPlot::SetupAxisLimits(ImAxis_X1, 0.0, DURATION, ImPlotCond_Always);
+
+			ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_NoGridLines);
+			ImPlot::SetupAxisFormat(ImAxis_Y1, "%.1f");
+			ImPlot::SetupAxisLimits(ImAxis_Y1, -1.0, 1.0, ImPlotCond_Always);
+
+			ImPlot::PlotLine(
+				FormatId("", PLOT_ID, "WAVEFORM", "LINE").c_str(),
+				x_data,
+				y_data,
+				SAMPLE_COUNT
+			);
+
+			ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1, 1, 1, 1));
+			ImPlot::PushStyleVar(ImPlotStyleVar_LineWeight, 2);
+			ImPlot::PlotInfLines("##Playhead", &m_fAudioPosition, 1);
+			ImPlot::PopStyleVar();
+			ImPlot::PopStyleColor();
+
+			ImPlot::EndPlot();
+		}
+
+		// Controls bar at the bottom
+		RenderSoundControlsBar();
+	}
+
+	//---------------------------------------------------------------------
+	void PreviewWindow::RenderSoundControlsBar()
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 40.0f);
+		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::ColorConvertFloat4ToU32(imgui::ExtraColors[imgui::ImGuiExtraCol_Accent]));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::ColorConvertFloat4ToU32(imgui::ExtraColors[imgui::ImGuiExtraCol_AccentHovered]));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::ColorConvertFloat4ToU32(imgui::ExtraColors[imgui::ImGuiExtraCol_AccentActive]));
+
+		const float rowY = ImGui::GetCursorPosY();
+
+		// Play
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(25.0f, 25.0f));
+
+		ImGui::SetCursorPosY(rowY);
+
+		if (TextButton(FormatId(icon::ICON_PLAY, BUTTON_ID, "PLAY").c_str()))
+		{
+		}
+		ImGui::PopStyleColor();
+		ImGui::PopStyleColor();
+		ImGui::PopStyleColor();
+		ImGui::PopStyleVar();
+
+		const float playHeight = ImGui::GetItemRectSize().y;
+
+		ImGui::PopStyleVar();
+
+		// Stop
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(15.0f, 15.0f));
+
+		const float smallHeight = ImGui::GetFrameHeight();
+		const float offset = (playHeight - smallHeight) * 0.5f;
+
+		ImGui::SameLine();
+		ImGui::SetCursorPosY(rowY + offset);
+
+		if (TextButton(FormatId(icon::ICON_STOP, BUTTON_ID, "STOP").c_str()))
+		{
+		}
+
+		// Previous
+		ImGui::SameLine();
+		ImGui::SetCursorPosY(rowY + offset);
+
+		if (TextButton(FormatId(icon::ICON_PREVIOUS, BUTTON_ID, "PREVIOUS").c_str()))
+		{
+		}
+
+		// Next
+		ImGui::SameLine();
+		ImGui::SetCursorPosY(rowY + offset);
+
+		if (TextButton(FormatId(icon::ICON_NEXT, BUTTON_ID, "NEXT").c_str()))
+		{
+		}
+
+		ImGui::PopStyleVar();
+	}
+
+	//---------------------------------------------------------------------
+	void PreviewWindow::Update()
+	{
+		m_fAudioPosition += 0.2f;
+		if (m_fAudioPosition >= m_fAudioDuration)
+			m_fAudioPosition = 0.0f;
+
+		RenderAudio();
+		//RenderImage();
 	}
 }

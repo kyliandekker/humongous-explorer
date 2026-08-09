@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Font Icon Demo</title>
+</head>
+<style>
+	
+@font-face {
+	font-family: 'custom-font';
+	src: url('./icon.ttf') format('truetype');
+}
+
+.icon {
+	font-family: 'custom-font';
+	font-size: 100px;
+	margin: 10px;
+}
+.icon-loop:before {
+	content: "\e000";
+}
+
+.icon-next:before {
+	content: "\e001";
+}
+
+.icon-pause:before {
+	content: "\e002";
+}
+
+.icon-play:before {
+	content: "\e003";
+}
+
+.icon-previous:before {
+	content: "\e004";
+}
+
+.icon-stop:before {
+	content: "\e005";
+}
+
+
+</style>
+<body>
+	<h1>Icon Examples</h1>
+		<div class="icon icon-loop"></div>
+		<div class="icon icon-next"></div>
+		<div class="icon icon-pause"></div>
+		<div class="icon icon-play"></div>
+		<div class="icon icon-previous"></div>
+		<div class="icon icon-stop"></div>
+
+</body>
+</html>

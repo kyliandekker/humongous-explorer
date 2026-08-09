@@ -36,26 +36,12 @@ set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER CMakePredefinedTargets)
 # Third-party libraries
 
 # IMGUI
-set(IMGUI_SOURCES
-    ${CMAKE_SOURCE_DIR}/external/imgui/imgui.cpp
-    ${CMAKE_SOURCE_DIR}/external/imgui/imgui_draw.cpp
-    ${CMAKE_SOURCE_DIR}/external/imgui/backends/imgui_impl_dx11.cpp
-    ${CMAKE_SOURCE_DIR}/external/imgui/backends/imgui_impl_win32.cpp
-    ${CMAKE_SOURCE_DIR}/external/imgui/imgui_widgets.cpp
-    ${CMAKE_SOURCE_DIR}/external/imgui/imgui_tables.cpp
-    ${CMAKE_SOURCE_DIR}/external/imgui/windows/BaseWindow.cpp
-    ${CMAKE_SOURCE_DIR}/external/imgui/windows/MainWindowDock.cpp
-    ${CMAKE_SOURCE_DIR}/external/imgui/font_arial.cpp
-)
+file(GLOB_RECURSE IMGUI_SOURCES ${CMAKE_SOURCE_DIR}/external/imgui/*.cpp)
+
 add_library(imgui STATIC ${IMGUI_SOURCES})
 target_include_directories(imgui PUBLIC ${CMAKE_SOURCE_DIR}/external/imgui)
 set_target_properties(imgui PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON FOLDER "ThirdParty")
 source_group(TREE ${CMAKE_SOURCE_DIR}/external/imgui PREFIX "" FILES ${IMGUI_SOURCES})
-
-# Additional IMGUI helpers
-set(IMGUI
-    ${CMAKE_SOURCE_DIR}/external/imgui/imgui_helpers.cpp
-)
 
 # Include modules
 include(humongousexplorer.cmake)

@@ -3,11 +3,14 @@
 #include <imgui/imgui.h>
 #include <string>
 
-#include "imgui/ImGuiSetup.h"
 #include "resources/ResourceType.h"
 #include "resources/ArchiveType.h"
+
+#include "imgui/ImGuiSetup.h"
 #include "imgui/views/ResourceFileEntryView.h"
 #include "imgui/views/SearchBar.h"
+#include "imgui/Helpers.h"
+
 #include "utils/string_extensions.h"
 
 namespace humongousexplorer::imgui
@@ -112,59 +115,70 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void ArchiveContentsWindow::Update()
 	{
-		if (m_SearchBar.Render())
+		if (ImGui::BeginChild(
+			FormatId("", CHILD_ID, "ARCHIVE_CONTENTS").c_str(),
+			ImVec2(
+				ImGui::GetContentRegionAvail().x,
+				ImGui::GetContentRegionAvail().y
+			),
+			ImGuiChildFlags_Borders
+		))
 		{
-			std::string objective = string_extensions::StringToLower(m_SearchBar.GetText());
-			for (size_t i = 0; i < s_aArchives.size(); i++)
+			if (m_SearchBar.Render())
 			{
-				s_aArchives[i]->Filter(objective);
-			}
-		}
-
-		for (const std::unique_ptr<TreeFileEntryView>& view : s_aArchives)
-		{
-			if (!view->m_bVisible)
-			{
-				continue;
+				std::string objective = string_extensions::StringToLower(m_SearchBar.GetText());
+				for (size_t i = 0; i < s_aArchives.size(); i++)
+				{
+					s_aArchives[i]->Filter(objective);
+				}
 			}
 
-			view->Render(
-				[this, &view](FileEntryView* fileEntry)
+			for (const std::unique_ptr<TreeFileEntryView>& view : s_aArchives)
+			{
+				if (!view->m_bVisible)
 				{
-					return m_pFilterFileEntryView == fileEntry;
-				},
-				[this](FileEntryInteractionType interaction, FileEntryView* fileEntry)
-				{
-					switch (interaction)
+					continue;
+				}
+
+				view->Render(
+					[this, &view](FileEntryView* fileEntry)
 					{
-						case FileEntryInteractionType::None:
+						return m_pFilterFileEntryView == fileEntry;
+					},
+					[this](FileEntryInteractionType interaction, FileEntryView* fileEntry)
+					{
+						switch (interaction)
 						{
-							break;
-						}
-						case FileEntryInteractionType::LeftClicked:
-						{
-							m_pFilterFileEntryView = fileEntry;
-							break;
-						}
-						case FileEntryInteractionType::RightClicked:
-						{
-							break;
-						}
-						case FileEntryInteractionType::DoubleClicked:
-						{
-							if (TreeFileEntryView* treeView = dynamic_cast<TreeFileEntryView*>(fileEntry))
+							case FileEntryInteractionType::None:
 							{
-								treeView->m_bExpanded = !treeView->m_bExpanded;
+								break;
 							}
-							else
+							case FileEntryInteractionType::LeftClicked:
 							{
-								// TODO: Read room.
+								m_pFilterFileEntryView = fileEntry;
+								break;
 							}
-							break;
+							case FileEntryInteractionType::RightClicked:
+							{
+								break;
+							}
+							case FileEntryInteractionType::DoubleClicked:
+							{
+								if (TreeFileEntryView* treeView = dynamic_cast<TreeFileEntryView*>(fileEntry))
+								{
+									treeView->m_bExpanded = !treeView->m_bExpanded;
+								}
+								else
+								{
+									// TODO: Read room.
+								}
+								break;
+							}
 						}
 					}
-				}
-			);
+				);
+			}
 		}
+		ImGui::EndChild();
 	}
 }

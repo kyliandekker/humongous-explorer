@@ -8,6 +8,7 @@ namespace humongousexplorer::imgui
 	{
 		ImGuiExtraCol_Accent, 
 		ImGuiExtraCol_AccentHovered, 
+		ImGuiExtraCol_AccentActive,
 		ImGuiExtraCol_TabInactive, 
 		ImGuiExtraCol_COUNT
 	};

@@ -1,6 +1,7 @@
 #include "Theme.h"
 
 #include <imgui/imgui.h>
+#include <imgui/implot.h>
 
 #include "imgui/ImGuiSetup.h"
 
@@ -34,7 +35,7 @@ namespace humongousexplorer::imgui
         style.WindowBorderSize = 1.0f;
         style.ChildBorderSize = 1.0f;
         style.PopupBorderSize = 1.0f;
-        style.FrameBorderSize = 0.0f;
+        style.FrameBorderSize = 1.0f;
         style.TabBorderSize = 0.0f;
 
         //----------------------------------------------------------
@@ -143,9 +144,9 @@ namespace humongousexplorer::imgui
         // Buttons
         //==========================================================
 
-        colors[ImGuiCol_Button] = RGB(52, 60, 78);
-        colors[ImGuiCol_ButtonHovered] = RGB(110, 82, 210);
-        colors[ImGuiCol_ButtonActive] = RGB(138, 94, 255);
+        colors[ImGuiCol_Button] = RGB(52, 60, 78, 0);
+        colors[ImGuiCol_ButtonHovered] = RGB(110, 82, 210, 40);
+        colors[ImGuiCol_ButtonActive] = RGB(138, 94, 255, 0);
 
         //==========================================================
         // Headers
@@ -226,8 +227,15 @@ namespace humongousexplorer::imgui
         //----------------------------------------------------------
 
         ImVec4* extraColors = imgui::ExtraColors;
-        extraColors[imgui::ImGuiExtraCol_Accent] = RGB(80, 60, 135, 255);
-        extraColors[imgui::ImGuiExtraCol_AccentHovered] = RGB(55, 67, 90, 255);
+        extraColors[imgui::ImGuiExtraCol_Accent] = RGB(70, 50, 115, 255);
+        extraColors[imgui::ImGuiExtraCol_AccentHovered] = RGB(90, 90, 155, 255);
+        extraColors[imgui::ImGuiExtraCol_AccentActive] = RGB(65, 47, 107, 255);
         extraColors[imgui::ImGuiExtraCol_TabInactive] = RGB(20, 29, 40, 255);
+
+        ImPlotStyle& implotStyle = ImPlot::GetStyle();
+        implotStyle.LabelPadding = ImVec2(12, 12);
+
+        ImVec4* implotColors = implotStyle.Colors;
+        ImPlot::GetStyle().Colors[ImPlotCol_Line] = RGB(111, 84, 164, 255);
     }
 }
