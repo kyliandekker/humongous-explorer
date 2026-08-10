@@ -42,4 +42,52 @@ namespace humongousexplorer::core
 	{
 		return reinterpret_cast<T*>(add(a_pPtr, a_iSize));
 	}
+
+	inline int getBit(char i, size_t a_Position)
+	{
+		return (i & (1 << a_Position)) >> a_Position;
+	}
+
+	inline int chunkcmp(unsigned char* a_ChunkID1, const char* a_ChunkID2, size_t a_iSize = 4)
+	{
+		return strncmp(reinterpret_cast<const char*>(a_ChunkID1), a_ChunkID2, a_iSize);
+	}
+
+	inline int chunkcmp(unsigned char* a_ChunkID1, unsigned char* a_ChunkID2)
+	{
+		return chunkcmp(a_ChunkID1, reinterpret_cast<const char*>(a_ChunkID2));
+	}
+
+	inline int unsignedCharCmp(unsigned char a_ChunkID1, unsigned char a_ChunkID2)
+	{
+		return a_ChunkID1 == a_ChunkID2;
+	}
+
+	inline void reverseBytes(unsigned char* a_Start, int a_Size)
+	{
+		unsigned char* lo = a_Start;
+		unsigned char* hi = a_Start + a_Size - 1;
+		unsigned char swap;
+		while (lo < hi)
+		{
+			swap = *lo;
+			*lo++ = *hi;
+			*hi-- = swap;
+		}
+	}
+
+	inline void xorShift(unsigned char*& a_Data, size_t a_Size, char a_Key)
+	{
+		for (int i = 0; i < a_Size; i++)
+		{
+			a_Data[i] = a_Data[i] ^ a_Key;
+		}
+	}
+
+	template <class T>
+	inline T reverseBytesC(unsigned char* a_Number)
+	{
+		reverseBytes(a_Number, sizeof(T));
+		return *reinterpret_cast<T*>(a_Number);
+	}
 }

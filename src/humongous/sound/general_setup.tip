@@ -1,0 +1,14 @@
+This is how sounds are structured in HE games:
+
+Quick easy descriptions:
+
+- TLKB: Indicates a TALK bank. At the start of the file. Only contains the size of the chunk + child chunks.
+- TALK: Voice samples. Will usually contain SBNG, SDAT and HSHD. Only contains a size of the chunk + child chunks.
+- SBNG: Voice sync.
+- SDAT: Contains sound data and the size of the chunk.
+- HSHD: Contains info about the sound, such as sample rate and bits per sample.
+
+- SONG: Indicates a SONG bank. At the start of the file. Only contains the size of the chunk + child chunks.
+- SGHD: This is at the start of the file and says how many songs there are. This is used to calculate where the data point starts (size * SGEN size).
+- SGEN: This is an "entry" at the start of the file. It gives a song id, position and size of the DIGI chunk that it references.
+- DIGI: This chunk indicates a song. Will usually contain HSHD and SDAT.

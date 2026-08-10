@@ -84,11 +84,11 @@ namespace humongousexplorer::imgui
 			[]()
 			{
 				std::vector<std::unique_ptr<FileEntryView>> children;
-				children.push_back(MakeRoomEntryView("Helogo"));
-				children.push_back(MakeRoomEntryView("Interface"));
-				children.push_back(MakeRoomEntryView("Saveload"));
-				children.push_back(MakeRoomEntryView("Spywatch"));
-				children.push_back(MakeRoomEntryView("Mobcom"));
+				children.push_back(MakeRoomEntryView("Room 001 - Helogo"));
+				children.push_back(MakeRoomEntryView("Room 002 - Interface"));
+				children.push_back(MakeRoomEntryView("Room 003 - Saveload"));
+				children.push_back(MakeRoomEntryView("Room 004 - Spywatch"));
+				children.push_back(MakeRoomEntryView("Room 005 - Mobcom"));
 				return children;
 			}(), "5 ROOMS"
 		));
@@ -99,15 +99,6 @@ namespace humongousexplorer::imgui
 		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.HE4", resources::ArchiveType::HE4, {}, "54"));
 		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.HE7", resources::ArchiveType::HE7, {}, "68"));
 		s_aArchives.push_back(MakeArchiveEntryView("SPYOZON.HE8", resources::ArchiveType::HE8, {}, "43"));
-
-		//for (size_t i = 0; i < s_aArchives.size(); i++)
-		//{
-		//	s_aArchives[i]->Filter("");
-		//	if (TextRowEntry* rowEntry = dynamic_cast<TextRowEntry*>(s_aArchives[i]->m_aRows[2].get()))
-		//	{
-		//		rowEntry->m_sText = "";
-		//	}
-		//}
 
 		return HEBaseWindow::Initialize();
 	}
