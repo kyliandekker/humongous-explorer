@@ -2,9 +2,10 @@
 
 #include <string>
 #include <vector>
-#include <unordered_set>
+#include <unordered_map>
 
 #include "humongous/ChunkIDs.h"
+#include "resources/ResourceType.h"
 
 namespace humongousexplorer::resources
 {
@@ -115,61 +116,37 @@ namespace humongousexplorer::resources
 		return ArchiveType::Unknown;
 	}
 
-	static const std::unordered_set<std::string> s_HE0DisplayableChunks =
+	static const std::unordered_map<std::string, resources::ResourceType> s_Empty =
 	{
 	};
 
-	static const std::unordered_set<std::string> s_HE1DisplayableChunks =
+	static const std::unordered_map<std::string, resources::ResourceType> s_HE2DisplayableChunks =
 	{
+		{ parsing::SDAT_CHUNK_ID, resources::ResourceType::Talkie }
 	};
 
-	static const std::unordered_set<std::string> s_HE2DisplayableChunks =
+	static const std::unordered_map<std::string, resources::ResourceType> s_HE4DisplayableChunks =
 	{
-		parsing::TALK_CHUNK_ID
-	};
-
-	static const std::unordered_set<std::string> s_HE3DisplayableChunks =
-	{
-	};
-
-	static const std::unordered_set<std::string> s_HE4DisplayableChunks =
-	{
-		parsing::DIGI_CHUNK_ID
-	};
-
-	static const std::unordered_set<std::string> s_HE7DisplayableChunks =
-	{
-	};
-
-	static const std::unordered_set<std::string> s_HE8DisplayableChunks =
-	{
-	};
-
-	static const std::unordered_set<std::string> s_ADisplayableChunks =
-	{
-	};
-
-	static const std::unordered_set<std::string> s_EmptyDisplayableChunks =
-	{
+		{ parsing::SDAT_CHUNK_ID, resources::ResourceType::Song }
 	};
 
 	//---------------------------------------------------------------------
-	inline const std::unordered_set<std::string>& GetDisplayableChunks(ArchiveType a_ArchiveType)
+	inline const std::unordered_map<std::string, resources::ResourceType>& GetDisplayableChunks(ArchiveType a_ArchiveType)
 	{
 		switch (a_ArchiveType)
 		{
 			case ArchiveType::Unknown:
 			case ArchiveType::Folder:
 			{
-				return s_EmptyDisplayableChunks;
+				return s_Empty;
 			}
 			case ArchiveType::HE0:
 			{
-				return s_HE0DisplayableChunks;
+				return s_Empty;
 			}
 			case ArchiveType::HE1:
 			{
-				return s_HE1DisplayableChunks;
+				return s_Empty;
 			}
 			case ArchiveType::HE2:
 			{
@@ -177,7 +154,7 @@ namespace humongousexplorer::resources
 			}
 			case ArchiveType::HE3:
 			{
-				return s_HE3DisplayableChunks;
+				return s_Empty;
 			}
 			case ArchiveType::HE4:
 			{
@@ -185,18 +162,18 @@ namespace humongousexplorer::resources
 			}
 			case ArchiveType::HE7:
 			{
-				return s_HE7DisplayableChunks;
+				return s_Empty;
 			}
 			case ArchiveType::HE8:
 			{
-				return s_HE8DisplayableChunks;
+				return s_Empty;
 			}
 			case ArchiveType::A:
 			{
-				return s_ADisplayableChunks;
+				return s_Empty;
 			}
 		}
-		return s_EmptyDisplayableChunks;
+		return s_Empty;
 	}
 
 	//---------------------------------------------------------------------

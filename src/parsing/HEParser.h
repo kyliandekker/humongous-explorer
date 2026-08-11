@@ -2,17 +2,25 @@
 
 #include <cstdint>
 #include <vector>
+#include <string>
+
+#include "core/Data.h"
 
 namespace humongousexplorer::parsing
 {
-	struct Chunk
-	{
-		char tag[4] = {};
-		uint32_t offset = 0;
-		uint32_t size = 0;
-		const uint8_t* data = nullptr;
-		std::vector<Chunk> children;
-	};
+    constexpr auto CHUNK_ID_SIZE = 4;
 
-	void ParseChunks(Chunk& out, const uint8_t* buf, size_t len, size_t pos = 0);
+    struct Chunk
+    {
+        char m_sTag[CHUNK_ID_SIZE] = {};
+        core::Data m_Data;           // leaf: Owns its data.
+        std::vector<Chunk> m_aChildren; // container: Owns its children.
+        Chunk* m_pParent = nullptr;
+
+        size_t ChunkSize() const;
+
+        Chunk* TryFindChild(const std::string& a_sChunkID);
+    };
+
+	void ParseChunks(Chunk& a_Out, const unsigned char* a_pBuf, size_t a_iPos = 0);
 }

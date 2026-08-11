@@ -5,6 +5,7 @@
 #include <string>
 
 #include "humongous/ChunkIDs.h"
+#include "core/Memory.h"
 
 namespace humongousexplorer::parsing
 {
@@ -13,8 +14,6 @@ namespace humongousexplorer::parsing
 		return (uint32_t(p[0]) << 24) | (uint32_t(p[1]) << 16) |
 			   (uint32_t(p[2]) << 8)  |  uint32_t(p[3]);
 	}
-
-	constexpr auto CHUNK_ID_SIZE = 4;
 
 #define NO_CHILD {}
 #define IMXX { SMAP_CHUNK_ID, BMAP_CHUNK_ID, BOMP_CHUNK_ID, ZP00_CHUNK_ID, ZP01_CHUNK_ID, ZP02_CHUNK_ID, ZP03_CHUNK_ID, ZP04_CHUNK_ID, ZP05_CHUNK_ID }
@@ -360,25 +359,67 @@ namespace humongousexplorer::parsing
 	};
 
 	//---------------------------------------------------------------------
-	void ParseChunks(Chunk& out, const uint8_t* buf, size_t len, size_t pos)
+	size_t Chunk::ChunkSize() const
 	{
-		while (pos < len)
+		if (m_aChildren.empty())
 		{
-			Chunk c;
-			memcpy(c.tag, buf + pos, 4);
-			c.size = ReadBE32(buf + pos + 4);
-			c.offset = pos;
-			c.data = buf + pos + 8;
+			return m_Data.size();
+		}
+		
+		size_t childrenSize = 0;
+		for (const Chunk& chunk : m_aChildren)
+		{
+			childrenSize += chunk.ChunkSize();
+		}
+		return childrenSize;
+	}
 
-			std::string tag(c.tag, CHUNK_ID_SIZE);
-			auto it = SCHEMA.find(tag);
-			bool isContainer = (it != SCHEMA.end() && !it->second.empty());
-			if (isContainer)
-				ParseChunks(c, buf, c.size - 8, pos + 8);
+	//---------------------------------------------------------------------
+	Chunk* Chunk::TryFindChild(const std::string& a_sChunkID)
+	{
+		Chunk* found = nullptr;
+		for (Chunk& chunk : m_aChildren)
+		{
+			if (core::chunkcmp(chunk.m_sTag, a_sChunkID.c_str()) == 0)
+			{
+				return &chunk;
+			}
 
-			out.children.push_back(std::move(c));
+			if (found = chunk.TryFindChild(a_sChunkID))
+			{
+				return found;
+			}
+		}
+		return found;
+	}
 
-			pos += c.size;
+	//---------------------------------------------------------------------
+	void ParseChunks(Chunk& a_Out, const unsigned char* a_pBuf, size_t a_iPos/* = 0*/)
+	{
+		memcpy(a_Out.m_sTag, a_pBuf + a_iPos, 4);
+		size_t size = ReadBE32(a_pBuf + a_iPos + 4);
+
+		std::string tag(a_Out.m_sTag, CHUNK_ID_SIZE);
+		auto it = SCHEMA.find(tag);
+		bool isContainer = (it != SCHEMA.end() && !it->second.empty());
+
+		if (isContainer)
+		{
+			size_t childPos = a_iPos + 8;
+			size_t endPos = a_iPos + size;
+			while (childPos < endPos)
+			{
+				a_Out.m_aChildren.emplace_back();
+				Chunk& child = a_Out.m_aChildren.back();
+				child.m_pParent = &a_Out;
+				size_t childSize = ReadBE32(a_pBuf + childPos + 4);
+				ParseChunks(child, a_pBuf, childPos);
+				childPos += childSize;
+			}
+		}
+		else
+		{
+			a_Out.m_Data = core::Data(a_pBuf + a_iPos + 8, size - 8);
 		}
 	}
 }

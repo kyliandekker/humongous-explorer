@@ -48,14 +48,9 @@ namespace humongousexplorer::core
 		return (i & (1 << a_Position)) >> a_Position;
 	}
 
-	inline int chunkcmp(unsigned char* a_ChunkID1, const char* a_ChunkID2, size_t a_iSize = 4)
+	inline int chunkcmp(const char* a_ChunkID1, const char* a_ChunkID2, size_t a_iSize = 4)
 	{
-		return strncmp(reinterpret_cast<const char*>(a_ChunkID1), a_ChunkID2, a_iSize);
-	}
-
-	inline int chunkcmp(unsigned char* a_ChunkID1, unsigned char* a_ChunkID2)
-	{
-		return chunkcmp(a_ChunkID1, reinterpret_cast<const char*>(a_ChunkID2));
+		return strncmp(a_ChunkID1, a_ChunkID2, a_iSize);
 	}
 
 	inline int unsignedCharCmp(unsigned char a_ChunkID1, unsigned char a_ChunkID2)

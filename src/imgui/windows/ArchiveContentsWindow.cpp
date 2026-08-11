@@ -24,68 +24,19 @@ namespace humongousexplorer::imgui
 	static std::vector<std::unique_ptr<TreeFileEntryView>> s_aArchives;
 
 	//---------------------------------------------------------------------
-	std::unique_ptr<TreeFileEntryView> MakeArchiveEntryView(
-		const std::string& a_sName,
-		resources::ArchiveType a_ArchiveType,
-		std::vector<std::unique_ptr<FileEntryView>> a_aChildren = {},
-		const std::string& a_sCount = "UNINITIALIZED"
-	)
-	{
-		return std::make_unique<TreeFileEntryView>(
-			MakeRows(
-				MakeIconRow(resources::GetIconFromArchiveType(a_ArchiveType)),
-				MakeNameRow(a_sName),
-				MakeCountRow(a_sCount)
-			),
-			std::move(a_aChildren)
-		);
-	}
-
-	//---------------------------------------------------------------------
-	std::unique_ptr<ResourceFileEntryView> MakeArchiveResourceEntryView(
-		const std::string& a_sName,
-		resources::ResourceType a_eType,
-		const std::string& a_sCount = "UNINITIALIZED"
-	)
-	{
-		return std::make_unique<ResourceFileEntryView>(
-			MakeRows(
-				MakeIconRow(resources::GetIconFromResourceType(a_eType)),
-				MakeNameRow(a_sName),
-				MakeCountRow(a_sCount)
-			)
-		);
-	}
-
-	//---------------------------------------------------------------------
-	std::unique_ptr<FileEntryView> MakeRoomEntryView(
-		const std::string& a_sName,
-		const std::string& a_sCount = "UNINITIALIZED"
-	)
-	{
-		return std::make_unique<FileEntryView>(
-			MakeRows(
-				MakeIconRow(resources::GetIconFromResourceType(resources::ResourceType::Room)),
-				MakeNameRow(a_sName),
-				MakeCountRow(a_sCount)
-			)
-		);
-	}
-
-	//---------------------------------------------------------------------
 	static void CollectDisplayableChunks(
 		resources::ArchiveType a_ArchiveType,
 		const parsing::Chunk& a_Parent,
-		std::vector<const parsing::Chunk*>& a_Out
+		std::vector<std::pair<const parsing::Chunk*, resources::ResourceType>>& a_Out
 	)
 	{
 		const auto& displayable = resources::GetDisplayableChunks(a_ArchiveType);
-		for (const auto& child : a_Parent.children)
+		for (const auto& child : a_Parent.m_aChildren)
 		{
-			std::string tag(child.tag, 4);
+			std::string tag(child.m_sTag, 4);
 			if (displayable.count(tag))
 			{
-				a_Out.push_back(&child);
+				a_Out.push_back({ &child, displayable.at(tag)});
 			}
 			else
 			{
@@ -129,7 +80,7 @@ namespace humongousexplorer::imgui
 			parsing::ParseChunks(
 				archive.m_Root,
 				static_cast<const uint8_t*>(archive.m_Data.data()),
-				archive.m_Data.size()
+				0
 			);
 		}
 
@@ -140,21 +91,22 @@ namespace humongousexplorer::imgui
 
 		std::string name = filePath.filename().string();
 
-		std::vector<const parsing::Chunk*> displayableChunks;
+		std::vector<std::pair<const parsing::Chunk*, resources::ResourceType>> displayableChunks;
 		CollectDisplayableChunks(archive.m_eType, archive.m_Root, displayableChunks);
 
 		std::vector<std::unique_ptr<FileEntryView>> children;
-		for (const auto* chunk : displayableChunks)
+		for (const auto& displayableChunk : displayableChunks)
 		{
-			std::string tag(chunk->tag, 4);
+			std::string tag(displayableChunk.first->m_sTag, 4);
+			size_t size = displayableChunk.first->ChunkSize();
 			auto child = std::make_unique<TreeFileEntryView>(
 				MakeRows(
-					MakeIconRow(resources::GetIconFromResourceType(resources::GetResourceTypeFromChunkID(tag))),
-					MakeNameRow(tag),
-					MakeCountRow(std::to_string(chunk->size) + " bytes")
+					MakeIconRow(resources::GetIconFromResourceType(displayableChunk.second)),
+					MakeNameRow(resources::GetNameFromResourceType(displayableChunk.second)),
+					MakeCountRow(std::to_string(size) + " bytes")
 				)
 			);
-			child->m_pChunk = chunk;
+			child->m_pChunk = displayableChunk.first;
 			children.push_back(std::move(child));
 		}
 
