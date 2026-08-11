@@ -23,11 +23,12 @@ namespace humongousexplorer::imgui
 {
 	static std::vector<std::unique_ptr<TreeFileEntryView>> s_aArchives;
 
+	using ChunkPair = std::pair<const parsing::Chunk*, resources::DisplayableChunk>;
 	//---------------------------------------------------------------------
 	static void CollectDisplayableChunks(
 		resources::ArchiveType a_ArchiveType,
 		const parsing::Chunk& a_Parent,
-		std::vector<std::pair<const parsing::Chunk*, resources::ResourceType>>& a_Out
+		std::vector<ChunkPair>& a_Out
 	)
 	{
 		const auto& displayable = resources::GetDisplayableChunks(a_ArchiveType);
@@ -84,29 +85,25 @@ namespace humongousexplorer::imgui
 			);
 		}
 
-		if (archive.m_eType == resources::ArchiveType::HE0)
-		{
-
-		}
-
 		std::string name = filePath.filename().string();
 
-		std::vector<std::pair<const parsing::Chunk*, resources::ResourceType>> displayableChunks;
+		std::vector<ChunkPair> displayableChunks;
 		CollectDisplayableChunks(archive.m_eType, archive.m_Root, displayableChunks);
 
 		std::vector<std::unique_ptr<FileEntryView>> children;
-		for (const auto& displayableChunk : displayableChunks)
+		for (const ChunkPair& displayableChunk : displayableChunks)
 		{
 			std::string tag(displayableChunk.first->m_sTag, 4);
 			size_t size = displayableChunk.first->ChunkSize();
-			auto child = std::make_unique<TreeFileEntryView>(
+			std::unique_ptr<TreeFileEntryView> child = std::make_unique<TreeFileEntryView>(
 				MakeRows(
-					MakeIconRow(resources::GetIconFromResourceType(displayableChunk.second)),
-					MakeNameRow(resources::GetNameFromResourceType(displayableChunk.second)),
+					MakeIconRow(resources::GetIconFromResourceType(displayableChunk.second.m_eResourceType)),
+					MakeNameRow(resources::GetNameFromResourceType(displayableChunk.second.m_eResourceType)),
 					MakeCountRow(std::to_string(size) + " bytes")
 				)
 			);
 			child->m_pChunk = displayableChunk.first;
+			child->m_bVisible = displayableChunk.second.m_bVisible;
 			children.push_back(std::move(child));
 		}
 
@@ -122,6 +119,7 @@ namespace humongousexplorer::imgui
 
 		s_aArchives.push_back(std::move(archiveView));
 
+		GetWorkspace().SetSelectedFileEntryView(s_aArchives[s_aArchives.size() - 1].get());
 		GetWorkspace().AddArchive(std::move(archive));
 	}
 

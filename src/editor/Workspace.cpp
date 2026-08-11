@@ -2,6 +2,8 @@
 
 #include "file/file_abstractions.h"
 
+#include "imgui/views/FileEntryView.h"
+
 namespace humongousexplorer
 {
 	editor::Workspace& GetWorkspace()
@@ -50,5 +52,17 @@ namespace humongousexplorer::editor
 	const std::vector<ArchiveData>& Workspace::GetArchives() const
 	{
 		return m_aArchives;
+	}
+
+	//---------------------------------------------------------------------
+	void Workspace::SetSelectedFileEntryView(imgui::TreeFileEntryView* a_pSelectedView)
+	{
+		m_pSelectedFileEntryView = a_pSelectedView;
+	}
+
+	//---------------------------------------------------------------------
+	imgui::TreeFileEntryView* Workspace::GetSelectedView()
+	{
+		return m_pSelectedFileEntryView;
 	}
 }

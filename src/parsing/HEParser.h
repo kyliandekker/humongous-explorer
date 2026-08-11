@@ -20,6 +20,7 @@ namespace humongousexplorer::parsing
         size_t ChunkSize() const;
 
         Chunk* TryFindChild(const std::string& a_sChunkID);
+        Chunk* GetRoot();
     };
 
 	void ParseChunks(Chunk& a_Out, const unsigned char* a_pBuf, size_t a_iPos = 0);

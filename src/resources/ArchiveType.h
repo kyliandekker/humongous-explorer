@@ -116,22 +116,28 @@ namespace humongousexplorer::resources
 		return ArchiveType::Unknown;
 	}
 
-	static const std::unordered_map<std::string, resources::ResourceType> s_Empty =
+	struct DisplayableChunk
+	{
+		resources::ResourceType m_eResourceType;
+		bool m_bVisible = true;
+	};
+
+	static const std::unordered_map<std::string, DisplayableChunk> s_Empty =
 	{
 	};
 
-	static const std::unordered_map<std::string, resources::ResourceType> s_HE2DisplayableChunks =
+	static const std::unordered_map<std::string, DisplayableChunk> s_HE2DisplayableChunks =
 	{
-		{ parsing::SDAT_CHUNK_ID, resources::ResourceType::Talkie }
+		{ parsing::SDAT_CHUNK_ID, { resources::ResourceType::Talkie, false } }
 	};
 
-	static const std::unordered_map<std::string, resources::ResourceType> s_HE4DisplayableChunks =
+	static const std::unordered_map<std::string, DisplayableChunk> s_HE4DisplayableChunks =
 	{
-		{ parsing::SDAT_CHUNK_ID, resources::ResourceType::Song }
+		{ parsing::SDAT_CHUNK_ID, { resources::ResourceType::Song, false } }
 	};
 
 	//---------------------------------------------------------------------
-	inline const std::unordered_map<std::string, resources::ResourceType>& GetDisplayableChunks(ArchiveType a_ArchiveType)
+	inline const std::unordered_map<std::string, DisplayableChunk>& GetDisplayableChunks(ArchiveType a_ArchiveType)
 	{
 		switch (a_ArchiveType)
 		{

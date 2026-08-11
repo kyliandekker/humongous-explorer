@@ -394,6 +394,17 @@ namespace humongousexplorer::parsing
 	}
 
 	//---------------------------------------------------------------------
+	Chunk* Chunk::GetRoot()
+	{
+		Chunk* parent = nullptr;
+		while (parent->m_pParent)
+		{
+			parent = m_pParent;
+		}
+		return parent;
+	}
+
+	//---------------------------------------------------------------------
 	void ParseChunks(Chunk& a_Out, const unsigned char* a_pBuf, size_t a_iPos/* = 0*/)
 	{
 		memcpy(a_Out.m_sTag, a_pBuf + a_iPos, 4);

@@ -18,7 +18,10 @@ namespace humongousexplorer
 
 	extern editor::Workspace& GetWorkspace();
 }
-
+namespace humongousexplorer::imgui
+{
+	class TreeFileEntryView;
+}
 namespace humongousexplorer::editor
 {
 	struct ArchiveData
@@ -44,9 +47,14 @@ namespace humongousexplorer::editor
 
 		void AddArchive(ArchiveData a_Archive);
 		const std::vector<ArchiveData>& GetArchives() const;
+
+		void SetSelectedFileEntryView(imgui::TreeFileEntryView* a_pSelectedView);
+		imgui::TreeFileEntryView* GetSelectedView();
 	private:
 		resources::ResourceType m_ResourceTypeFilter;
 		std::string m_sAppDataPath;
 		std::vector<ArchiveData> m_aArchives;
+
+		imgui::TreeFileEntryView* m_pSelectedFileEntryView = nullptr;
 	};
 }

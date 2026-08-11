@@ -12,6 +12,8 @@
 #include "dx11/SVGTextureCache.h"
 #include "utils/string_extensions.h"
 #include "imgui/Helpers.h"
+#include "editor/Workspace.h"
+#include "imgui/views/FileEntryView.h"
 
 namespace humongousexplorer::imgui
 {
@@ -81,10 +83,9 @@ namespace humongousexplorer::imgui
 	// RoomContentWindow
 	//---------------------------------------------------------------------
 	RoomContentWindow::RoomContentWindow()
-		: HEBaseWindow(ImGuiWindowFlags_NoCollapse, "ROOM CONTENT", "RoomContentWindow"),
+		: HEBaseWindow(ImGuiWindowFlags_NoCollapse, "CONTENT EXPLORER", "ContentWindow"),
 		m_SearchBar("RoomSearchbar", "Search resources...")
-	{
-	}
+	{}
 
 	//---------------------------------------------------------------------
 	bool RoomContentWindow::OnInitialized()
@@ -108,6 +109,8 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void RoomContentWindow::Update()
 	{
+		printf("%i\n", GetWorkspace().GetSelectedView() != nullptr);
+
 		// TODO: Set ": Room_Name".
 
 		if (ImGui::BeginChild(
