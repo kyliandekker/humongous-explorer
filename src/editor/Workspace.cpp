@@ -6,6 +6,7 @@
 
 namespace humongousexplorer
 {
+	//---------------------------------------------------------------------
 	editor::Workspace& GetWorkspace()
 	{
 		static humongousexplorer::editor::Workspace workspace;
@@ -43,9 +44,10 @@ namespace humongousexplorer::editor
 	}
 
 	//---------------------------------------------------------------------
-	void Workspace::AddArchive(ArchiveData a_Archive)
+	ArchiveData& Workspace::AddArchive(ArchiveData a_Archive)
 	{
 		m_aArchives.push_back(std::move(a_Archive));
+		return m_aArchives.back();
 	}
 
 	//---------------------------------------------------------------------
@@ -62,6 +64,12 @@ namespace humongousexplorer::editor
 
 	//---------------------------------------------------------------------
 	imgui::TreeFileEntryView* Workspace::GetSelectedView()
+	{
+		return m_pSelectedFileEntryView.get();
+	}
+
+	//---------------------------------------------------------------------
+	const core::Observable<imgui::TreeFileEntryView*>& Workspace::GetSelectedViewObs() const
 	{
 		return m_pSelectedFileEntryView;
 	}

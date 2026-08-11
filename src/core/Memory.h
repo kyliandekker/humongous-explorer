@@ -19,6 +19,36 @@ namespace humongousexplorer::core
 #define _128MB _MB(128)
 #define _256MB _MB(256)
 
+	inline size_t NearestByteSize(size_t size)
+	{
+		static const size_t sizes[] = {
+			_64KB,
+			_1MB,
+			_2MB,
+			_4MB,
+			_8MB,
+			_16MB,
+			_32MB,
+			_64MB,
+			_128MB,
+			_256MB,
+		};
+
+		size_t nearest = sizes[0];
+		size_t min_diff = (size > nearest) ? size - nearest : nearest - size;
+
+		for (size_t i = 1; i < sizeof(sizes) / sizeof(sizes[0]); ++i) {
+			size_t diff = (size > sizes[i]) ? size - sizes[i] : sizes[i] - size;
+
+			if (diff < min_diff) {
+				min_diff = diff;
+				nearest = sizes[i];
+			}
+		}
+
+		return nearest;
+	}
+
 	/// <summary>
 	/// Adds specific size to a pointer.
 	/// </summary>

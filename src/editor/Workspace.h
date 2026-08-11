@@ -5,7 +5,10 @@
 
 #include "core/System.h"
 #include "core/Data.h"
+#include "core/Observable.h"
+
 #include "parsing/HEParser.h"
+
 #include "resources/ArchiveType.h"
 #include "resources/ResourceType.h"
 
@@ -24,6 +27,7 @@ namespace humongousexplorer::imgui
 }
 namespace humongousexplorer::editor
 {
+	//---------------------------------------------------------------------
 	struct ArchiveData
 	{
 		std::string m_sPath;
@@ -32,29 +36,27 @@ namespace humongousexplorer::editor
 		parsing::Chunk m_Root;
 	};
 
+	//---------------------------------------------------------------------
 	class Workspace : public core::System
 	{
 	public:
-		/// <summary>
-		/// Initializes the system, setting up necessary resources.
-		/// </summary>
-		/// <returns>True if the initialization was successful, otherwise false.</returns>
 		bool Initialize() override;
 
 		resources::ResourceType GetResourceTypeFilter() const;
 		void SetResourceTypeFilter(resources::ResourceType a_ResourceTypeFilter);
 		const std::string& GetAppDataPath() const;
 
-		void AddArchive(ArchiveData a_Archive);
+		ArchiveData& AddArchive(ArchiveData a_Archive);
 		const std::vector<ArchiveData>& GetArchives() const;
 
 		void SetSelectedFileEntryView(imgui::TreeFileEntryView* a_pSelectedView);
 		imgui::TreeFileEntryView* GetSelectedView();
+		const core::Observable<imgui::TreeFileEntryView*>& GetSelectedViewObs() const;
 	private:
 		resources::ResourceType m_ResourceTypeFilter;
 		std::string m_sAppDataPath;
 		std::vector<ArchiveData> m_aArchives;
 
-		imgui::TreeFileEntryView* m_pSelectedFileEntryView = nullptr;
+		core::Observable<imgui::TreeFileEntryView*> m_pSelectedFileEntryView{nullptr};
 	};
 }

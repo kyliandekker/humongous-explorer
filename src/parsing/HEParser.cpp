@@ -9,6 +9,7 @@
 
 namespace humongousexplorer::parsing
 {
+	//---------------------------------------------------------------------
 	static uint32_t ReadBE32(const uint8_t* p)
 	{
 		return (uint32_t(p[0]) << 24) | (uint32_t(p[1]) << 16) |
@@ -18,6 +19,7 @@ namespace humongousexplorer::parsing
 #define NO_CHILD {}
 #define IMXX { SMAP_CHUNK_ID, BMAP_CHUNK_ID, BOMP_CHUNK_ID, ZP00_CHUNK_ID, ZP01_CHUNK_ID, ZP02_CHUNK_ID, ZP03_CHUNK_ID, ZP04_CHUNK_ID, ZP05_CHUNK_ID }
 
+	//---------------------------------------------------------------------
 	const std::unordered_map<std::string, std::vector<std::string>> SCHEMA =
 	{
 		{ LECF_CHUNK_ID, {
@@ -396,8 +398,8 @@ namespace humongousexplorer::parsing
 	//---------------------------------------------------------------------
 	Chunk* Chunk::GetRoot()
 	{
-		Chunk* parent = nullptr;
-		while (parent->m_pParent)
+		Chunk* parent = m_pParent;
+		while (parent && parent->m_pParent)
 		{
 			parent = m_pParent;
 		}

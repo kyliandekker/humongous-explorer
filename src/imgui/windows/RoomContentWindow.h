@@ -6,6 +6,8 @@
 
 namespace humongousexplorer::imgui
 {
+	class TreeFileEntryView;
+
 	//---------------------------------------------------------------------
 	// RoomContentWindow
 	//---------------------------------------------------------------------
@@ -30,6 +32,8 @@ namespace humongousexplorer::imgui
 		/// </summary>
 		/// <returns>True if initialization is successful, otherwise false.</returns>
 		bool OnInitialized() override;
+
+		void OnSelectedViewChanged(const imgui::TreeFileEntryView* oldView, const imgui::TreeFileEntryView* newView);
 
 		SearchBar m_SearchBar;
 		int m_iSortColumn = -1;

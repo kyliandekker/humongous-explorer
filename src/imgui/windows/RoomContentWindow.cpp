@@ -17,6 +17,7 @@
 
 namespace humongousexplorer::imgui
 {
+	//---------------------------------------------------------------------
 	struct TabInfo
 	{
 		const char* sLabel;
@@ -24,6 +25,7 @@ namespace humongousexplorer::imgui
 		std::vector<resources::ResourceType> m_aResourceTypes;
 	};
 
+	//---------------------------------------------------------------------
 	static const TabInfo s_aTabs[] =
 	{
 		{ "All Files",  "../icons/icon_all_files.svg", { resources::ResourceType::Unknown } },
@@ -35,7 +37,7 @@ namespace humongousexplorer::imgui
 		{ "Scripts", "../icons/icon_local_script.svg", { resources::ResourceType::GlobalScript, resources::ResourceType::LocalScript, resources::ResourceType::VerbScript } },
 	};
 	static const int s_iTabCount = sizeof(s_aTabs) / sizeof(s_aTabs[0]);
-	
+
 	//---------------------------------------------------------------------
 	struct ResourceEntry
 	{
@@ -48,7 +50,7 @@ namespace humongousexplorer::imgui
 	};
 
 	//---------------------------------------------------------------------
-	static std::vector<ResourceEntry> s_aResources =
+	static std::vector<std::unique_ptr<ResourceEntry>> s_aResources =
 	{
 	};
 
@@ -69,9 +71,9 @@ namespace humongousexplorer::imgui
 	int RoomContentWindow::CountResourcesForTab(int a_iTab) const
 	{
 		int count = 0;
-		for (const ResourceEntry& entry : s_aResources)
+		for (const std::unique_ptr<ResourceEntry>& entry : s_aResources)
 		{
-			if (MatchesTabFilter(entry.eType, a_iTab))
+			if (MatchesTabFilter(entry->eType, a_iTab))
 			{
 				count++;
 			}
@@ -85,22 +87,33 @@ namespace humongousexplorer::imgui
 	RoomContentWindow::RoomContentWindow()
 		: HEBaseWindow(ImGuiWindowFlags_NoCollapse, "CONTENT EXPLORER", "ContentWindow"),
 		m_SearchBar("RoomSearchbar", "Search resources...")
-	{}
+	{
+	}
 
 	//---------------------------------------------------------------------
 	bool RoomContentWindow::OnInitialized()
 	{
-		size_t i = 0;
-		for (auto& entry : s_aResources)
-		{
-			entry.m_iOrder = i;
-			i++;
-		}
+		GetWorkspace().GetSelectedViewObs().OnChanged() += std::bind(&RoomContentWindow::OnSelectedViewChanged, this, std::placeholders::_1, std::placeholders::_2);
 		return true;
 	}
 
 	//---------------------------------------------------------------------
-	int compare_size_t(size_t a, size_t b) {
+	void RoomContentWindow::OnSelectedViewChanged(const imgui::TreeFileEntryView* oldView, const imgui::TreeFileEntryView* newView)
+	{
+		s_aResources.clear();
+
+
+
+		size_t i = 0;
+		for (const std::unique_ptr<ResourceEntry>& entry : s_aResources)
+		{
+			entry->m_iOrder = i;
+			i++;
+		}
+	}
+
+	//---------------------------------------------------------------------
+	int CompareSize(size_t a, size_t b) {
 		if (a < b) return -1;
 		if (a > b) return 1;
 		return 0;
@@ -109,8 +122,6 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void RoomContentWindow::Update()
 	{
-		printf("%i\n", GetWorkspace().GetSelectedView() != nullptr);
-
 		// TODO: Set ": Room_Name".
 
 		if (ImGui::BeginChild(
@@ -201,16 +212,16 @@ namespace humongousexplorer::imgui
 
 				for (size_t i = 0; i < s_aResources.size(); i++)
 				{
-					const ResourceEntry& entry = s_aResources[i];
+					const std::unique_ptr<ResourceEntry>& entry = s_aResources[i];
 
-					if (!MatchesTabFilter(entry.eType, m_iSelectedTab))
+					if (!MatchesTabFilter(entry->eType, m_iSelectedTab))
 					{
 						continue;
 					}
 
 					if (!filter.empty())
 					{
-						std::string lowerName = string_extensions::StringToLower(entry.sName);
+						std::string lowerName = string_extensions::StringToLower(entry->sName);
 						if (lowerName.find(filter) == std::string::npos)
 						{
 							continue;
@@ -253,7 +264,7 @@ namespace humongousexplorer::imgui
 
 					ImGui::TableNextColumn();
 					{
-						ID3D11ShaderResourceView* pTex = dx11::SVGTextureCache::Get(resources::GetIconFromResourceType(entry.eType).c_str());
+						ID3D11ShaderResourceView* pTex = dx11::SVGTextureCache::Get(resources::GetIconFromResourceType(entry->eType).c_str());
 						if (pTex)
 						{
 							ImVec2 pos = ImGui::GetCursorScreenPos();
@@ -267,19 +278,19 @@ namespace humongousexplorer::imgui
 
 					ImGui::TableNextColumn();
 					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(entry.sName.c_str());
+					ImGui::TextUnformatted(entry->sName.c_str());
 
 					ImGui::TableNextColumn();
 					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(resources::GetNameFromResourceType(entry.eType).c_str());
+					ImGui::TextUnformatted(resources::GetNameFromResourceType(entry->eType).c_str());
 
 					ImGui::TableNextColumn();
 					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(entry.sSize.c_str());
+					ImGui::TextUnformatted(entry->sSize.c_str());
 
 					ImGui::TableNextColumn();
 					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(entry.sDimensions.c_str());
+					ImGui::TextUnformatted(entry->sDimensions.c_str());
 				}
 
 				if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs())
@@ -291,7 +302,7 @@ namespace humongousexplorer::imgui
 						m_bSortAscending = spec.SortDirection == ImGuiSortDirection_Ascending;
 						sortSpecs->SpecsDirty = false;
 
-						std::sort(s_aResources.begin(), s_aResources.end(), [this](const ResourceEntry& a, const ResourceEntry& b)
+						std::sort(s_aResources.begin(), s_aResources.end(), [this](const std::unique_ptr<ResourceEntry>& a, const std::unique_ptr<ResourceEntry>& b)
 							{
 								int cmp = 0;
 								switch (m_iSortColumn)
@@ -299,27 +310,27 @@ namespace humongousexplorer::imgui
 									case 0:
 									case 1:
 									{
-										cmp = compare_size_t(a.m_iOrder, b.m_iOrder);
+										cmp = CompareSize(a->m_iOrder, b->m_iOrder);
 										break;
 									}
 									case 2:
 									{
-										cmp = a.sName.compare(b.sName);
+										cmp = a->sName.compare(b->sName);
 										break;
 									}
 									case 3:
 									{
-										cmp = resources::GetNameFromResourceType(a.eType).compare(resources::GetNameFromResourceType(b.eType));
+										cmp = resources::GetNameFromResourceType(a->eType).compare(resources::GetNameFromResourceType(b->eType));
 										break;
 									}
 									case 4:
 									{
-										cmp = a.sSize.compare(b.sSize);
+										cmp = a->sSize.compare(b->sSize);
 										break;
 									}
 									case 5:
 									{
-										cmp = a.sDimensions.compare(b.sDimensions);
+										cmp = a->sDimensions.compare(b->sDimensions);
 										break;
 									}
 								}

@@ -10,6 +10,7 @@ namespace humongousexplorer::parsing
 {
     constexpr auto CHUNK_ID_SIZE = 4;
 
+    //---------------------------------------------------------------------
     struct Chunk
     {
         char m_sTag[CHUNK_ID_SIZE] = {};
@@ -23,5 +24,6 @@ namespace humongousexplorer::parsing
         Chunk* GetRoot();
     };
 
+    //---------------------------------------------------------------------
 	void ParseChunks(Chunk& a_Out, const unsigned char* a_pBuf, size_t a_iPos = 0);
 }

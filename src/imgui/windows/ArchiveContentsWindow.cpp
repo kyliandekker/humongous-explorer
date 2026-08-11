@@ -21,6 +21,7 @@
 
 namespace humongousexplorer::imgui
 {
+	//---------------------------------------------------------------------
 	static std::vector<std::unique_ptr<TreeFileEntryView>> s_aArchives;
 
 	using ChunkPair = std::pair<const parsing::Chunk*, resources::DisplayableChunk>;
@@ -117,10 +118,10 @@ namespace humongousexplorer::imgui
 		);
 		archiveView->m_bExpanded = true;
 
-		s_aArchives.push_back(std::move(archiveView));
+		editor::ArchiveData& stored = GetWorkspace().AddArchive(std::move(archive));
+		archiveView->m_pChunk = &stored.m_Root;
 
-		GetWorkspace().SetSelectedFileEntryView(s_aArchives[s_aArchives.size() - 1].get());
-		GetWorkspace().AddArchive(std::move(archive));
+		s_aArchives.push_back(std::move(archiveView));
 	}
 
 	//---------------------------------------------------------------------
@@ -184,6 +185,7 @@ namespace humongousexplorer::imgui
 							case FileEntryInteractionType::LeftClicked:
 							{
 								m_pFilterFileEntryView = fileEntry;
+								GetWorkspace().SetSelectedFileEntryView(dynamic_cast<TreeFileEntryView*>(fileEntry));
 								break;
 							}
 							case FileEntryInteractionType::RightClicked:

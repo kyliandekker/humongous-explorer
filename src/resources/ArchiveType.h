@@ -133,7 +133,7 @@ namespace humongousexplorer::resources
 
 	static const std::unordered_map<std::string, DisplayableChunk> s_HE4DisplayableChunks =
 	{
-		{ parsing::SDAT_CHUNK_ID, { resources::ResourceType::Song, false } }
+		{ parsing::SGEN_CHUNK_ID, { resources::ResourceType::Song, false } }
 	};
 
 	//---------------------------------------------------------------------
