@@ -13,9 +13,9 @@ namespace humongousexplorer::imgui
 	}
 
 	//---------------------------------------------------------------------
-	bool InfoPanelWindow::Initialize()
+	bool InfoPanelWindow::OnInitialized()
 	{
-		return HEBaseWindow::Initialize();
+		return true;
 	}
 
 	//---------------------------------------------------------------------
@@ -81,6 +81,10 @@ namespace humongousexplorer::imgui
 			float swatchSize = ImGui::GetFontSize() + 6.0f;
 			float availSwatchWidth = avail.x - ImGui::GetStyle().WindowPadding.x * 2.0f;
 			int swatchesPerRow = static_cast<int>(availSwatchWidth / (swatchSize + ImGui::GetStyle().ItemSpacing.x));
+			if (swatchesPerRow == 0)
+			{
+				swatchesPerRow = 2;
+			}
 
 			// Generate a demo palette (256-color VGA-style)
 			static ImVec4 palette[32];

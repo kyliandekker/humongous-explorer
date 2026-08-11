@@ -11,8 +11,12 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	struct ResourceFileEntryView : public FileEntryView
 	{
-		ResourceFileEntryView(resources::ResourceType a_ResourceType, std::vector<std::unique_ptr<RowEntry>> a_aRows);
+		ResourceFileEntryView(std::vector<std::unique_ptr<RowEntry>> a_aRows);
+	};
 
-		resources::ResourceType m_ResourceType;
+	//---------------------------------------------------------------------
+	struct TreeResourceFileEntryView : public TreeFileEntryView
+	{
+		TreeResourceFileEntryView(std::vector<std::unique_ptr<RowEntry>> a_aRows);
 	};
 }

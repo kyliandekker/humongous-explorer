@@ -44,6 +44,8 @@ namespace humongousexplorer::win32
 
 		LOG(LOGSEVERITY_SUCCESS, "Initialized window.");
 
+		::DragAcceptFiles(m_HWnd, TRUE);
+
 		return true;
 	}
 
@@ -117,6 +119,14 @@ namespace humongousexplorer::win32
 	}
 
 	//---------------------------------------------------------------------
+	std::string Window::ConsumeDroppedFile()
+	{
+		std::string path = std::move(m_sDroppedFile);
+		m_sDroppedFile.clear();
+		return path;
+	}
+
+	//---------------------------------------------------------------------
 	LRESULT CALLBACK Window::WndProc(HWND a_HWnd, UINT a_iMsg, WPARAM a_WParam, LPARAM a_LParam)
 	{
 		Window* window = nullptr;
@@ -162,6 +172,20 @@ namespace humongousexplorer::win32
 					return 0;
 				}
 				break;
+		case WM_DROPFILES:
+		{
+			HDROP hDrop = reinterpret_cast<HDROP>(a_WParam);
+			wchar_t path[MAX_PATH];
+			if (::DragQueryFileW(hDrop, 0, path, MAX_PATH))
+			{
+				char utf8[MAX_PATH * 3];
+				int len = ::WideCharToMultiByte(CP_UTF8, 0, path, -1, utf8, sizeof(utf8), nullptr, nullptr);
+				if (len > 0) m_sDroppedFile = utf8;
+			}
+			::DragQueryPoint(hDrop, &m_ptDropPoint);
+			::DragFinish(hDrop);
+			return 0;
+		}
 			case WM_DESTROY:
 				::PostQuitMessage(0);
 				return 0;

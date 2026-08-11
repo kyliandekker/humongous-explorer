@@ -22,11 +22,11 @@ namespace humongousexplorer::imgui
 		/// Renders the explorer window.
 		/// </summary>
 		void Update() override;
-
+	private:
 		/// <summary>
 		/// Initializes all behaviours and values for the window.
 		/// </summary>
 		/// <returns>True if initialization is successful, otherwise false.</returns>
-		bool Initialize() override;
+		bool OnInitialized() override;
 	};
 }

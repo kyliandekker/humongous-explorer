@@ -21,16 +21,16 @@ namespace humongousexplorer::imgui
 		PreviewWindow();
 
 		/// <summary>
-		/// Initializes all behaviours and values for the window.
-		/// </summary>
-		/// <returns>True if initialization is successful, otherwise false.</returns>
-		bool Initialize() override;
-
-		/// <summary>
 		/// Renders the preview window content.
 		/// </summary>
 		void Update() override;
 	private:
+		/// <summary>
+		/// Initializes all behaviours and values for the window.
+		/// </summary>
+		/// <returns>True if initialization is successful, otherwise false.</returns>
+		bool OnInitialized() override;
+
 		float m_fZoom = 1.0f;
 		ImVec2 m_vPan = ImVec2(0.0f, 0.0f);
 

@@ -32,12 +32,6 @@ namespace humongousexplorer::imgui
 		~BaseWindow();
 
 		/// <summary>
-		/// Initializes all behaviours and values for the window.
-		/// </summary>
-		/// <returns>True if initialization is successful, otherwise false.</returns>
-		virtual bool Initialize();
-
-		/// <summary>
 		/// Destroys and disables the window.
 		/// </summary>
 		/// <returns>True if destruction is successful, otherwise false.</returns>
@@ -80,11 +74,19 @@ namespace humongousexplorer::imgui
 			m_bFocusMyWindow = true;
 		}
 
+		void Initialize();
+
 		void Open() { m_bVisible = true; }
 		void Close() { m_bVisible = false; }
 		void Toggle() { m_bVisible = !m_bVisible; }
 		bool IsOpen() const { return m_bVisible; }
 	protected:
+		/// <summary>
+		/// Initializes all behaviours and values for the window.
+		/// </summary>
+		/// <returns>True if initialization is successful, otherwise false.</returns>
+		virtual bool OnInitialized() = 0;
+
 		virtual void Update() = 0;
 
 		bool m_bVisible = true;

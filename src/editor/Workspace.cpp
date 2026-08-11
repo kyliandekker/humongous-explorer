@@ -39,4 +39,16 @@ namespace humongousexplorer::editor
 	{
 		return m_sAppDataPath;
 	}
+
+	//---------------------------------------------------------------------
+	void Workspace::AddArchive(ArchiveData a_Archive)
+	{
+		m_aArchives.push_back(std::move(a_Archive));
+	}
+
+	//---------------------------------------------------------------------
+	const std::vector<ArchiveData>& Workspace::GetArchives() const
+	{
+		return m_aArchives;
+	}
 }

@@ -77,6 +77,10 @@ namespace humongousexplorer::win32
 		/// </summary>
 		void ConsumeResize(uint32_t& a_iOutWidth, uint32_t& a_iOutHeight);
 
+		bool HasDroppedFile() const { return !m_sDroppedFile.empty(); }
+		std::string ConsumeDroppedFile();
+		POINT GetDroppedFilePosition() const { return m_ptDropPoint; }
+
 	private:
 		/// <summary>
 		/// Static window procedure forwarding to the instance.
@@ -94,5 +98,7 @@ namespace humongousexplorer::win32
 		MessageHook m_MessageHook = nullptr; /// Optional external message hook.
 		uint32_t m_iResizeWidth = 0; /// Queued client area width, 0 if no resize.
 		uint32_t m_iResizeHeight = 0; /// Queued client area height, 0 if no resize.
+		std::string m_sDroppedFile; /// Last file dropped onto the window.
+		POINT m_ptDropPoint = {}; /// Client-area position of the last drop.
 	};
 }

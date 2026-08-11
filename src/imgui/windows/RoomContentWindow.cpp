@@ -33,74 +33,21 @@ namespace humongousexplorer::imgui
 		{ "Scripts", "../icons/icon_local_script.svg", { resources::ResourceType::GlobalScript, resources::ResourceType::LocalScript, resources::ResourceType::VerbScript } },
 	};
 	static const int s_iTabCount = sizeof(s_aTabs) / sizeof(s_aTabs[0]);
-
+	
+	//---------------------------------------------------------------------
 	struct ResourceEntry
 	{
+		size_t m_iOrder;
 		std::string sName;
 		resources::ResourceType eType;
 		std::string sSize;
+		std::string sDuration;
 		std::string sDimensions;
-		size_t m_iOrder;
 	};
 
+	//---------------------------------------------------------------------
 	static std::vector<ResourceEntry> s_aResources =
 	{
-		{ "HELOGO_BACKGROUND", resources::ResourceType::RoomBackground, "245 KB", "320x200" },
-		{ "HELOGO_IMAGE", resources::ResourceType::RoomImage, "128 KB", "320x200" },
-		{ "PUTT_IMAGE", resources::ResourceType::RoomImage, "45 KB", "72x72" },
-		{ "PUP_IMAGE", resources::ResourceType::RoomImage, "22 KB", "64x64" },
-		{ "TREE_IMAGE", resources::ResourceType::RoomImage, "68 KB", "128x256" },
-		{ "HOUSE_IMAGE", resources::ResourceType::RoomImage, "12 KB", "320x200" },
-		{ "MAILBOX_IMAGE", resources::ResourceType::RoomImage, "11 KB", "64x64" },
-		{ "FLOWER_IMAGE", resources::ResourceType::RoomImage, "9 KB", "32x32" },
-		{ "PATH_IMAGE", resources::ResourceType::RoomImage, "16 KB", "640x80" },
-		{ "BUSH_IMAGE", resources::ResourceType::RoomImage, "15 KB", "96x64" },
-		{ "CLOUD1_IMAGE", resources::ResourceType::RoomImage, "102 KB", "128x64" },
-		{ "CLOUD2_IMAGE", resources::ResourceType::RoomImage, "99 KB", "160x80" },
-		{ "FENCE_IMAGE", resources::ResourceType::RoomImage, "2 KB", "320x48" },
-		{ "TALKIE_INTRO_VO", resources::ResourceType::Talkie, "1200 KB", "-" },
-		{ "TALKIE_GREET_VO", resources::ResourceType::Talkie, "850 KB", "-" },
-		{ "TALKIE_BYE_VO", resources::ResourceType::Talkie, "620 KB", "-" },
-		{ "TALKIE_YES_VO", resources::ResourceType::Talkie, "410 KB", "-" },
-		{ "TALKIE_NO_VO", resources::ResourceType::Talkie, "380 KB", "-" },
-		{ "TALKIE_LOOK_VO", resources::ResourceType::Talkie, "540 KB", "-" },
-		{ "SFX_DOOR_CLOSE", resources::ResourceType::SFX, "24 KB", "-" },
-		{ "SFX_FOOTSTEP_1", resources::ResourceType::SFX, "12 KB", "-" },
-		{ "SFX_FOOTSTEP_2", resources::ResourceType::SFX, "12 KB", "-" },
-		{ "SFX_BIRD_CHIRP", resources::ResourceType::SFX, "18 KB", "-" },
-		{ "SFX_WIND", resources::ResourceType::SFX, "45 KB", "-" },
-		{ "SFX_CAR_HORN", resources::ResourceType::SFX, "8 KB", "-" },
-		{ "SFX_PHONE_RING", resources::ResourceType::SFX, "32 KB", "-" },
-		{ "SFX_WATER_DRIP", resources::ResourceType::SFX, "15 KB", "-" },
-		{ "SFX_THUNDER", resources::ResourceType::SFX, "55 KB", "-" },
-		{ "SFX_GLASS_BREAK", resources::ResourceType::SFX, "28 KB", "-" },
-		{ "SFX_UI_CLICK", resources::ResourceType::SFX, "4 KB", "-" },
-		{ "SFX_UI_HOVER", resources::ResourceType::SFX, "3 KB", "-" },
-		{ "SFX_UI_BACK", resources::ResourceType::SFX, "5 KB", "-" },
-		{ "SFX_COIN_DROP", resources::ResourceType::SFX, "11 KB", "-" },
-		{ "SFX_PICKUP", resources::ResourceType::SFX, "9 KB", "-" },
-		{ "SFX_USE_ITEM", resources::ResourceType::SFX, "14 KB", "-" },
-		{ "SFX_GIVE_ITEM", resources::ResourceType::SFX, "13 KB", "-" },
-		{ "SFX_SECRET_FOUND", resources::ResourceType::SFX, "22 KB", "-" },
-		{ "SFX_DOOR_CREAK", resources::ResourceType::SFX, "19 KB", "-" },
-		{ "SONG_TITLE", resources::ResourceType::Song, "3400 KB", "-" },
-		{ "SONG_YARD_THEME", resources::ResourceType::Song, "2800 KB", "-" },
-		{ "SONG_THEME", resources::ResourceType::Song, "2600 KB", "-" },
-		{ "SONG_CHASE", resources::ResourceType::Song, "1900 KB", "-" },
-		{ "SONG_ENDING", resources::ResourceType::Song, "4200 KB", "-" },
-		{ "SONG PUZZLE", resources::ResourceType::Song, "1500 KB", "-" },
-		{ "SONG_DANGER", resources::ResourceType::Song, "1800 KB", "-" },
-		{ "SONG_SAD", resources::ResourceType::Song, "2100 KB", "-" },
-		{ "SONG_VICTORY", resources::ResourceType::Song, "1700 KB", "-" },
-		{ "SONG_MENU", resources::ResourceType::Song, "2300 KB", "-" },
-		{ "SONG_BONUS", resources::ResourceType::Song, "2500 KB", "-" },
-		{ "SONG_CREDITS", resources::ResourceType::Song, "5100 KB", "-" },
-		{ "GLOBAL_SCRIPT_INTRO", resources::ResourceType::GlobalScript, "8 KB", "-" },
-		{ "VERB_SCRIPT_MAIN", resources::ResourceType::VerbScript, "16 KB", "-" },
-		{ "LOCAL_SCRIPT_KITCHEN", resources::ResourceType::LocalScript, "15 KB", "-" },
-		{ "LOCAL_SCRIPT_BEDROOM", resources::ResourceType::LocalScript, "11 KB", "-" },
-		{ "LOCAL_SCRIPT_GARAGE", resources::ResourceType::LocalScript, "13 KB", "-" },
-		{ "LOCAL_SCRIPT_BASEMENT", resources::ResourceType::LocalScript, "18 KB", "-" },
 	};
 
 	//---------------------------------------------------------------------
@@ -140,7 +87,7 @@ namespace humongousexplorer::imgui
 	}
 
 	//---------------------------------------------------------------------
-	bool RoomContentWindow::Initialize()
+	bool RoomContentWindow::OnInitialized()
 	{
 		size_t i = 0;
 		for (auto& entry : s_aResources)
@@ -148,7 +95,7 @@ namespace humongousexplorer::imgui
 			entry.m_iOrder = i;
 			i++;
 		}
-		return HEBaseWindow::Initialize();
+		return true;
 	}
 
 	//---------------------------------------------------------------------

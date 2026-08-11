@@ -6,7 +6,7 @@
 namespace humongousexplorer::imgui
 {
 	//---------------------------------------------------------------------
-	void EditorWindowDock::Render()
+	void EditorWindowDock::Update()
 	{
 		ImGui::BeginMainMenuBar();
 		if (ImGui::BeginMenu(FormatId(std::string(" File"), MENU_ID, "FILE", "DOCK").c_str()))
@@ -31,6 +31,6 @@ namespace humongousexplorer::imgui
 		}
 		ImGui::EndMainMenuBar();
 
-		MainWindowDock::Render();
+		MainWindowDock::Update();
 	}
 }

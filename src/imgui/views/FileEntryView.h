@@ -7,6 +7,11 @@
 #include <imgui/imgui.h>
 #include <imgui_internal.h>
 
+namespace humongousexplorer::parsing
+{
+	struct Chunk;
+}
+
 namespace humongousexplorer::imgui
 {
 	//---------------------------------------------------------------------
@@ -115,6 +120,7 @@ namespace humongousexplorer::imgui
 
 		std::vector<std::unique_ptr<FileEntryView>> m_aChildren;
 		bool m_bExpanded = false;
+		const parsing::Chunk* m_pChunk = nullptr;
 
 		void Render(std::function<bool(FileEntryView* fileEntry)> a_fnSelected, std::function<void(FileEntryInteractionType, FileEntryView*)> a_fnOnInteraction, float a_fIndent = 0.0f) override;
 		bool Filter(const std::string& a_sObjective) override;
@@ -141,7 +147,7 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	inline std::unique_ptr<RowEntry> MakeIconRow(const std::string& a_sLabel)
 	{
-		return std::make_unique<IconRowEntry>(RowInfo(4), a_sLabel, ImGui::GetFontSize() + 32.0f);
+		return std::make_unique<IconRowEntry>(RowInfo(4), a_sLabel, ImGui::GetFontSize() + 5);
 	}
 
 	template<typename... Args>

@@ -77,6 +77,13 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
             humongousexplorer::GetDX11System().Resize(width, height);
         }
 
+        if (window.HasDroppedFile())
+        {
+            std::string path = window.ConsumeDroppedFile();
+            POINT pt = window.GetDroppedFilePosition();
+            humongousexplorer::imgui::SetDroppedFile(path, ImVec2(static_cast<float>(pt.x), static_cast<float>(pt.y)));
+        }
+
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();

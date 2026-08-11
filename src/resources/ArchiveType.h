@@ -1,6 +1,10 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include <unordered_set>
+
+#include "humongous/ChunkIDs.h"
 
 namespace humongousexplorer::resources
 {
@@ -69,6 +73,130 @@ namespace humongousexplorer::resources
 			}
 		}
 		return "";
+	}
+
+	//---------------------------------------------------------------------
+	inline ArchiveType GetArchiveTypeFromExtension(const std::string& a_sExtension)
+	{
+		std::string ext = a_sExtension;
+		for (auto& c : ext) c = static_cast<char>(::toupper(c));
+		if (ext == "HE0")
+		{
+			return ArchiveType::HE0;
+		}
+		if (ext == "HE1")
+		{
+			return ArchiveType::HE1;
+		}
+		if (ext == "HE2")
+		{
+			return ArchiveType::HE2;
+		}
+		if (ext == "HE3")
+		{
+			return ArchiveType::HE3;
+		}
+		if (ext == "HE4")
+		{
+			return ArchiveType::HE4;
+		}
+		if (ext == "HE7")
+		{
+			return ArchiveType::HE7;
+		}
+		if (ext == "HE8")
+		{
+			return ArchiveType::HE8;
+		}
+		if (ext == "A")
+		{
+			return ArchiveType::A;
+		}
+		return ArchiveType::Unknown;
+	}
+
+	static const std::unordered_set<std::string> s_HE0DisplayableChunks =
+	{
+	};
+
+	static const std::unordered_set<std::string> s_HE1DisplayableChunks =
+	{
+	};
+
+	static const std::unordered_set<std::string> s_HE2DisplayableChunks =
+	{
+		parsing::TALK_CHUNK_ID
+	};
+
+	static const std::unordered_set<std::string> s_HE3DisplayableChunks =
+	{
+	};
+
+	static const std::unordered_set<std::string> s_HE4DisplayableChunks =
+	{
+		parsing::DIGI_CHUNK_ID
+	};
+
+	static const std::unordered_set<std::string> s_HE7DisplayableChunks =
+	{
+	};
+
+	static const std::unordered_set<std::string> s_HE8DisplayableChunks =
+	{
+	};
+
+	static const std::unordered_set<std::string> s_ADisplayableChunks =
+	{
+	};
+
+	static const std::unordered_set<std::string> s_EmptyDisplayableChunks =
+	{
+	};
+
+	//---------------------------------------------------------------------
+	inline const std::unordered_set<std::string>& GetDisplayableChunks(ArchiveType a_ArchiveType)
+	{
+		switch (a_ArchiveType)
+		{
+			case ArchiveType::Unknown:
+			case ArchiveType::Folder:
+			{
+				return s_EmptyDisplayableChunks;
+			}
+			case ArchiveType::HE0:
+			{
+				return s_HE0DisplayableChunks;
+			}
+			case ArchiveType::HE1:
+			{
+				return s_HE1DisplayableChunks;
+			}
+			case ArchiveType::HE2:
+			{
+				return s_HE2DisplayableChunks;
+			}
+			case ArchiveType::HE3:
+			{
+				return s_HE3DisplayableChunks;
+			}
+			case ArchiveType::HE4:
+			{
+				return s_HE4DisplayableChunks;
+			}
+			case ArchiveType::HE7:
+			{
+				return s_HE7DisplayableChunks;
+			}
+			case ArchiveType::HE8:
+			{
+				return s_HE8DisplayableChunks;
+			}
+			case ArchiveType::A:
+			{
+				return s_ADisplayableChunks;
+			}
+		}
+		return s_EmptyDisplayableChunks;
 	}
 
 	//---------------------------------------------------------------------

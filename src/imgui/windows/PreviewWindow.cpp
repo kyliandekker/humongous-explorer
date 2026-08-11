@@ -22,9 +22,9 @@ namespace humongousexplorer::imgui
 	{}
 
 	//---------------------------------------------------------------------
-	bool PreviewWindow::Initialize()
+	bool PreviewWindow::OnInitialized()
 	{
-		return HEBaseWindow::Initialize();
+		return true;
 	}
 
 	//---------------------------------------------------------------------
@@ -559,7 +559,18 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void PreviewWindow::Update()
 	{
-		RenderAudio();
-		//RenderImage();
+		if (ImGui::BeginChild(
+			FormatId("", CHILD_ID, "PREVIEW").c_str(),
+			ImVec2(
+				ImGui::GetContentRegionAvail().x,
+				ImGui::GetContentRegionAvail().y
+			),
+			ImGuiChildFlags_Borders
+		))
+		{
+			RenderAudio();
+			//RenderImage();
+		}
+		ImGui::EndChild();
 	}
 }

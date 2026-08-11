@@ -8,7 +8,7 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	// MainWindowDock
 	//---------------------------------------------------------------------
-	MainWindowDock::MainWindowDock() : BaseWindow(ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar, "", "DockSpace", true)
+	MainWindowDock::MainWindowDock() : BaseWindow(ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar, "", "DockSpace")
 	{}
 
 	//---------------------------------------------------------------------

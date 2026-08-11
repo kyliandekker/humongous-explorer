@@ -23,13 +23,6 @@ namespace humongousexplorer::imgui
 	BaseWindow::~BaseWindow() = default;
 
 	//---------------------------------------------------------------------
-	bool BaseWindow::Initialize()
-	{
-		m_bInitialized = true;
-		return m_bInitialized;
-	}
-
-	//---------------------------------------------------------------------
 	bool BaseWindow::Destroy()
 	{
 		return true;
@@ -109,6 +102,21 @@ namespace humongousexplorer::imgui
 	void BaseWindow::SetSize(ImVec2 a_vSize)
 	{
 		m_vSize = a_vSize;
+	}
+
+	//---------------------------------------------------------------------
+	void BaseWindow::Initialize()
+	{
+		if (m_bInitialized)
+		{
+			return;
+		}
+
+		if (!OnInitialized())
+		{
+			return;
+		}
+		m_bInitialized = true;
 	}
 
 	//---------------------------------------------------------------------

@@ -11,6 +11,8 @@
 #include "imgui/windows/RoomContentWindow.h"
 #include "imgui/windows/PreviewWindow.h"
 #include "imgui/windows/InfoPanelWindow.h"
+#include "imgui/BottomToolbar.h"
+#include "imgui/TopToolbar.h"
 #include "editor/Workspace.h"
 
 namespace humongousexplorer::imgui
@@ -20,22 +22,10 @@ namespace humongousexplorer::imgui
 	ArchiveContentsWindow m_ArchiveContentsWindow;
 	PreviewWindow m_PreviewWindow;
 	InfoPanelWindow m_InfoPanelWindow;
+	BottomToolbar m_BottomToolbar;
+	TopToolbar m_TopToolbar;
 
-	bool m_bDockLayoutSetup = false;
 	std::string m_sIniPath;
-
-	//---------------------------------------------------------------------
-	void SetupDockLayout()
-	{
-		ImGuiID dockspaceId = ImGui::GetID("DockSpace");
-
-		ImGui::DockBuilderRemoveNode(dockspaceId);
-		ImGui::DockBuilderAddNode(dockspaceId, ImGuiDockNodeFlags_DockSpace);
-
-		const ImGuiViewport* viewport = ImGui::GetMainViewport();
-		float dockHeight = viewport->WorkSize.y - 42.0f - 28.0f - 24.0f;
-		ImGui::DockBuilderSetNodeSize(dockspaceId, ImVec2(viewport->WorkSize.x, dockHeight));
-	}
 
 	//---------------------------------------------------------------------
 	ImFont* m_pDefaultFont = nullptr;
@@ -66,37 +56,39 @@ namespace humongousexplorer::imgui
 
 		io.Fonts->Build();
 
-
 		m_sIniPath = GetWorkspace().GetAppDataPath() + "/imgui.ini";
 		io.IniFilename = m_sIniPath.c_str();
 
 		ApplyTheme();
-		m_MainDock.Initialize();
-		m_ArchiveContentsWindow.Initialize();
-		m_RoomContentWindow.Initialize();
-		m_PreviewWindow.Initialize();
-		m_InfoPanelWindow.Initialize();
 	}
 
 	//---------------------------------------------------------------------
 	void Render()
 	{
-		const ImGuiViewport* viewport = ImGui::GetMainViewport();
+		m_MainDock.Initialize();
+		m_ArchiveContentsWindow.Initialize();
+		m_RoomContentWindow.Initialize();
+		m_PreviewWindow.Initialize();
+		m_InfoPanelWindow.Initialize();
+
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+		m_TopToolbar.Render();
+		m_BottomToolbar.Render();
+
+		ImVec2 padding = ImGui::GetStyle().WindowPadding;
+		ImGui::SetNextWindowPos(
+			ImVec2(viewport->WorkPos.x, viewport->WorkPos.y + m_BottomToolbar.GetSize() + padding.y)
+		);
+		ImGui::SetNextWindowSize(
+			ImVec2(viewport->WorkSize.x, viewport->WorkSize.y - (m_BottomToolbar.GetSize() + m_TopToolbar.GetSize() + +padding.y))
+		);
 
 		m_MainDock.Render();
 		m_ArchiveContentsWindow.Render();
 		m_RoomContentWindow.Render();
 		m_PreviewWindow.Render();
 		m_InfoPanelWindow.Render();
-
-		if (!m_bDockLayoutSetup)
-		{
-			SetupDockLayout();
-		}
-
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
-
-		ImGui::PopStyleVar();
 	}
 
 	void UpdateMouseCursor()
@@ -159,6 +151,30 @@ namespace humongousexplorer::imgui
 
 		// Set the system cursor using Win32 API
 		::SetCursor(LoadCursor(NULL, win32_cursor));
+	}
+
+	//---------------------------------------------------------------------
+	static std::string s_sDroppedFile;
+	static ImVec2 s_vDroppedFilePos = {};
+
+	void SetDroppedFile(const std::string& a_sPath, ImVec2 a_vDropPos)
+	{
+		s_sDroppedFile = a_sPath;
+		s_vDroppedFilePos = a_vDropPos;
+	}
+
+	std::string ConsumeDroppedFile()
+	{
+		std::string path = std::move(s_sDroppedFile);
+		s_sDroppedFile.clear();
+		return path;
+	}
+
+	ImVec2 GetDroppedFilePosition()
+	{
+		ImVec2 pos = s_vDroppedFilePos;
+		s_vDroppedFilePos = {};
+		return pos;
 	}
 
 	//---------------------------------------------------------------------

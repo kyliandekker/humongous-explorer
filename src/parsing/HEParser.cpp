@@ -1,0 +1,384 @@
+#include "HEParser.h"
+
+#include <cstring>
+#include <unordered_map>
+#include <string>
+
+#include "humongous/ChunkIDs.h"
+
+namespace humongousexplorer::parsing
+{
+	static uint32_t ReadBE32(const uint8_t* p)
+	{
+		return (uint32_t(p[0]) << 24) | (uint32_t(p[1]) << 16) |
+			   (uint32_t(p[2]) << 8)  |  uint32_t(p[3]);
+	}
+
+	constexpr auto CHUNK_ID_SIZE = 4;
+
+#define NO_CHILD {}
+#define IMXX { SMAP_CHUNK_ID, BMAP_CHUNK_ID, BOMP_CHUNK_ID, ZP00_CHUNK_ID, ZP01_CHUNK_ID, ZP02_CHUNK_ID, ZP03_CHUNK_ID, ZP04_CHUNK_ID, ZP05_CHUNK_ID }
+
+	const std::unordered_map<std::string, std::vector<std::string>> SCHEMA =
+	{
+		{ LECF_CHUNK_ID, {
+				LOFF_CHUNK_ID,
+				LFLF_CHUNK_ID
+			}
+		},
+		{ LOFF_CHUNK_ID, NO_CHILD },
+		{ LFLF_CHUNK_ID, {
+				RMIM_CHUNK_ID,
+				RMDA_CHUNK_ID,
+				ROOM_CHUNK_ID,
+				RMSC_CHUNK_ID,
+				SCRP_CHUNK_ID,
+				SOUN_CHUNK_ID,
+				AKOS_CHUNK_ID,
+				COST_CHUNK_ID,
+				CHAR_CHUNK_ID,
+				DIGI_CHUNK_ID,
+				MULT_CHUNK_ID,
+				AWIZ_CHUNK_ID,
+				TALK_CHUNK_ID,
+				TLKE_CHUNK_ID,
+			}
+		},
+		{ ROOM_CHUNK_ID, {
+				RMHD_CHUNK_ID,
+				CYCL_CHUNK_ID,
+				PALS_CHUNK_ID,
+				IMAG_CHUNK_ID,
+				OBIM_CHUNK_ID,
+				BOXD_CHUNK_ID,
+				BOXM_CHUNK_ID,
+				SCAL_CHUNK_ID,
+				RMSC_CHUNK_ID,
+				TRNS_CHUNK_ID,
+				EPAL_CHUNK_ID,
+				CLUT_CHUNK_ID,
+				RMIM_CHUNK_ID,
+				OBCD_CHUNK_ID,
+				EXCD_CHUNK_ID,
+				ENCD_CHUNK_ID,
+				NLSC_CHUNK_ID,
+				LSCR_CHUNK_ID,
+			}
+		},
+		{ RMDA_CHUNK_ID, {
+				RMHD_CHUNK_ID,
+				CYCL_CHUNK_ID,
+				TRNS_CHUNK_ID,
+				PALS_CHUNK_ID,
+				OBIM_CHUNK_ID,
+				OBCD_CHUNK_ID,
+				EXCD_CHUNK_ID,
+				ENCD_CHUNK_ID,
+				NLSC_CHUNK_ID,
+				LSC2_CHUNK_ID,
+				LSCR_CHUNK_ID,
+				POLD_CHUNK_ID,
+			}
+		},
+		{ RMHD_CHUNK_ID, NO_CHILD },
+		{ RMIM_CHUNK_ID, {
+				RMIH_CHUNK_ID,
+				IM00_CHUNK_ID,
+			}
+		},
+		{ TRNS_CHUNK_ID, NO_CHILD },
+		{ EPAL_CHUNK_ID, NO_CHILD },
+		{ CYCL_CHUNK_ID, NO_CHILD },
+		{ PALS_CHUNK_ID, {
+				WRAP_CHUNK_ID,
+			}
+		},
+		{ OFFS_CHUNK_ID, NO_CHILD },
+		{ APAL_CHUNK_ID, NO_CHILD },
+		{ WRAP_CHUNK_ID, {
+				OFFS_CHUNK_ID,
+				APAL_CHUNK_ID,
+				SMAP_CHUNK_ID,
+				BOMP_CHUNK_ID,
+				AWIZ_CHUNK_ID,
+				SEQI_CHUNK_ID,
+			}
+		},
+		{ IMAG_CHUNK_ID, {
+				WRAP_CHUNK_ID,
+			}
+		},
+		{ OBIM_CHUNK_ID, {
+				IMHD_CHUNK_ID,
+				IMAG_CHUNK_ID,
+				IM00_CHUNK_ID,
+				IM01_CHUNK_ID,
+				IM02_CHUNK_ID,
+				IM03_CHUNK_ID,
+				IM04_CHUNK_ID,
+				IM05_CHUNK_ID,
+				IM06_CHUNK_ID,
+				IM07_CHUNK_ID,
+				IM08_CHUNK_ID,
+				IM09_CHUNK_ID,
+				IM10_CHUNK_ID,
+				IM11_CHUNK_ID,
+				IM12_CHUNK_ID,
+				IM13_CHUNK_ID,
+				IM14_CHUNK_ID,
+				IM15_CHUNK_ID,
+				IM16_CHUNK_ID,
+				IM17_CHUNK_ID,
+			}
+		},
+		{ IM00_CHUNK_ID, IMXX },
+		{ IM01_CHUNK_ID, IMXX },
+		{ IM02_CHUNK_ID, IMXX },
+		{ IM03_CHUNK_ID, IMXX },
+		{ IM04_CHUNK_ID, IMXX },
+		{ IM05_CHUNK_ID, IMXX },
+		{ IM06_CHUNK_ID, IMXX },
+		{ IM07_CHUNK_ID, IMXX },
+		{ IM08_CHUNK_ID, IMXX },
+		{ IM09_CHUNK_ID, IMXX },
+		{ IM10_CHUNK_ID, IMXX },
+		{ IM11_CHUNK_ID, IMXX },
+		{ IM12_CHUNK_ID, IMXX },
+		{ IM13_CHUNK_ID, IMXX },
+		{ IM14_CHUNK_ID, IMXX },
+		{ IM15_CHUNK_ID, IMXX },
+		{ IM16_CHUNK_ID, IMXX },
+		{ IM17_CHUNK_ID, IMXX },
+		{ ZP00_CHUNK_ID, NO_CHILD },
+		{ ZP01_CHUNK_ID, NO_CHILD },
+		{ ZP02_CHUNK_ID, NO_CHILD },
+		{ ZP03_CHUNK_ID, NO_CHILD },
+		{ ZP04_CHUNK_ID, NO_CHILD },
+		{ ZP05_CHUNK_ID, NO_CHILD },
+		{ RMSC_CHUNK_ID, {
+				ENCD_CHUNK_ID,
+				EXCD_CHUNK_ID,
+				OBCD_CHUNK_ID,
+				LSCR_CHUNK_ID,
+			}
+		},
+		{ OBCD_CHUNK_ID, {
+				CDHD_CHUNK_ID,
+				OBNA_CHUNK_ID,
+				VERB_CHUNK_ID,
+			}
+		},
+		{ BOXD_CHUNK_ID, NO_CHILD },
+		{ BOXM_CHUNK_ID, NO_CHILD },
+		{ CLUT_CHUNK_ID, NO_CHILD },
+		{ SCAL_CHUNK_ID, NO_CHILD },
+		{ RMIH_CHUNK_ID, NO_CHILD },
+		{ AKOS_CHUNK_ID, {
+				AKHD_CHUNK_ID,
+				AKPL_CHUNK_ID,
+				RGBS_CHUNK_ID,
+				AKSQ_CHUNK_ID,
+				AKCH_CHUNK_ID,
+				AKOF_CHUNK_ID,
+				AKCI_CHUNK_ID,
+				AKCD_CHUNK_ID,
+				AKLC_CHUNK_ID,
+				AKST_CHUNK_ID,
+				AKCT_CHUNK_ID,
+				SP2C_CHUNK_ID,
+				SPLF_CHUNK_ID,
+				CLRS_CHUNK_ID,
+				IMGL_CHUNK_ID,
+				SQDB_CHUNK_ID,
+				AKFO_CHUNK_ID,
+			}
+		},
+		{ SMAP_CHUNK_ID, NO_CHILD },
+		{ IMHD_CHUNK_ID, NO_CHILD },
+		{ CDHD_CHUNK_ID, NO_CHILD },
+		{ VERB_CHUNK_ID, NO_CHILD },
+		{ OBNA_CHUNK_ID, NO_CHILD },
+		{ EXCD_CHUNK_ID, NO_CHILD },
+		{ ENCD_CHUNK_ID, NO_CHILD },
+		{ NLSC_CHUNK_ID, NO_CHILD },
+		{ LSCR_CHUNK_ID, NO_CHILD },
+		{ CHAR_CHUNK_ID, NO_CHILD },
+		{ SCRP_CHUNK_ID, NO_CHILD },
+		{ COST_CHUNK_ID, NO_CHILD },
+		{ SOUN_CHUNK_ID, NO_CHILD },
+		{ BOMP_CHUNK_ID, NO_CHILD },
+		{ RNAM_CHUNK_ID, NO_CHILD },
+		{ MAXS_CHUNK_ID, NO_CHILD },
+		{ DROO_CHUNK_ID, NO_CHILD },
+		{ DSCR_CHUNK_ID, NO_CHILD },
+		{ DSOU_CHUNK_ID, NO_CHILD },
+		{ DCOS_CHUNK_ID, NO_CHILD },
+		{ DCHR_CHUNK_ID, NO_CHILD },
+		{ DOBJ_CHUNK_ID, NO_CHILD },
+		{ BMAP_CHUNK_ID, NO_CHILD },
+		{ LSC2_CHUNK_ID, NO_CHILD },
+		{ DIGI_CHUNK_ID, {
+				HSHD_CHUNK_ID,
+				SBNG_CHUNK_ID,
+				SDAT_CHUNK_ID,
+			}
+		},
+		{ HSHD_CHUNK_ID, NO_CHILD },
+		{ SDAT_CHUNK_ID, NO_CHILD },
+		{ AKHD_CHUNK_ID, NO_CHILD },
+		{ AKPL_CHUNK_ID, NO_CHILD },
+		{ RGBS_CHUNK_ID, NO_CHILD },
+		{ AKSQ_CHUNK_ID, NO_CHILD },
+		{ AKCH_CHUNK_ID, NO_CHILD },
+		{ AKOF_CHUNK_ID, NO_CHILD },
+		{ AKCI_CHUNK_ID, NO_CHILD },
+		{ AKCD_CHUNK_ID, NO_CHILD },
+		{ AKLC_CHUNK_ID, NO_CHILD },
+		{ AKST_CHUNK_ID, NO_CHILD },
+		{ AKCT_CHUNK_ID, NO_CHILD },
+		{ AKFO_CHUNK_ID, NO_CHILD },
+		{ RMAP_CHUNK_ID, NO_CHILD },
+		{ CUSE_CHUNK_ID, NO_CHILD },
+		{ XMAP_CHUNK_ID, NO_CHILD },
+		{ MULT_CHUNK_ID, {
+				DEFA_CHUNK_ID,
+				WRAP_CHUNK_ID,
+			}
+		},
+		{ DEFA_CHUNK_ID, {
+				RGBS_CHUNK_ID,
+				CNVS_CHUNK_ID,
+				RMAP_CHUNK_ID,
+				CUSE_CHUNK_ID,
+				CUSE_CHUNK_ID,
+			}
+		},
+		{ AWIZ_CHUNK_ID, {
+				WIZH_CHUNK_ID,
+				WIZD_CHUNK_ID,
+				CNVS_CHUNK_ID,
+				SPOT_CHUNK_ID,
+				RELO_CHUNK_ID,
+				RGBS_CHUNK_ID,
+				XMAP_CHUNK_ID,
+				TRNS_CHUNK_ID,
+				TRNS_CHUNK_ID,
+			}
+		},
+		{ TLKE_CHUNK_ID, {
+				TEXT_CHUNK_ID,
+			}
+		},
+		{ TEXT_CHUNK_ID, NO_CHILD },
+		{ WIZH_CHUNK_ID, NO_CHILD },
+		{ WIZD_CHUNK_ID, NO_CHILD },
+		{ CNVS_CHUNK_ID, NO_CHILD },
+		{ SPOT_CHUNK_ID, NO_CHILD },
+		{ RELO_CHUNK_ID, NO_CHILD },
+		{ POLD_CHUNK_ID, NO_CHILD },
+		{ SP2C_CHUNK_ID, NO_CHILD },
+		{ SPLF_CHUNK_ID, NO_CHILD },
+		{ CLRS_CHUNK_ID, NO_CHILD },
+		{ IMGL_CHUNK_ID, NO_CHILD },
+		{ SQDB_CHUNK_ID, {
+				WRAP_CHUNK_ID,
+			}
+		},
+		{ SEQI_CHUNK_ID, {
+				NAME_CHUNK_ID,
+				STOF_CHUNK_ID,
+				SQLC_CHUNK_ID,
+				SIZE_CHUNK_ID,
+			}
+		},
+		{ NAME_CHUNK_ID, NO_CHILD },
+		{ STOF_CHUNK_ID, NO_CHILD },
+		{ SQLC_CHUNK_ID, NO_CHILD },
+		{ SIZE_CHUNK_ID, NO_CHILD },
+		{ SBNG_CHUNK_ID, NO_CHILD },
+		{ TALK_CHUNK_ID, {
+				HSHD_CHUNK_ID,
+				SBNG_CHUNK_ID,
+				SDAT_CHUNK_ID,
+			}
+		},
+		{ DIRI_CHUNK_ID, NO_CHILD },
+		{ DIRR_CHUNK_ID, NO_CHILD },
+		{ DIRS_CHUNK_ID, NO_CHILD },
+		{ DIRN_CHUNK_ID, NO_CHILD },
+		{ DIRC_CHUNK_ID, NO_CHILD },
+		{ DIRF_CHUNK_ID, NO_CHILD },
+		{ DIRM_CHUNK_ID, NO_CHILD },
+		{ DIRT_CHUNK_ID, NO_CHILD },
+		{ DLFL_CHUNK_ID, NO_CHILD },
+		{ DISK_CHUNK_ID, NO_CHILD },
+		{ SVER_CHUNK_ID, NO_CHILD },
+		{ AARY_CHUNK_ID, NO_CHILD },
+		{ INIB_CHUNK_ID, {
+				NOTE_CHUNK_ID,
+			}
+		},
+		{ NOTE_CHUNK_ID, NO_CHILD },
+		{ TLKB_CHUNK_ID, {
+				TALK_CHUNK_ID,
+			}
+		},
+		{ SONG_CHUNK_ID, {
+				SGHD_CHUNK_ID,
+				SGEN_CHUNK_ID,
+				DIGI_CHUNK_ID,
+			}
+		},
+		{ SGHD_CHUNK_ID, NO_CHILD },
+		{ SGEN_CHUNK_ID , NO_CHILD },
+		{ ANAM_CHUNK_ID , NO_CHILD },
+		{ IM0A_CHUNK_ID, {
+				SMAP_CHUNK_ID,
+			}
+		},
+		{ IM0B_CHUNK_ID, {
+				SMAP_CHUNK_ID,
+			}
+		},
+		{ IM0C_CHUNK_ID, {
+				SMAP_CHUNK_ID,
+			}
+		},
+		{ IM0D_CHUNK_ID, {
+				SMAP_CHUNK_ID,
+			}
+		},
+		{ IM0E_CHUNK_ID, {
+				SMAP_CHUNK_ID,
+			}
+		},
+		{ IM0F_CHUNK_ID, {
+				SMAP_CHUNK_ID,
+			}
+		},
+		{ TMSK_CHUNK_ID, {} },
+	};
+
+	//---------------------------------------------------------------------
+	void ParseChunks(Chunk& out, const uint8_t* buf, size_t len, size_t pos)
+	{
+		while (pos < len)
+		{
+			Chunk c;
+			memcpy(c.tag, buf + pos, 4);
+			c.size = ReadBE32(buf + pos + 4);
+			c.offset = pos;
+			c.data = buf + pos + 8;
+
+			std::string tag(c.tag, CHUNK_ID_SIZE);
+			auto it = SCHEMA.find(tag);
+			bool isContainer = (it != SCHEMA.end() && !it->second.empty());
+			if (isContainer)
+				ParseChunks(c, buf, c.size - 8, pos + 8);
+
+			out.children.push_back(std::move(c));
+
+			pos += c.size;
+		}
+	}
+}

@@ -21,16 +21,16 @@ namespace humongousexplorer::imgui
 		RoomContentWindow();
 
 		/// <summary>
-		/// Initializes all behaviours and values for the window.
-		/// </summary>
-		/// <returns>True if initialization is successful, otherwise false.</returns>
-		bool Initialize() override;
-
-		/// <summary>
 		/// Renders the room content window.
 		/// </summary>
 		void Update() override;
 	private:
+		/// <summary>
+		/// Initializes all behaviours and values for the window.
+		/// </summary>
+		/// <returns>True if initialization is successful, otherwise false.</returns>
+		bool OnInitialized() override;
+
 		SearchBar m_SearchBar;
 		int m_iSortColumn = -1;
 		bool m_bSortAscending = true;

@@ -1,8 +1,13 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "core/System.h"
+#include "core/Data.h"
+#include "parsing/HEParser.h"
+#include "resources/ArchiveType.h"
+#include "resources/ResourceType.h"
 
 namespace humongousexplorer
 {
@@ -13,12 +18,17 @@ namespace humongousexplorer
 
 	extern editor::Workspace& GetWorkspace();
 }
-namespace humongousexplorer::resources
-{
-	enum class ResourceType;
-}
+
 namespace humongousexplorer::editor
 {
+	struct ArchiveData
+	{
+		std::string m_sPath;
+		resources::ArchiveType m_eType = resources::ArchiveType::Unknown;
+		core::Data m_Data;
+		parsing::Chunk m_Root;
+	};
+
 	class Workspace : public core::System
 	{
 	public:
@@ -31,8 +41,12 @@ namespace humongousexplorer::editor
 		resources::ResourceType GetResourceTypeFilter() const;
 		void SetResourceTypeFilter(resources::ResourceType a_ResourceTypeFilter);
 		const std::string& GetAppDataPath() const;
+
+		void AddArchive(ArchiveData a_Archive);
+		const std::vector<ArchiveData>& GetArchives() const;
 	private:
 		resources::ResourceType m_ResourceTypeFilter;
 		std::string m_sAppDataPath;
+		std::vector<ArchiveData> m_aArchives;
 	};
 }
