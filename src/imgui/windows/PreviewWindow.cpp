@@ -16,6 +16,9 @@
 
 #include "humongous/sound/SBNG_Chunk.h"
 
+#undef min
+#undef max
+
 namespace humongousexplorer::imgui
 {
 	const float PreviewWindow::s_aPresets[s_iPresetCount] = { 0.25f, 0.50f, 0.75f, 1.0f, 1.5f, 2.0f };
@@ -258,8 +261,6 @@ namespace humongousexplorer::imgui
 		return snprintf(buff, size, "%d:%02d", minutes, seconds);
 	}
 
-
-	bool m_bIsPlaying = false;
 	bool m_bMuted = false;
 	//---------------------------------------------------------------------
 	void PreviewWindow::RenderAudio()
@@ -270,7 +271,9 @@ namespace humongousexplorer::imgui
 			return;
 		}
 
-		resources::SoundResource* soundResource = dynamic_cast<resources::SoundResource*>(resource);
+		resources::SoundResource* soundResource =
+			dynamic_cast<resources::SoundResource*>(resource);
+
 		if (!soundResource)
 		{
 			return;
@@ -282,80 +285,202 @@ namespace humongousexplorer::imgui
 			return;
 		}
 
-		const unsigned char* rawSamples = pcmData.dataAs<unsigned char>();
-		size_t sampleCount = pcmData.size();
-		uint16_t sampleRate = soundResource->GetSampleRate();
+		const uint32_t sampleRate =
+			static_cast<uint32_t>(soundResource->GetSampleRate());
 
-		float duration = static_cast<float>(sampleCount) / static_cast<float>(sampleRate);
-		m_fAudioDuration = duration;
+		const uint8_t bitsPerSample = 8;
+		const uint8_t channels = 1;
 
-		// Downsample for plotting if too many samples
+		const size_t bytesPerSample = bitsPerSample / 8;
+		const size_t bytesPerFrame = bytesPerSample * channels;
+
+		if (sampleRate == 0 || bytesPerFrame == 0)
+		{
+			return;
+		}
+
+		const size_t totalBytes = pcmData.size();
+
+		size_t bytePosition = m_AudioPlayer.GetBytePosition();
+		if (bytePosition > totalBytes)
+		{
+			bytePosition = totalBytes;
+		}
+
+		const float bytesPerSecond =
+			static_cast<float>(sampleRate * bytesPerFrame);
+
+		const float duration =
+			static_cast<float>(totalBytes) / bytesPerSecond;
+
+		float m_fAudioDuration = duration;
+
+		const float currentTime =
+			static_cast<float>(bytePosition) / bytesPerSecond;
+
+		const bool isPlaying = m_AudioPlayer.IsPlaying();
+		const bool isPaused = m_AudioPlayer.IsPaused();
+
+		const unsigned char* rawSamples =
+			pcmData.dataAs<unsigned char>();
+
 		static constexpr int MAX_PLOT_SAMPLES = 4000;
-		int plotSamples = (sampleCount > MAX_PLOT_SAMPLES) ? MAX_PLOT_SAMPLES : static_cast<int>(sampleCount);
-		float step = static_cast<float>(sampleCount) / static_cast<float>(plotSamples);
+
+		const int plotSamples =
+			(totalBytes > MAX_PLOT_SAMPLES)
+			? MAX_PLOT_SAMPLES
+			: static_cast<int>(totalBytes);
+
+		if (plotSamples <= 0)
+		{
+			return;
+		}
+
+		const float step =
+			static_cast<float>(totalBytes) /
+			static_cast<float>(plotSamples);
 
 		static float x_data[MAX_PLOT_SAMPLES];
 		static float y_data[MAX_PLOT_SAMPLES];
 
-		for (int i = 0; i < plotSamples; i++)
+		for (int i = 0; i < plotSamples; ++i)
 		{
-			size_t srcIndex = static_cast<size_t>(i * step);
-			x_data[i] = static_cast<float>(srcIndex) / static_cast<float>(sampleRate);
-			// Convert unsigned 8-bit (0-255) to float (-1.0 to 1.0)
-			y_data[i] = (static_cast<float>(rawSamples[srcIndex]) - 127.5f) / 127.5f;
+			const size_t srcIndex =
+				std::min(
+					static_cast<size_t>(i * step),
+					totalBytes - 1);
+
+			x_data[i] =
+				static_cast<float>(srcIndex) / bytesPerSecond;
+
+			y_data[i] =
+				(static_cast<float>(rawSamples[srcIndex]) - 127.5f) /
+				127.5f;
 		}
 
 		ImVec2 avail = ImGui::GetContentRegionAvail();
-		float controlsBarHeight = ImGui::GetFontSize() + PLAY_BUTTON_PADDING + ImGui::GetStyle().ItemSpacing.y;
-		ImVec2 plotSize(avail.x, avail.y - controlsBarHeight);
 
-		if (ImPlot::BeginPlot(FormatId("", PLOT_ID, "WAVEFORM").c_str(), plotSize, ImPlotFlags_NoFrame | ImPlotFlags_NoMouseText))
+		const float controlsBarHeight =
+			ImGui::GetFontSize() +
+			PLAY_BUTTON_PADDING +
+			ImGui::GetStyle().ItemSpacing.y;
+
+		ImVec2 plotSize(
+			avail.x,
+			avail.y - controlsBarHeight);
+
+		if (ImPlot::BeginPlot(
+			FormatId("", PLOT_ID, "WAVEFORM").c_str(),
+			plotSize,
+			ImPlotFlags_NoFrame |
+			ImPlotFlags_NoMouseText))
 		{
-			ImPlot::SetupAxis(ImAxis_X1, "",
-				ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_Opposite
-			); 
-			ImPlot::SetupAxisFormat(ImAxis_X1, FormatTime, nullptr);
-			ImPlot::SetupAxisTicks(ImAxis_Y1, -1.0, 1.0, 5);
-			ImPlot::SetupAxisLimits(ImAxis_X1, 0.0, duration, ImPlotCond_Always);
+			ImPlot::SetupAxis(
+				ImAxis_X1,
+				"",
+				ImPlotAxisFlags_NoGridLines |
+				ImPlotAxisFlags_Opposite);
 
-			ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_NoGridLines);
-			ImPlot::SetupAxisFormat(ImAxis_Y1, "%.1f");
-			ImPlot::SetupAxisLimits(ImAxis_Y1, -1.0, 1.0, ImPlotCond_Always);
+			ImPlot::SetupAxisFormat(
+				ImAxis_X1,
+				FormatTime,
+				nullptr);
+
+			ImPlot::SetupAxisLimits(
+				ImAxis_X1,
+				0.0,
+				duration,
+				ImPlotCond_Always);
+
+			ImPlot::SetupAxis(
+				ImAxis_Y1,
+				"",
+				ImPlotAxisFlags_NoGridLines);
+
+			ImPlot::SetupAxisFormat(
+				ImAxis_Y1,
+				"%.1f");
+
+			ImPlot::SetupAxisLimits(
+				ImAxis_Y1,
+				-1.0,
+				1.0,
+				ImPlotCond_Always);
 
 			ImPlot::PlotLine(
-				FormatId("", PLOT_ID, "WAVEFORM", "LINE").c_str(),
+				FormatId(
+					"",
+					PLOT_ID,
+					"WAVEFORM",
+					"LINE").c_str(),
 				x_data,
 				y_data,
-				plotSamples
-			);
+				plotSamples);
 
-			ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1, 1, 1, 1));
-			ImPlot::PushStyleVar(ImPlotStyleVar_LineWeight, 2);
-			ImPlot::PlotInfLines(FormatId("", PLOT_ID, "PLAYHEAD").c_str(), &m_fAudioPosition, 1);
+			float playheadTime = currentTime;
+
+			ImPlot::PushStyleColor(
+				ImPlotCol_Line,
+				ImVec4(1, 1, 1, 1));
+
+			ImPlot::PushStyleVar(
+				ImPlotStyleVar_LineWeight,
+				2.0f);
+
+			ImPlot::PlotInfLines(
+				FormatId(
+					"",
+					PLOT_ID,
+					"PLAYHEAD").c_str(),
+				&playheadTime,
+				1);
+
 			ImPlot::PopStyleVar();
 			ImPlot::PopStyleColor();
-			
-			if (soundResource->GetResourceType() == resources::ResourceType::Talkie)
+
+			if (soundResource->GetResourceType() ==
+				resources::ResourceType::Talkie)
 			{
-				resources::TalkResource* talkResource = dynamic_cast<resources::TalkResource*>(resource);
+				resources::TalkResource* talkResource =
+					dynamic_cast<resources::TalkResource*>(resource);
+
 				if (talkResource)
 				{
-					// SBNG Lip Sync
-					ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1, 0.4f, 0.4f, 0.8f));
-					ImPlot::PushStyleVar(ImPlotStyleVar_LineWeight, 1.5f);
+					ImPlot::PushStyleColor(
+						ImPlotCol_Line,
+						ImVec4(1, 0.4f, 0.4f, 0.8f));
 
-					core::Data data = talkResource->GetLipSyncData();
+					ImPlot::PushStyleVar(
+						ImPlotStyleVar_LineWeight,
+						1.5f);
+
+					core::Data data =
+						talkResource->GetLipSyncData();
+
 					if (!data.empty())
 					{
-						const headers::SBNGRecord* records = data.dataAs<headers::SBNGRecord>();
-						size_t recordCount = data.size() / sizeof(headers::SBNGRecord);
-						for (size_t i = 0; i < recordCount; i++)
+						const headers::SBNGRecord* records =
+							data.dataAs<headers::SBNGRecord>();
+
+						const size_t recordCount =
+							data.size() /
+							sizeof(headers::SBNGRecord);
+
+						for (size_t i = 0; i < recordCount; ++i)
 						{
-							float xPos = static_cast<float>(records[i].sampleOffset) / static_cast<float>(sampleRate);
+							float xPos =
+								static_cast<float>(
+									records[i].sampleOffset) /
+								static_cast<float>(sampleRate);
+
 							ImPlot::PlotInfLines(
-								FormatId("", PLOT_ID, "LIPSYNC", std::to_string(i)).c_str(),
-								&xPos, 1
-							);
+								FormatId(
+									"",
+									PLOT_ID,
+									"LIPSYNC",
+									std::to_string(i)).c_str(),
+								&xPos,
+								1);
 						}
 					}
 
@@ -364,173 +489,371 @@ namespace humongousexplorer::imgui
 				}
 			}
 
-			// Click to seek
-			if (ImPlot::IsPlotHovered() && (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseDragging(ImGuiMouseButton_Left)))
+			if (ImPlot::IsPlotHovered() &&
+				(ImGui::IsMouseClicked(ImGuiMouseButton_Left) ||
+					ImGui::IsMouseDragging(ImGuiMouseButton_Left)))
 			{
 				ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);
 
 				ImPlotPoint mousePos = ImPlot::GetPlotMousePos();
-				m_fAudioPosition = static_cast<float>(mousePos.x);
-				if (m_fAudioPosition < 0.0f)
-				{
-					m_fAudioPosition = 0.0f;
-				}
-				if (m_fAudioPosition > m_fAudioDuration)
-				{
-					m_fAudioPosition = m_fAudioDuration;
-				}
+
+				const float seekTime =
+					std::clamp(
+						static_cast<float>(mousePos.x),
+						0.0f,
+						duration);
+
+				size_t seekBytePosition =
+					static_cast<size_t>(
+						seekTime * bytesPerSecond);
+
+				seekBytePosition =
+					(seekBytePosition / bytesPerFrame) *
+					bytesPerFrame;
+
+				m_AudioPlayer.Seek(seekBytePosition);
+
+				bytePosition =
+					m_AudioPlayer.GetBytePosition();
 			}
 
-			// Circle on top of the playhead
 			ImVec2 plotMin = ImPlot::GetPlotPos();
-			ImVec2 plotSize = ImPlot::GetPlotSize();
-			float plotTop = plotMin.y;
-			ImPlotPoint pos(m_fAudioPosition, 0.0);
+			ImVec2 actualPlotSize = ImPlot::GetPlotSize();
+
+			const float plotTop = plotMin.y;
+
+			ImPlotPoint pos(currentTime, 0.0);
 			ImVec2 screenPos = ImPlot::PlotToPixels(pos);
-			ImDrawList* drawList = ImGui::GetWindowDrawList();
 
-			// Time label above circle
-			int posMins = static_cast<int>(m_fAudioPosition) / 60;
-			int posSecs = static_cast<int>(m_fAudioPosition) % 60;
-			int posMs = static_cast<int>((m_fAudioPosition - floorf(m_fAudioPosition)) * 1000);
-			char timeLabel[16];
-			snprintf(timeLabel, sizeof(timeLabel), "%d:%02d.%03d", posMins, posSecs, posMs);
+			ImDrawList* drawList =
+				ImGui::GetWindowDrawList();
 
-			ImVec2 textSize = ImGui::CalcTextSize(timeLabel);
-			float padX = 6.0f;
-			float padY = 3.0f;
-			float boxW = textSize.x + padX * 2.0f;
-			float boxH = textSize.y + padY * 2.0f;
-			float boxX = screenPos.x - boxW * 0.5f;
-			float boxY = plotTop - boxH - 10.0f;
+			int posMins =
+				static_cast<int>(currentTime) / 60;
 
-			// Clamp to plot area
-			if (boxX < plotMin.x) boxX = plotMin.x;
-			if (boxX + boxW > plotMin.x + plotSize.x) boxX = plotMin.x + plotSize.x - boxW;
+			int posSecs =
+				static_cast<int>(currentTime) % 60;
 
-			ImU32 bgColor = IM_COL32(80, 60, 135, 230);
+			int posMs =
+				static_cast<int>(
+					(currentTime - std::floor(currentTime)) *
+					1000.0f);
+
+			char timeLabel[32];
+
+			snprintf(
+				timeLabel,
+				sizeof(timeLabel),
+				"%d:%02d.%03d",
+				posMins,
+				posSecs,
+				posMs);
+
+			ImVec2 textSize =
+				ImGui::CalcTextSize(timeLabel);
+
+			const float padX = 6.0f;
+			const float padY = 3.0f;
+
+			const float boxW =
+				textSize.x + padX * 2.0f;
+
+			const float boxH =
+				textSize.y + padY * 2.0f;
+
+			float boxX =
+				screenPos.x - boxW * 0.5f;
+
+			const float boxY =
+				plotTop - boxH - 10.0f;
+
+			if (boxX < plotMin.x)
+			{
+				boxX = plotMin.x;
+			}
+
+			if (boxX + boxW >
+				plotMin.x + actualPlotSize.x)
+			{
+				boxX =
+					plotMin.x +
+					actualPlotSize.x -
+					boxW;
+			}
+
+			ImU32 bgColor =
+				IM_COL32(80, 60, 135, 230);
+
 			drawList->AddRectFilled(
 				ImVec2(boxX, boxY),
 				ImVec2(boxX + boxW, boxY + boxH),
-				bgColor, 4.0f);
+				bgColor,
+				4.0f);
+
 			drawList->AddText(
-				ImVec2(boxX + padX, boxY + padY),
+				ImVec2(
+					boxX + padX,
+					boxY + padY),
 				IM_COL32(255, 255, 255, 255),
 				timeLabel);
 
-			// Small triangle pointer below the label
-			float triX = screenPos.x;
-			float triY = boxY + boxH;
+			const float triX = screenPos.x;
+			const float triY = boxY + boxH;
+
 			drawList->AddTriangleFilled(
 				ImVec2(triX - 4.0f, triY),
 				ImVec2(triX + 4.0f, triY),
 				ImVec2(triX, triY + 5.0f),
 				bgColor);
 
-			drawList->AddCircleFilled(ImVec2(screenPos.x, plotTop), 5.0f, IM_COL32(220, 220, 220, 255));
+			drawList->AddCircleFilled(
+				ImVec2(screenPos.x, plotTop),
+				5.0f,
+				IM_COL32(220, 220, 220, 255));
 
 			ImPlot::EndPlot();
 		}
 
-		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 40.0f);
-		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::ColorConvertFloat4ToU32(imgui::ExtraColors[imgui::ImGuiExtraCol_Accent]));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::ColorConvertFloat4ToU32(imgui::ExtraColors[imgui::ImGuiExtraCol_AccentHovered]));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::ColorConvertFloat4ToU32(imgui::ExtraColors[imgui::ImGuiExtraCol_AccentActive]));
+		ImGui::PushStyleVar(
+			ImGuiStyleVar_FrameRounding,
+			40.0f);
+
+		ImGui::PushStyleColor(
+			ImGuiCol_Button,
+			ImGui::ColorConvertFloat4ToU32(
+				imgui::ExtraColors[
+					imgui::ImGuiExtraCol_Accent]));
+
+		ImGui::PushStyleColor(
+			ImGuiCol_ButtonHovered,
+			ImGui::ColorConvertFloat4ToU32(
+				imgui::ExtraColors[
+					imgui::ImGuiExtraCol_AccentHovered]));
+
+		ImGui::PushStyleColor(
+			ImGuiCol_ButtonActive,
+			ImGui::ColorConvertFloat4ToU32(
+				imgui::ExtraColors[
+					imgui::ImGuiExtraCol_AccentActive]));
 
 		const float rowY = ImGui::GetCursorPosY();
 
-		// Play
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(PLAY_BUTTON_PADDING / 2, PLAY_BUTTON_PADDING / 2));
+		ImGui::PushStyleVar(
+			ImGuiStyleVar_FramePadding,
+			ImVec2(
+				PLAY_BUTTON_PADDING / 2,
+				PLAY_BUTTON_PADDING / 2));
 
 		ImGui::SetCursorPosY(rowY);
 
-		if (TextButton(FormatId(m_bIsPlaying ? icon::ICON_PAUSE : icon::ICON_PLAY, BUTTON_ID, "PLAY").c_str()))
+		const char* playIcon =
+			(!isPlaying || isPaused)
+			? icon::ICON_PLAY
+			: icon::ICON_PAUSE;
+
+		if (TextButton(
+			FormatId(
+				playIcon,
+				BUTTON_ID,
+				"PLAY").c_str(), ImVec2(80, 80)))
 		{
-			m_bIsPlaying = !m_bIsPlaying;
+			if (isPlaying)
+			{
+				m_AudioPlayer.Pause();
+			}
+			else if (isPaused)
+			{
+				m_AudioPlayer.Resume();
+			}
+			else
+			{
+				if (!m_AudioPlayer.IsOpen())
+				{
+					m_AudioPlayer.Open(
+						sampleRate,
+						bitsPerSample,
+						channels);
+				}
+
+				m_AudioPlayer.Play(
+					pcmData.data(),
+					pcmData.size());
+			}
 		}
+
+		ImGui::PopStyleVar();
+
+		const float playHeight =
+			ImGui::GetItemRectSize().y;
+
 		ImGui::PopStyleColor();
 		ImGui::PopStyleColor();
 		ImGui::PopStyleColor();
 		ImGui::PopStyleVar();
 
-		const float playHeight = ImGui::GetItemRectSize().y;
+		const float smallBtnSize =
+			ImGui::GetFontSize() + 30.0f;
+
+		ImGui::PushStyleVar(
+			ImGuiStyleVar_FrameRounding,
+			6.0f);
+
+		ImGui::PushStyleVar(
+			ImGuiStyleVar_FramePadding,
+			ImVec2(15.0f, 15.0f));
+
+		const float smallHeight =
+			ImGui::GetFrameHeight();
+
+		const float offset =
+			(playHeight - smallHeight) * 0.5f;
+
+		ImGui::SameLine();
+		ImGui::SetCursorPosY(rowY + offset);
+
+		if (TextButton(
+			FormatId(
+				icon::ICON_STOP,
+				BUTTON_ID,
+				"STOP").c_str(),
+			ImVec2(
+				smallBtnSize,
+				smallBtnSize)))
+		{
+			m_AudioPlayer.Stop();
+		}
+
+		ImGui::SameLine();
+		ImGui::SetCursorPosY(rowY + offset);
+
+		if (TextButton(
+			FormatId(
+				icon::ICON_PREVIOUS,
+				BUTTON_ID,
+				"PREVIOUS").c_str(),
+			ImVec2(
+				smallBtnSize,
+				smallBtnSize)))
+		{
+			const size_t stepBytes =
+				static_cast<size_t>(
+					sampleRate *
+					bytesPerFrame *
+					0.1f);
+
+			size_t newPosition =
+				m_AudioPlayer.GetBytePosition();
+
+			if (newPosition > stepBytes)
+			{
+				newPosition -= stepBytes;
+			}
+			else
+			{
+				newPosition = 0;
+			}
+
+			newPosition =
+				(newPosition / bytesPerFrame) *
+				bytesPerFrame;
+
+			m_AudioPlayer.Seek(newPosition);
+		}
+
+		ImGui::SameLine();
+		ImGui::SetCursorPosY(rowY + offset);
+
+		if (TextButton(
+			FormatId(
+				icon::ICON_NEXT,
+				BUTTON_ID,
+				"NEXT").c_str(),
+			ImVec2(
+				smallBtnSize,
+				smallBtnSize)))
+		{
+			const size_t stepBytes =
+				static_cast<size_t>(
+					sampleRate *
+					bytesPerFrame *
+					0.1f);
+
+			size_t newPosition =
+				m_AudioPlayer.GetBytePosition();
+
+			newPosition =
+				std::min(
+					newPosition + stepBytes,
+					totalBytes);
+
+			newPosition =
+				(newPosition / bytesPerFrame) *
+				bytesPerFrame;
+
+			m_AudioPlayer.Seek(newPosition);
+		}
 
 		ImGui::PopStyleVar();
-
-		// Stop
-		float smallBtnSize = ImGui::GetFontSize() + 30.0f;
-		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.0f);
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(15.0f, 15.0f));
-
-		const float smallHeight = ImGui::GetFrameHeight();
-		const float offset = (playHeight - smallHeight) * 0.5f;
+		ImGui::PopStyleVar();
 
 		ImGui::SameLine();
-		ImGui::SetCursorPosY(rowY + offset);
 
-		if (TextButton(FormatId(icon::ICON_STOP, BUTTON_ID, "STOP").c_str(), ImVec2(smallBtnSize, smallBtnSize)))
-		{
-			m_bIsPlaying = false;
-			m_fAudioPosition = 0;
-		}
+		bytePosition =
+			m_AudioPlayer.GetBytePosition();
 
-		// Previous
-		ImGui::SameLine();
-		ImGui::SetCursorPosY(rowY + offset);
+		const float displayTime =
+			static_cast<float>(bytePosition) /
+			bytesPerSecond;
 
-		if (TextButton(FormatId(icon::ICON_PREVIOUS, BUTTON_ID, "PREVIOUS").c_str(), ImVec2(smallBtnSize, smallBtnSize)))
-		{
-			m_bIsPlaying = false;
-			m_fAudioPosition -= 0.1f;
-		}
+		const int currentPosMinS =
+			static_cast<int>(displayTime) / 60;
 
-		// Next
-		ImGui::SameLine();
-		ImGui::SetCursorPosY(rowY + offset);
+		const int currentPosSecS =
+			static_cast<int>(displayTime) % 60;
 
-		if (TextButton(FormatId(icon::ICON_NEXT, BUTTON_ID, "NEXT").c_str(), ImVec2(smallBtnSize, smallBtnSize)))
-		{
-			m_bIsPlaying = false;
-			m_fAudioPosition += 0.1f;
-		}
+		const int currentPosMs =
+			static_cast<int>(
+				(displayTime - std::floor(displayTime)) *
+				1000.0f);
 
-		ImGui::PopStyleVar(); // FramePadding
-		ImGui::PopStyleVar(); // FrameRounding
+		const int durationMinS =
+			static_cast<int>(duration) / 60;
 
-		// Next
-		ImGui::SameLine();
+		const int durationSecS =
+			static_cast<int>(duration) % 60;
 
-		// Time label above circle
-		int currentPosMinS = static_cast<int>(m_fAudioPosition) / 60;
-		int currentPosSecS = static_cast<int>(m_fAudioPosition) % 60;
-		int currentPosMs = static_cast<int>((m_fAudioPosition - floorf(m_fAudioPosition)) * 1000);
+		const int durationPosMs =
+			static_cast<int>(
+				(duration - std::floor(duration)) *
+				1000.0f);
 
-		// Time label above circle
-		int durationMinS = static_cast<int>(m_fAudioDuration) / 60;
-		int durationSecS = static_cast<int>(m_fAudioDuration) % 60;
-		int durationPosMs = static_cast<int>((m_fAudioDuration - floorf(m_fAudioDuration)) * 1000);
+		ImGui::Text(
+			"%d:%02d.%03d / %d:%02d.%03d",
+			currentPosMinS,
+			currentPosSecS,
+			currentPosMs,
+			durationMinS,
+			durationSecS,
+			durationPosMs);
 
-		ImGui::Text("%d:%02d.%03d / %s", currentPosMinS, currentPosSecS, currentPosMs, soundResource->GetDurationStr().c_str());
+		const float availWidth =
+			ImGui::GetContentRegionAvail().x;
 
-		// Push knob to the right and vertically centered
-		float availWidth = ImGui::GetContentRegionAvail().x;
-		float knobSize = 64.0f;
-		ImGui::SameLine(availWidth - knobSize);
+		const float knobSize = 64.0f;
 
-		Knob(FormatId("", KNOB_ID, "VOLUME").c_str(), &m_fAudioVolume, 0, 1, ImVec2(knobSize, knobSize), 0.0f);
+		ImGui::SameLine(
+			availWidth - knobSize);
 
-		if (m_bIsPlaying)
-		{
-			m_fAudioPosition += 0.005f;
-		}
-		if (m_fAudioPosition >= m_fAudioDuration)
-		{
-			m_fAudioPosition = 0.0f;
-		}
-		if (m_fAudioPosition < 0.0f)
-		{
-			m_fAudioPosition = 0.0f;
-		}
+		Knob(
+			FormatId(
+				"",
+				KNOB_ID,
+				"VOLUME").c_str(),
+			&m_fAudioVolume,
+			0,
+			1,
+			ImVec2(knobSize, knobSize),
+			0.0f);
 	}
 
 	//---------------------------------------------------------------------

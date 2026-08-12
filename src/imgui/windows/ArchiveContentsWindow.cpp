@@ -9,6 +9,7 @@
 #include "resources/ArchiveType.h"
 #include "editor/Workspace.h"
 #include "parsing/HEParser.h"
+#include "logger/Logger.h"
 
 #include "core/Memory.h"
 
@@ -80,19 +81,51 @@ namespace humongousexplorer::imgui
 			return;
 		}
 
-		if (archive.m_eType == resources::ArchiveType::HE0)
-		{
-			unsigned char* data = archive.m_Data.dataAs<unsigned char>();
-			core::xorShift(data, archive.m_Data.size(), 0x69);
-		}
-
 		if (!archive.m_Data.empty())
 		{
-			parsing::ParseChunks(
+			if (!parsing::ParseChunks(
 				archive.m_Root,
-				static_cast<const uint8_t*>(archive.m_Data.data()),
+				archive.m_Data,
 				0
-			);
+			))
+			{
+				core::Data xorredData = core::Data(archive.m_Data);
+
+				unsigned char* data = xorredData.dataAs<unsigned char>();
+				core::xorShift(data, xorredData.size(), 0x69);
+				if (!parsing::ParseChunks(
+					archive.m_Root,
+					xorredData,
+					0
+				))
+				{
+					bool success = false;
+					for (size_t i = 0; i < 255; i++)
+					{
+						xorredData = core::Data(archive.m_Data);
+
+						unsigned char* data = xorredData.dataAs<unsigned char>();
+						core::xorShift(data, xorredData.size(), i);
+
+						success = parsing::ParseChunks(
+							archive.m_Root,
+							xorredData,
+							0
+						);
+
+						if (success)
+						{
+							break;
+						}
+					}
+					if (!success)
+					{
+						LOGF(LogSeverity::LOGSEVERITY_ERROR, "Could not load archive: \"%s\"", archive.m_sPath.c_str());
+						return;
+					}
+				}
+			}
+
 		}
 
 		std::string name = filePath.filename().string();

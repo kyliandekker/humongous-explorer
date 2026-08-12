@@ -450,10 +450,15 @@ namespace humongousexplorer::parsing
 	}
 
 	//---------------------------------------------------------------------
-	void ParseChunks(Chunk& a_Out, const unsigned char* a_pBuf, size_t a_iPos/* = 0*/)
+	bool ParseChunks(Chunk& a_Out, const core::Data& a_Buf, size_t a_iPos/* = 0*/)
 	{
-		memcpy(a_Out.m_sTag, a_pBuf + a_iPos, 4);
-		size_t size = ReadBE32(a_pBuf + a_iPos + 4);
+		memcpy(a_Out.m_sTag, a_Buf.dataAs<unsigned char>() + a_iPos, 4);
+		size_t size = ReadBE32(a_Buf.dataAs<unsigned char>() + a_iPos + 4);
+
+		if (size > a_Buf.size() || a_iPos + size > a_Buf.size())
+		{
+			return false;
+		}
 
 		std::string tag(a_Out.m_sTag, CHUNK_ID_SIZE);
 		auto it = SCHEMA.find(tag);
@@ -468,14 +473,19 @@ namespace humongousexplorer::parsing
 				a_Out.m_aChildren.emplace_back();
 				Chunk& child = a_Out.m_aChildren.back();
 				child.m_pParent = &a_Out;
-				size_t childSize = ReadBE32(a_pBuf + childPos + 4);
-				ParseChunks(child, a_pBuf, childPos);
+				size_t childSize = ReadBE32(a_Buf.dataAs<unsigned char>() + childPos + 4);
+				if (!ParseChunks(child, a_Buf, childPos)) // Early return if somehow everything got fucked up.
+				{
+					return false;
+				}
 				childPos += childSize;
 			}
 		}
 		else
 		{
-			a_Out.m_Data = core::Data(a_pBuf + a_iPos + 8, size - 8);
+			a_Out.m_Data = core::Data(a_Buf.dataAs<char>() + a_iPos + 8, size - 8);
 		}
+
+		return true;
 	}
 }

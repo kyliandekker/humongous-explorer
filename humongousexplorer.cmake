@@ -27,7 +27,7 @@ target_include_directories(humongousexplorer PUBLIC
 set_target_properties(humongousexplorer PROPERTIES CXX_STANDARD 20)
 
 # Link libraries
-target_link_libraries(humongousexplorer PRIVATE Shcore.lib dxgi.lib d3dcompiler.lib Shlwapi.lib d3d11.lib dxgi.lib d3dcompiler.lib imgui)
+target_link_libraries(humongousexplorer PRIVATE Shcore.lib dxgi.lib d3dcompiler.lib Shlwapi.lib d3d11.lib dxgi.lib d3dcompiler.lib winmm.lib imgui)
 
 # Link directories
 target_link_directories(humongousexplorer PRIVATE "${CMAKE_SOURCE_DIR}/../$<CONFIG>")

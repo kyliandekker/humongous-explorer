@@ -28,5 +28,5 @@ namespace humongousexplorer::parsing
     };
 
     //---------------------------------------------------------------------
-	void ParseChunks(Chunk& a_Out, const unsigned char* a_pBuf, size_t a_iPos = 0);
+	bool ParseChunks(Chunk& a_Out, const core::Data& a_Buf, size_t a_iPos = 0);
 }
