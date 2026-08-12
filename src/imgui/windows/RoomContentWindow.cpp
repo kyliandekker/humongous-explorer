@@ -25,20 +25,20 @@ namespace humongousexplorer::imgui
 	struct TabInfo
 	{
 		const char* sLabel;
-		const char* sIconPath;
+		std::string sIconPath;
 		std::vector<resources::ResourceType> m_aResourceTypes;
 	};
 
 	//---------------------------------------------------------------------
 	static const TabInfo s_aTabs[] =
 	{
-		{ "All Files",  "../icons/icon_all_files.svg", { resources::ResourceType::Unknown } },
-		{ "Room Backgrounds",  "../icons/icon_background.svg", { resources::ResourceType::RoomBackground } },
-		{ "Room Images",  "../icons/icon_image.svg", { resources::ResourceType::RoomImage, resources::ResourceType::RoomImageLayer } },
-		{ "SFX",     "../icons/icon_sfx.svg", { resources::ResourceType::SFX } },
-		{ "Talkies",     "../icons/icon_sfx.svg", { resources::ResourceType::Talkie } },
-		{ "Songs",     "../icons/icon_sfx.svg", { resources::ResourceType::Song } },
-		{ "Scripts", "../icons/icon_local_script.svg", { resources::ResourceType::GlobalScript, resources::ResourceType::LocalScript, resources::ResourceType::VerbScript } },
+		{ "All Files",  resources::GetIconFromResourceType(resources::ResourceType::Unknown), { resources::ResourceType::Unknown } },
+		{ "Room Backgrounds",  resources::GetIconFromResourceType(resources::ResourceType::RoomBackground), { resources::ResourceType::RoomBackground } },
+		{ "Room Images",  resources::GetIconFromResourceType(resources::ResourceType::RoomImage), { resources::ResourceType::RoomImage, resources::ResourceType::RoomImageLayer } },
+		{ "SFX",     resources::GetIconFromResourceType(resources::ResourceType::SFX), {resources::ResourceType::SFX}},
+		{ "Talkies",     resources::GetIconFromResourceType(resources::ResourceType::Talkie), { resources::ResourceType::Talkie } },
+		{ "Songs",     resources::GetIconFromResourceType(resources::ResourceType::Song), { resources::ResourceType::Song } },
+		{ "Scripts", resources::GetIconFromResourceType(resources::ResourceType::GlobalScript), { resources::ResourceType::GlobalScript, resources::ResourceType::LocalScript, resources::ResourceType::VerbScript } },
 	};
 	static const int s_iTabCount = sizeof(s_aTabs) / sizeof(s_aTabs[0]);
 

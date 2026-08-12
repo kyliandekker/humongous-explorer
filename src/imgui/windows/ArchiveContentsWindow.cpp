@@ -245,7 +245,7 @@ namespace humongousexplorer::imgui
 		}
 
 		bool hovered = false;
-		if (ImGui::InvisibleButton("##drop_zone", ImVec2(zoneW, zoneH)))
+		if (ImGui::InvisibleButton(FormatId("", BUTTON_ID, "DROP_ZONE_ARCHIVES").c_str(), ImVec2(zoneW, zoneH)))
 		{
 			fs::path selected;
 			std::vector<COMDLG_FILTERSPEC> filters = {

@@ -329,7 +329,7 @@ namespace humongousexplorer::imgui
 
 			ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1, 1, 1, 1));
 			ImPlot::PushStyleVar(ImPlotStyleVar_LineWeight, 2);
-			ImPlot::PlotInfLines("##Playhead", &m_fAudioPosition, 1);
+			ImPlot::PlotInfLines(FormatId("", PLOT_ID, "PLAYHEAD").c_str(), &m_fAudioPosition, 1);
 			ImPlot::PopStyleVar();
 			ImPlot::PopStyleColor();
 
