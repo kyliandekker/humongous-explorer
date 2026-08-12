@@ -52,5 +52,6 @@ namespace humongousexplorer::imgui
 
 		void RenderAudio();
 		void RenderSoundControlsBar();
+		void RenderInfo();
 	};
 }
