@@ -12,6 +12,11 @@ namespace humongousexplorer::dx11
 	//---------------------------------------------------------------------
 	ID3D11ShaderResourceView* SVGTextureCache::Get(const std::string& a_sPath)
 	{
+		if (a_sPath.empty())
+		{
+			return nullptr;
+		}
+
 		auto it = s_Cache.find(a_sPath);
 		if (it != s_Cache.end())
 		{

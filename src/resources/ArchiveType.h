@@ -128,7 +128,7 @@ namespace humongousexplorer::resources
 
 	static const std::unordered_map<std::string, DisplayableChunk> s_HE2DisplayableChunks =
 	{
-		{ parsing::SDAT_CHUNK_ID, { resources::ResourceType::Talkie, false } }
+		{ parsing::TALK_CHUNK_ID, { resources::ResourceType::Talkie, false } }
 	};
 
 	static const std::unordered_map<std::string, DisplayableChunk> s_HE4DisplayableChunks =

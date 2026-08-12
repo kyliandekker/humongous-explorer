@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 
+#include "core/Memory.h"
 #include "imgui/ImGuiSetup.h"
 #include "imgui/views/SearchBar.h"
 #include "resources/ResourceType.h"
@@ -14,6 +15,9 @@
 #include "imgui/Helpers.h"
 #include "editor/Workspace.h"
 #include "imgui/views/FileEntryView.h"
+
+#include "resources/Resource.h"
+#include "resources/ResourceFactory.h"
 
 namespace humongousexplorer::imgui
 {
@@ -50,9 +54,11 @@ namespace humongousexplorer::imgui
 	};
 
 	//---------------------------------------------------------------------
-	static std::vector<std::unique_ptr<ResourceEntry>> s_aResources =
-	{
-	};
+	static std::vector<std::unique_ptr<ResourceEntry>> s_aResourceEntries =
+	{};
+
+	static std::vector<std::unique_ptr<resources::Resource>> s_aResources =
+	{};
 
 	//---------------------------------------------------------------------
 	bool RoomContentWindow::MatchesTabFilter(resources::ResourceType a_eType, int a_iTab) const
@@ -71,7 +77,7 @@ namespace humongousexplorer::imgui
 	int RoomContentWindow::CountResourcesForTab(int a_iTab) const
 	{
 		int count = 0;
-		for (const std::unique_ptr<ResourceEntry>& entry : s_aResources)
+		for (const std::unique_ptr<ResourceEntry>& entry : s_aResourceEntries)
 		{
 			if (MatchesTabFilter(entry->eType, a_iTab))
 			{
@@ -100,15 +106,35 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void RoomContentWindow::OnSelectedViewChanged(const imgui::TreeFileEntryView* oldView, const imgui::TreeFileEntryView* newView)
 	{
+		s_aResourceEntries.clear();
 		s_aResources.clear();
 
-
-
-		size_t i = 0;
-		for (const std::unique_ptr<ResourceEntry>& entry : s_aResources)
+		for (size_t i = 0; i < newView->m_aChildren.size(); i++)
 		{
-			entry->m_iOrder = i;
-			i++;
+			auto& view = newView->m_aChildren[i];
+			if (!view)
+			{
+				continue;
+			}
+
+			s_aResources.push_back(std::move(resources::ResourceFactory::GetResource(view->m_pChunk, std::to_string(i + 1))));
+		}
+
+		for (size_t i = 0; i < s_aResources.size(); i++)
+		{
+			auto& resource = s_aResources[i];
+			if (!resource)
+			{
+				continue;
+			}
+
+			std::unique_ptr<ResourceEntry> resourceEntry = std::make_unique<ResourceEntry>();
+			resourceEntry->eType = resource->GetResourceType();
+			resourceEntry->sName = resource->GetName();
+			resourceEntry->sSize = core::SizeToString(resource->GetSize());
+			resourceEntry->sDuration = resource->GetDurationStr();
+			resourceEntry->m_iOrder = i;
+			s_aResourceEntries.push_back(std::move(resourceEntry));
 		}
 	}
 
@@ -160,15 +186,19 @@ namespace humongousexplorer::imgui
 				if (tab_bar)
 				{
 					ImDrawList* drawList = ImGui::GetWindowDrawList();
-					for (int i = 0; i < tab_bar->Tabs.Size; i++)
+					for (int i = 0; i < s_iTabCount; i++)
 					{
 						ImGuiTabItem& tab = tab_bar->Tabs[i];
 						if (tab.LastFrameVisible < ImGui::GetFrameCount())
+						{
 							continue;
+						}
 
 						ID3D11ShaderResourceView* pTex = dx11::SVGTextureCache::Get(s_aTabs[i].sIconPath);
 						if (!pTex)
+						{
 							continue;
+						}
 
 						float tab_x = tab_bar->BarRect.Min.x + tab.Offset - tab_bar->ScrollingAnim;
 						float tab_center_y = tab_bar->BarRect.Min.y + (tab_bar->BarRect.GetHeight() - tabIconSize) * 0.5f;
@@ -190,7 +220,7 @@ namespace humongousexplorer::imgui
 
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.0f, 2.0f));
 
-			if (ImGui::BeginTable("ResourceTable", 7,
+			if (ImGui::BeginTable("ResourceTable", 8,
 				ImGuiTableFlags_Borders |
 				ImGuiTableFlags_RowBg |
 				ImGuiTableFlags_Resizable |
@@ -205,14 +235,15 @@ namespace humongousexplorer::imgui
 				ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch, 2.0f);
 				ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthStretch, 1.0f);
 				ImGui::TableSetupColumn("Dimensions", ImGuiTableColumnFlags_WidthStretch, 1.0f);
+				ImGui::TableSetupColumn("Duration", ImGuiTableColumnFlags_WidthStretch, 1.0f);
 				ImGui::TableHeadersRow();
 
 				float iconSize = ImGui::GetFontSize();
 				float rowHeight = ImGui::GetFrameHeight();
 
-				for (size_t i = 0; i < s_aResources.size(); i++)
+				for (size_t i = 0; i < s_aResourceEntries.size(); i++)
 				{
-					const std::unique_ptr<ResourceEntry>& entry = s_aResources[i];
+					const std::unique_ptr<ResourceEntry>& entry = s_aResourceEntries[i];
 
 					if (!MatchesTabFilter(entry->eType, m_iSelectedTab))
 					{
@@ -246,6 +277,7 @@ namespace humongousexplorer::imgui
 					))
 					{
 						m_iSelectedRow = static_cast<int>(i);
+						GetWorkspace().SetSelectedResource(s_aResources[i].get());
 					}
 					if (ImGui::IsItemHovered())
 					{
@@ -291,6 +323,10 @@ namespace humongousexplorer::imgui
 					ImGui::TableNextColumn();
 					ImGui::AlignTextToFramePadding();
 					ImGui::TextUnformatted(entry->sDimensions.c_str());
+
+					ImGui::TableNextColumn();
+					ImGui::AlignTextToFramePadding();
+					ImGui::TextUnformatted(entry->sDuration.c_str());
 				}
 
 				if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs())
@@ -302,7 +338,7 @@ namespace humongousexplorer::imgui
 						m_bSortAscending = spec.SortDirection == ImGuiSortDirection_Ascending;
 						sortSpecs->SpecsDirty = false;
 
-						std::sort(s_aResources.begin(), s_aResources.end(), [this](const std::unique_ptr<ResourceEntry>& a, const std::unique_ptr<ResourceEntry>& b)
+						std::sort(s_aResourceEntries.begin(), s_aResourceEntries.end(), [this](const std::unique_ptr<ResourceEntry>& a, const std::unique_ptr<ResourceEntry>& b)
 							{
 								int cmp = 0;
 								switch (m_iSortColumn)
@@ -331,6 +367,11 @@ namespace humongousexplorer::imgui
 									case 5:
 									{
 										cmp = a->sDimensions.compare(b->sDimensions);
+										break;
+									}
+									case 6:
+									{
+										cmp = a->sDuration.compare(b->sDuration);
 										break;
 									}
 								}

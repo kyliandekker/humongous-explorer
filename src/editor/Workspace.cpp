@@ -4,6 +4,8 @@
 
 #include "imgui/views/FileEntryView.h"
 
+#include "resources/Resource.h"
+
 namespace humongousexplorer
 {
 	//---------------------------------------------------------------------
@@ -46,12 +48,12 @@ namespace humongousexplorer::editor
 	//---------------------------------------------------------------------
 	ArchiveData& Workspace::AddArchive(ArchiveData a_Archive)
 	{
-		m_aArchives.push_back(std::move(a_Archive));
-		return m_aArchives.back();
+		m_aArchives.push_back(std::make_unique<ArchiveData>(std::move(a_Archive)));
+		return *m_aArchives.back();
 	}
 
 	//---------------------------------------------------------------------
-	const std::vector<ArchiveData>& Workspace::GetArchives() const
+	const std::vector<std::unique_ptr<ArchiveData>>& Workspace::GetArchives() const
 	{
 		return m_aArchives;
 	}
@@ -72,5 +74,23 @@ namespace humongousexplorer::editor
 	const core::Observable<imgui::TreeFileEntryView*>& Workspace::GetSelectedViewObs() const
 	{
 		return m_pSelectedFileEntryView;
+	}
+
+	//---------------------------------------------------------------------
+	void Workspace::SetSelectedResource(resources::Resource* a_pSelectedResource)
+	{
+		m_pSelectedResource = a_pSelectedResource;
+	}
+
+	//---------------------------------------------------------------------
+	resources::Resource* Workspace::GetSelectedResource()
+	{
+		return m_pSelectedResource.get();
+	}
+
+	//---------------------------------------------------------------------
+	const core::Observable<resources::Resource*>& Workspace::GetSelectedResource() const
+	{
+		return m_pSelectedResource;
 	}
 }

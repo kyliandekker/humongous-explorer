@@ -24,16 +24,16 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	static std::vector<std::unique_ptr<TreeFileEntryView>> s_aArchives;
 
-	using ChunkPair = std::pair<const parsing::Chunk*, resources::DisplayableChunk>;
+	using ChunkPair = std::pair<parsing::Chunk*, resources::DisplayableChunk>;
 	//---------------------------------------------------------------------
 	static void CollectDisplayableChunks(
 		resources::ArchiveType a_ArchiveType,
-		const parsing::Chunk& a_Parent,
+		parsing::Chunk& a_Parent,
 		std::vector<ChunkPair>& a_Out
 	)
 	{
 		const auto& displayable = resources::GetDisplayableChunks(a_ArchiveType);
-		for (const auto& child : a_Parent.m_aChildren)
+		for (auto& child : a_Parent.m_aChildren)
 		{
 			std::string tag(child.m_sTag, 4);
 			if (displayable.count(tag))
@@ -44,6 +44,15 @@ namespace humongousexplorer::imgui
 			{
 				CollectDisplayableChunks(a_ArchiveType, child, a_Out);
 			}
+		}
+	}
+
+	static void FixParentPointers(parsing::Chunk& a_Chunk)
+	{
+		for (auto& child : a_Chunk.m_aChildren)
+		{
+			child.m_pParent = &a_Chunk;
+			FixParentPointers(child);
 		}
 	}
 
@@ -120,6 +129,7 @@ namespace humongousexplorer::imgui
 
 		editor::ArchiveData& stored = GetWorkspace().AddArchive(std::move(archive));
 		archiveView->m_pChunk = &stored.m_Root;
+		FixParentPointers(stored.m_Root);
 
 		s_aArchives.push_back(std::move(archiveView));
 	}

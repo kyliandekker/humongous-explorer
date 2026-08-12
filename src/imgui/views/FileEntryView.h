@@ -105,7 +105,7 @@ namespace humongousexplorer::imgui
 
 		bool m_bVisible = true;
 		std::vector<std::unique_ptr<RowEntry>> m_aRows;
-		const parsing::Chunk* m_pChunk = nullptr;
+		parsing::Chunk* m_pChunk = nullptr;
 
 		virtual void Render(std::function<bool(FileEntryView* fileEntry)> a_fnSelected, std::function<void(FileEntryInteractionType, FileEntryView*)> a_fnOnInteraction, float a_fIndent = 0.0f);
 		virtual bool Filter(const std::string& a_sObjective);

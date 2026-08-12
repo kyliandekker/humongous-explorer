@@ -9,6 +9,7 @@
 namespace humongousexplorer::parsing
 {
     constexpr auto CHUNK_ID_SIZE = 4;
+    constexpr auto HEADER_SIZE = CHUNK_ID_SIZE + sizeof(uint32_t);
 
     //---------------------------------------------------------------------
     struct Chunk
@@ -19,8 +20,10 @@ namespace humongousexplorer::parsing
         Chunk* m_pParent = nullptr;
 
         size_t ChunkSize() const;
+        size_t WholeChunkSize() const;
 
         Chunk* TryFindChild(const std::string& a_sChunkID);
+        Chunk* FindChunkAt(size_t a_iTarget, size_t a_iBase = 0);
         Chunk* GetRoot();
     };
 

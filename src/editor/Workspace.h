@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "core/System.h"
 #include "core/Data.h"
@@ -25,6 +26,10 @@ namespace humongousexplorer::imgui
 {
 	class TreeFileEntryView;
 }
+namespace humongousexplorer::resources
+{
+	class Resource;
+}
 namespace humongousexplorer::editor
 {
 	//---------------------------------------------------------------------
@@ -47,16 +52,21 @@ namespace humongousexplorer::editor
 		const std::string& GetAppDataPath() const;
 
 		ArchiveData& AddArchive(ArchiveData a_Archive);
-		const std::vector<ArchiveData>& GetArchives() const;
+		const std::vector<std::unique_ptr<ArchiveData>>& GetArchives() const;
 
 		void SetSelectedFileEntryView(imgui::TreeFileEntryView* a_pSelectedView);
 		imgui::TreeFileEntryView* GetSelectedView();
 		const core::Observable<imgui::TreeFileEntryView*>& GetSelectedViewObs() const;
+
+		void SetSelectedResource(resources::Resource* a_pSelectedResource);
+		resources::Resource* GetSelectedResource();
+		const core::Observable<resources::Resource*>& GetSelectedResource() const;
 	private:
 		resources::ResourceType m_ResourceTypeFilter;
 		std::string m_sAppDataPath;
-		std::vector<ArchiveData> m_aArchives;
+		std::vector<std::unique_ptr<ArchiveData>> m_aArchives;
 
 		core::Observable<imgui::TreeFileEntryView*> m_pSelectedFileEntryView{nullptr};
+		core::Observable<resources::Resource*> m_pSelectedResource{nullptr};
 	};
 }

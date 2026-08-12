@@ -377,6 +377,22 @@ namespace humongousexplorer::parsing
 	}
 
 	//---------------------------------------------------------------------
+	size_t Chunk::WholeChunkSize() const
+	{
+		if (m_aChildren.empty())
+		{
+			return m_Data.size() + HEADER_SIZE;
+		}
+
+		size_t childrenSize = 0;
+		for (const Chunk& chunk : m_aChildren)
+		{
+			childrenSize += chunk.WholeChunkSize();
+		}
+		return childrenSize + HEADER_SIZE;
+	}
+
+	//---------------------------------------------------------------------
 	Chunk* Chunk::TryFindChild(const std::string& a_sChunkID)
 	{
 		Chunk* found = nullptr;
@@ -396,12 +412,39 @@ namespace humongousexplorer::parsing
 	}
 
 	//---------------------------------------------------------------------
+	Chunk* Chunk::FindChunkAt(size_t a_iTarget, size_t a_iBase)
+	{
+		size_t totalSize = WholeChunkSize();
+		if (a_iTarget < a_iBase || a_iTarget >= a_iBase + totalSize)
+		{
+			return nullptr;
+		}
+
+		if (a_iTarget < a_iBase + 8)
+		{
+			return this;
+		}
+
+		size_t childPos = a_iBase + 8;
+		for (auto& child : m_aChildren)
+		{
+			size_t childTotal = child.WholeChunkSize();
+			if (a_iTarget < childPos + childTotal)
+			{
+				return child.FindChunkAt(a_iTarget, childPos);
+			}
+			childPos += childTotal;
+		}
+		return this;
+	}
+
+	//---------------------------------------------------------------------
 	Chunk* Chunk::GetRoot()
 	{
 		Chunk* parent = m_pParent;
 		while (parent && parent->m_pParent)
 		{
-			parent = m_pParent;
+			parent = parent->m_pParent; 
 		}
 		return parent;
 	}
