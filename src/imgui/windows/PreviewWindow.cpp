@@ -14,6 +14,8 @@
 #include "resources/Resource.h"
 #include "core/Data.h"
 
+#include "humongous/sound/SBNG_Chunk.h"
+
 namespace humongousexplorer::imgui
 {
 	const float PreviewWindow::s_aPresets[s_iPresetCount] = { 0.25f, 0.50f, 0.75f, 1.0f, 1.5f, 2.0f };
@@ -332,6 +334,35 @@ namespace humongousexplorer::imgui
 			ImPlot::PlotInfLines(FormatId("", PLOT_ID, "PLAYHEAD").c_str(), &m_fAudioPosition, 1);
 			ImPlot::PopStyleVar();
 			ImPlot::PopStyleColor();
+			
+			if (soundResource->GetResourceType() == resources::ResourceType::Talkie)
+			{
+				resources::TalkResource* talkResource = dynamic_cast<resources::TalkResource*>(resource);
+				if (talkResource)
+				{
+					// SBNG Lip Sync
+					ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1, 0.4f, 0.4f, 0.8f));
+					ImPlot::PushStyleVar(ImPlotStyleVar_LineWeight, 1.5f);
+
+					core::Data data = talkResource->GetLipSyncData();
+					if (!data.empty())
+					{
+						const headers::SBNGRecord* records = data.dataAs<headers::SBNGRecord>();
+						size_t recordCount = data.size() / sizeof(headers::SBNGRecord);
+						for (size_t i = 0; i < recordCount; i++)
+						{
+							float xPos = static_cast<float>(records[i].sampleOffset) / static_cast<float>(sampleRate);
+							ImPlot::PlotInfLines(
+								FormatId("", PLOT_ID, "LIPSYNC", std::to_string(i)).c_str(),
+								&xPos, 1
+							);
+						}
+					}
+
+					ImPlot::PopStyleVar();
+					ImPlot::PopStyleColor();
+				}
+			}
 
 			// Click to seek
 			if (ImPlot::IsPlotHovered() && (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseDragging(ImGuiMouseButton_Left)))
@@ -340,8 +371,14 @@ namespace humongousexplorer::imgui
 
 				ImPlotPoint mousePos = ImPlot::GetPlotMousePos();
 				m_fAudioPosition = static_cast<float>(mousePos.x);
-				if (m_fAudioPosition < 0.0f) m_fAudioPosition = 0.0f;
-				if (m_fAudioPosition > m_fAudioDuration) m_fAudioPosition = m_fAudioDuration;
+				if (m_fAudioPosition < 0.0f)
+				{
+					m_fAudioPosition = 0.0f;
+				}
+				if (m_fAudioPosition > m_fAudioDuration)
+				{
+					m_fAudioPosition = m_fAudioDuration;
+				}
 			}
 
 			// Circle on top of the playhead

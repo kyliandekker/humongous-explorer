@@ -41,7 +41,7 @@ namespace humongousexplorer::imgui
 			resources::SoundResource* soundResource = dynamic_cast<resources::SoundResource*>(resource);
 
 			// Sound Information child
-			if (ImGui::BeginChild("SoundInfo", ImVec2(avail.x, 0), ImGuiChildFlags_Borders))
+			if (ImGui::BeginChild("SoundInfo", ImVec2(0, 0), ImGuiChildFlags_Borders))
 			{
 				ImGui::PushFont(GetBoldFont());
 				ImGui::Text("SOUND INFORMATION");
@@ -78,7 +78,7 @@ namespace humongousexplorer::imgui
 		else
 		{
 			// Room Information child
-			if (ImGui::BeginChild("RoomInfo", ImVec2(avail.x, 0), ImGuiChildFlags_Borders))
+			if (ImGui::BeginChild("RoomInfo", ImVec2(0, 0), ImGuiChildFlags_Borders))
 			{
 				ImGui::PushFont(GetBoldFont());
 				ImGui::Text("ROOM INFORMATION");
@@ -95,7 +95,7 @@ namespace humongousexplorer::imgui
 			ImGui::EndChild();
 
 			// Palette child
-			if (ImGui::BeginChild("Palette", ImVec2(avail.x, 0), ImGuiChildFlags_Borders))
+			if (ImGui::BeginChild("Palette", ImVec2(0, 0), ImGuiChildFlags_Borders))
 			{
 				// Header row: title on left, count + buttons on right
 				ImGui::PushFont(GetBoldFont());
