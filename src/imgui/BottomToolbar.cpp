@@ -40,13 +40,23 @@ namespace humongousexplorer::imgui
 
 		if (ImGui::Begin("BottomMenuBar", nullptr, flags))
 		{
-			if (m_fPercentage == 0 && m_sMessage.empty())
+			if (m_fPercentage < m_fRealPercentage)
 			{
+				const float speed = 4.0f;
+				const float deltaTime = ImGui::GetIO().DeltaTime;
 
-			}
-			else if (m_sMessage.empty() && m_fPercentage > 0.0f)
-			{
-				float progress = 0.65f;
+				if (std::abs(m_fPercentage - m_fRealPercentage) > 0.001f)
+				{
+					m_fPercentage = std::lerp(
+						m_fPercentage,
+						m_fRealPercentage,
+						1.0f - std::exp(-speed * deltaTime)
+					);
+				}
+				else
+				{
+					m_fPercentage = m_fRealPercentage;
+				}
 
 				const float barWidth = 300.0f;
 				const float barHeight = 30.0f;
@@ -60,7 +70,7 @@ namespace humongousexplorer::imgui
 					)
 				);
 
-				ImGui::ProgressBar(progress, ImVec2(barWidth, barHeight));
+				ImGui::ProgressBar(m_fPercentage, ImVec2(barWidth, barHeight));
 			}
 			else
 			{
@@ -132,6 +142,6 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void BottomToolbar::OnLoadArchiveProgressed(float a_fProgress)
 	{
-		m_fPercentage = a_fProgress;
+		m_fRealPercentage = a_fProgress;
 	}
 }

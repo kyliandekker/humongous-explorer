@@ -73,7 +73,7 @@ namespace humongousexplorer::editor
 		const core::SimpleEvent<const std::string&>& GetOnLoadArchiveSuccess() const;
 		const core::SimpleEvent<float>& GetOnLoadArchiveProgressed() const;
 
-		const core::SimpleEvent<std::unique_ptr<ArchiveData>&>& GetOnArchiveAdded() const;
+		const core::SimpleEvent<ArchiveData&>& GetOnArchiveAdded() const;
 	private:
 		resources::ResourceType m_ResourceTypeFilter;
 		std::string m_sAppDataPath;
@@ -86,6 +86,6 @@ namespace humongousexplorer::editor
 		core::SimpleEvent<const std::string&> m_evntOnLoadArchiveSuccess;
 		core::SimpleEvent<float> m_evntOnLoadArchiveProgressed;
 
-		core::SimpleEvent<std::unique_ptr<ArchiveData>&> m_evntOnArchiveAdded;
+		core::SimpleEvent<ArchiveData&> m_evntOnArchiveAdded;
 	};
 }

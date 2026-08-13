@@ -128,6 +128,7 @@ namespace humongousexplorer::imgui
 
 		futures.reserve(paths.size());
 
+		// Start loading all archives asynchronously.
 		for (const fs::path& filePath : paths)
 		{
 			futures.emplace_back(std::async(
@@ -138,18 +139,52 @@ namespace humongousexplorer::imgui
 		}
 
 		// Back on the calling/main thread.
-		for (size_t i = 0; i < futures.size(); ++i)
-		{
-			auto archive = futures[i].get();
+		size_t completed = 0;
+		std::vector<bool> processed(futures.size(), false);
 
-			if (!archive)
+		while (completed < futures.size())
+		{
+			for (size_t i = 0; i < futures.size(); ++i)
 			{
-				LOGF(LogSeverity::LOGSEVERITY_ERROR, "Could not load archive: \"%s\"", paths[i].filename().generic_string().c_str());
-				continue;
+				if (processed[i])
+				{
+					continue;
+				}
+
+				if (futures[i].wait_for(std::chrono::milliseconds(0)) !=
+					std::future_status::ready)
+				{
+					continue;
+				}
+
+				processed[i] = true;
+				++completed;
+
+				auto archive = futures[i].get();
+
+				if (!archive)
+				{
+					LOGF(
+						LogSeverity::LOGSEVERITY_ERROR,
+						"Could not load archive: \"%s\"",
+						paths[i].filename().generic_string().c_str()
+					);
+				}
+				else
+				{
+					GetWorkspace().AddArchive(std::move(*archive));
+				}
+
+				const int progress =
+					static_cast<int>((completed * 100) / futures.size());
+
+				GetWorkspace().GetOnLoadArchiveProgressed().invoke(progress);
 			}
 
-			GetWorkspace().AddArchive(std::move(*archive));
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
+
+		GetWorkspace().GetOnLoadArchiveProgressed().invoke(100);
 	}
 
 	//---------------------------------------------------------------------
@@ -315,12 +350,12 @@ namespace humongousexplorer::imgui
 	}
 
 	//---------------------------------------------------------------------
-	void ArchiveContentsWindow::GetOnArchiveAdded(std::unique_ptr<editor::ArchiveData>& a_pArchiveData)
+	void ArchiveContentsWindow::GetOnArchiveAdded(editor::ArchiveData& a_pArchiveData)
 	{
-		std::string name = a_pArchiveData->m_sPath.filename().string();
+		std::string name = a_pArchiveData.m_sPath.filename().string();
 
 		std::vector<ChunkPair> displayableChunks;
-		CollectDisplayableChunks(a_pArchiveData->m_eType, a_pArchiveData->m_Root, displayableChunks);
+		CollectDisplayableChunks(a_pArchiveData.m_eType, a_pArchiveData.m_Root, displayableChunks);
 
 		std::vector<std::unique_ptr<FileEntryView>> children;
 		for (const ChunkPair& displayableChunk : displayableChunks)
@@ -341,7 +376,7 @@ namespace humongousexplorer::imgui
 
 		auto archiveView = std::make_unique<TreeFileEntryView>(
 			MakeRows(
-				MakeIconRow(resources::GetIconFromArchiveType(a_pArchiveData->m_eType)),
+				MakeIconRow(resources::GetIconFromArchiveType(a_pArchiveData.m_eType)),
 				MakeNameRow(name),
 				MakeCountRow(std::to_string(displayableChunks.size()) + " entries")
 			),
@@ -349,8 +384,7 @@ namespace humongousexplorer::imgui
 		);
 		archiveView->m_bExpanded = true;
 
-		GetWorkspace().GetOnLoadArchiveProgressed().invoke(100);
-		GetWorkspace().GetOnLoadArchiveSuccess().invoke(a_pArchiveData->m_sPath.generic_string());
+		GetWorkspace().GetOnLoadArchiveSuccess().invoke(a_pArchiveData.m_sPath.generic_string());
 
 		s_aArchives.push_back(std::move(archiveView));
 	}

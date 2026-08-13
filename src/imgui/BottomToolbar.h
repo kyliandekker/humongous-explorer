@@ -21,6 +21,7 @@ namespace humongousexplorer::imgui
 		std::string m_sMessage;
 		std::string m_sIcon;
 		float m_fSize = 75;
+		float m_fRealPercentage = 0.0f;
 		float m_fPercentage = 0.0f;
 	};
 }

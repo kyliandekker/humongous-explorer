@@ -52,7 +52,7 @@ namespace humongousexplorer::editor
 		std::unique_ptr<ArchiveData>& archiveData = m_aArchives.back();
 		archiveData->m_Root.FixParents(archiveData->m_Root);
 
-		m_evntOnArchiveAdded(archiveData);
+		m_evntOnArchiveAdded(*archiveData);
 		return *archiveData;
 	}
 
@@ -117,8 +117,8 @@ namespace humongousexplorer::editor
 	}
 
 	//---------------------------------------------------------------------
-	const core::SimpleEvent<std::unique_ptr<ArchiveData>&>& Workspace::GetOnArchiveAdded() const
+	const core::SimpleEvent<ArchiveData&>& Workspace::GetOnArchiveAdded() const
 	{
-		return m_evntOnArchiveAdded;;
+		return m_evntOnArchiveAdded;
 	}
 }
