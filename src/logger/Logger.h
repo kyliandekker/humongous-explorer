@@ -208,7 +208,7 @@ namespace humongousexplorer
 			mutable std::mutex m_MessagesMutex; /// The mutex used for synchronization between the threads for stopping or initializing.
 			std::condition_variable m_MessageCondVar; /// Used for lazy thread.
 
-			LogSeverity m_AssertLevel = LogSeverity::LOGSEVERITY_ERROR;
+			LogSeverity m_AssertLevel = LogSeverity::LOGSEVERITY_ASSERT;
 			LogType m_LogType = LogType::LOGTYPE_WITH_PARENT_FOLDER;
 		};
 	}

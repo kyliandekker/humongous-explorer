@@ -369,9 +369,9 @@ namespace humongousexplorer::parsing
 		}
 		
 		size_t childrenSize = 0;
-		for (const Chunk& chunk : m_aChildren)
+		for (const std::unique_ptr<Chunk>& chunk : m_aChildren)
 		{
-			childrenSize += chunk.ChunkSize();
+			childrenSize += chunk->ChunkSize();
 		}
 		return childrenSize;
 	}
@@ -385,25 +385,35 @@ namespace humongousexplorer::parsing
 		}
 
 		size_t childrenSize = 0;
-		for (const Chunk& chunk : m_aChildren)
+		for (const std::unique_ptr<Chunk>& chunk : m_aChildren)
 		{
-			childrenSize += chunk.WholeChunkSize();
+			childrenSize += chunk->WholeChunkSize();
 		}
 		return childrenSize + HEADER_SIZE;
+	}
+
+	//---------------------------------------------------------------------
+	void Chunk::FixParents(Chunk& a_Chunk)
+	{
+		for (auto& child : a_Chunk.m_aChildren)
+		{
+			child->m_pParent = &a_Chunk;
+			FixParents(*child);
+		}
 	}
 
 	//---------------------------------------------------------------------
 	Chunk* Chunk::TryFindChild(const std::string& a_sChunkID)
 	{
 		Chunk* found = nullptr;
-		for (Chunk& chunk : m_aChildren)
+		for (std::unique_ptr<Chunk>& chunk : m_aChildren)
 		{
-			if (core::chunkcmp(chunk.m_sTag, a_sChunkID.c_str()) == 0)
+			if (core::chunkcmp(chunk->m_sTag, a_sChunkID.c_str()) == 0)
 			{
-				return &chunk;
+				return chunk.get();
 			}
 
-			if (found = chunk.TryFindChild(a_sChunkID))
+			if (found = chunk->TryFindChild(a_sChunkID))
 			{
 				return found;
 			}
@@ -428,10 +438,10 @@ namespace humongousexplorer::parsing
 		size_t childPos = a_iBase + 8;
 		for (auto& child : m_aChildren)
 		{
-			size_t childTotal = child.WholeChunkSize();
+			size_t childTotal = child->WholeChunkSize();
 			if (a_iTarget < childPos + childTotal)
 			{
-				return child.FindChunkAt(a_iTarget, childPos);
+				return child->FindChunkAt(a_iTarget, childPos);
 			}
 			childPos += childTotal;
 		}
@@ -450,40 +460,67 @@ namespace humongousexplorer::parsing
 	}
 
 	//---------------------------------------------------------------------
-	bool ParseChunks(Chunk& a_Out, const core::Data& a_Buf, size_t a_iPos/* = 0*/)
+	bool ParseChunks(Chunk& a_Out, const core::Data& a_Buf, size_t a_iPos /* = 0 */)
 	{
-		memcpy(a_Out.m_sTag, a_Buf.dataAs<unsigned char>() + a_iPos, 4);
-		size_t size = ReadBE32(a_Buf.dataAs<unsigned char>() + a_iPos + 4);
+		const auto* data = a_Buf.dataAs<unsigned char>();
 
-		if (size > a_Buf.size() || a_iPos + size > a_Buf.size())
-		{
+		// A chunk always needs an 8-byte header.
+		if (a_iPos > a_Buf.size() || a_Buf.size() - a_iPos < 8)
 			return false;
-		}
+
+		memcpy(a_Out.m_sTag, data + a_iPos, 4);
+
+		const size_t size = ReadBE32(data + a_iPos + 4);
+
+		// Size includes the 8-byte header.
+		if (size < 8)
+			return false;
+
+		// Entire chunk must fit inside the buffer.
+		if (size > a_Buf.size() - a_iPos)
+			return false;
+
+		const size_t endPos = a_iPos + size;
 
 		std::string tag(a_Out.m_sTag, CHUNK_ID_SIZE);
 		auto it = SCHEMA.find(tag);
-		bool isContainer = (it != SCHEMA.end() && !it->second.empty());
+		const bool isContainer =
+			it != SCHEMA.end() && !it->second.empty();
 
 		if (isContainer)
 		{
 			size_t childPos = a_iPos + 8;
-			size_t endPos = a_iPos + size;
+
 			while (childPos < endPos)
 			{
-				a_Out.m_aChildren.emplace_back();
-				Chunk& child = a_Out.m_aChildren.back();
-				child.m_pParent = &a_Out;
-				size_t childSize = ReadBE32(a_Buf.dataAs<unsigned char>() + childPos + 4);
-				if (!ParseChunks(child, a_Buf, childPos)) // Early return if somehow everything got fucked up.
-				{
+				// Remaining bytes aren't enough for a child header.
+				if (endPos - childPos < 8)
 					return false;
-				}
+
+				const size_t childSize =
+					ReadBE32(data + childPos + 4);
+
+				// Child must have a header and fit inside parent.
+				if (childSize < 8 || childSize > endPos - childPos)
+					return false;
+
+				auto child = std::make_unique<Chunk>();
+				child->m_pParent = &a_Out;
+
+				if (!ParseChunks(*child, a_Buf, childPos))
+					return false;
+
+				a_Out.m_aChildren.emplace_back(std::move(child));
+
 				childPos += childSize;
 			}
 		}
 		else
 		{
-			a_Out.m_Data = core::Data(a_Buf.dataAs<char>() + a_iPos + 8, size - 8);
+			a_Out.m_Data = core::Data(
+				a_Buf.dataAs<char>() + a_iPos + 8,
+				size - 8
+			);
 		}
 
 		return true;

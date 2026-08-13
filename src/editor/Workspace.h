@@ -6,7 +6,10 @@
 
 #include "core/System.h"
 #include "core/Data.h"
+#include "core/Event.h"
 #include "core/Observable.h"
+
+#include "file/FILEPCH.h"
 
 #include "parsing/HEParser.h"
 
@@ -35,7 +38,7 @@ namespace humongousexplorer::editor
 	//---------------------------------------------------------------------
 	struct ArchiveData
 	{
-		std::string m_sPath;
+		fs::path m_sPath;
 		resources::ArchiveType m_eType = resources::ArchiveType::Unknown;
 		core::Data m_Data;
 		parsing::Chunk m_Root;
@@ -53,6 +56,10 @@ namespace humongousexplorer::editor
 
 		ArchiveData& AddArchive(ArchiveData a_Archive);
 		const std::vector<std::unique_ptr<ArchiveData>>& GetArchives() const;
+		void ClearArchives()
+		{
+			m_aArchives.clear();
+		}
 
 		void SetSelectedFileEntryView(imgui::TreeFileEntryView* a_pSelectedView);
 		imgui::TreeFileEntryView* GetSelectedView();
@@ -61,6 +68,12 @@ namespace humongousexplorer::editor
 		void SetSelectedResource(resources::Resource* a_pSelectedResource);
 		resources::Resource* GetSelectedResource();
 		const core::Observable<resources::Resource*>& GetSelectedResource() const;
+
+		const core::SimpleEvent<const std::string&, const std::string&>& GetOnLoadArchiveFailed() const;
+		const core::SimpleEvent<const std::string&>& GetOnLoadArchiveSuccess() const;
+		const core::SimpleEvent<float>& GetOnLoadArchiveProgressed() const;
+
+		const core::SimpleEvent<std::unique_ptr<ArchiveData>&>& GetOnArchiveAdded() const;
 	private:
 		resources::ResourceType m_ResourceTypeFilter;
 		std::string m_sAppDataPath;
@@ -68,5 +81,11 @@ namespace humongousexplorer::editor
 
 		core::Observable<imgui::TreeFileEntryView*> m_pSelectedFileEntryView{nullptr};
 		core::Observable<resources::Resource*> m_pSelectedResource{nullptr};
+
+		core::SimpleEvent<const std::string&, const std::string&> m_evntOnLoadArchiveFailed;
+		core::SimpleEvent<const std::string&> m_evntOnLoadArchiveSuccess;
+		core::SimpleEvent<float> m_evntOnLoadArchiveProgressed;
+
+		core::SimpleEvent<std::unique_ptr<ArchiveData>&> m_evntOnArchiveAdded;
 	};
 }

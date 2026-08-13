@@ -237,5 +237,8 @@ namespace humongousexplorer::imgui
 
         ImVec4* implotColors = implotStyle.Colors;
         ImPlot::GetStyle().Colors[ImPlotCol_Line] = RGB(111, 84, 164, 255);
+
+        // Override colors.
+        colors[ImGuiCol_PlotHistogram] = extraColors[imgui::ImGuiExtraCol_Accent];
     }
 }

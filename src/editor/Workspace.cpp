@@ -49,7 +49,11 @@ namespace humongousexplorer::editor
 	ArchiveData& Workspace::AddArchive(ArchiveData a_Archive)
 	{
 		m_aArchives.push_back(std::make_unique<ArchiveData>(std::move(a_Archive)));
-		return *m_aArchives.back();
+		std::unique_ptr<ArchiveData>& archiveData = m_aArchives.back();
+		archiveData->m_Root.FixParents(archiveData->m_Root);
+
+		m_evntOnArchiveAdded(archiveData);
+		return *archiveData;
 	}
 
 	//---------------------------------------------------------------------
@@ -92,5 +96,29 @@ namespace humongousexplorer::editor
 	const core::Observable<resources::Resource*>& Workspace::GetSelectedResource() const
 	{
 		return m_pSelectedResource;
+	}
+
+	//---------------------------------------------------------------------
+	const core::SimpleEvent<const std::string&, const std::string&>& Workspace::GetOnLoadArchiveFailed() const
+	{
+		return m_evntOnLoadArchiveFailed;
+	}
+
+	//---------------------------------------------------------------------
+	const core::SimpleEvent<const std::string&>& Workspace::GetOnLoadArchiveSuccess() const
+	{
+		return m_evntOnLoadArchiveSuccess;
+	}
+
+	//---------------------------------------------------------------------
+	const core::SimpleEvent<float>& Workspace::GetOnLoadArchiveProgressed() const
+	{
+		return m_evntOnLoadArchiveProgressed;
+	}
+
+	//---------------------------------------------------------------------
+	const core::SimpleEvent<std::unique_ptr<ArchiveData>&>& Workspace::GetOnArchiveAdded() const
+	{
+		return m_evntOnArchiveAdded;;
 	}
 }

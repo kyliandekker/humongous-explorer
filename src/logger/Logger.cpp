@@ -80,9 +80,6 @@ namespace humongousexplorer::logger
 	//---------------------------------------------------------------------
 	bool Logger::InitThreadWorker()
 	{
-		m_AssertLevel = LogSeverity::LOGSEVERITY_ERROR;
-		m_LogType = LogType::LOGTYPE_WITH_PARENT_FOLDER;
-
 		// Terminal/Console initialization for debug builds.
 #ifdef _DEBUG
 		if (!HasConsole())

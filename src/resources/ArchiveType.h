@@ -109,7 +109,7 @@ namespace humongousexplorer::resources
 		{
 			return ArchiveType::HE8;
 		}
-		if (ext == "A")
+		if (ext == "(A)")
 		{
 			return ArchiveType::A;
 		}

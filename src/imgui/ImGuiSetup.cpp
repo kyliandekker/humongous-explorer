@@ -23,7 +23,6 @@ namespace humongousexplorer::imgui
 	PreviewWindow m_PreviewWindow;
 	InfoPanelWindow m_InfoPanelWindow;
 	BottomToolbar m_BottomToolbar;
-	TopToolbar m_TopToolbar;
 
 	std::string m_sIniPath;
 
@@ -70,18 +69,18 @@ namespace humongousexplorer::imgui
 		m_RoomContentWindow.Initialize();
 		m_PreviewWindow.Initialize();
 		m_InfoPanelWindow.Initialize();
+		m_BottomToolbar.Initialize();
 
 		ImGuiViewport* viewport = ImGui::GetMainViewport();
 
-		m_TopToolbar.Render();
 		m_BottomToolbar.Render();
 
 		ImVec2 padding = ImGui::GetStyle().WindowPadding;
 		ImGui::SetNextWindowPos(
-			ImVec2(viewport->WorkPos.x, viewport->WorkPos.y + m_BottomToolbar.GetSize() + padding.y)
+			ImVec2(viewport->WorkPos.x, viewport->WorkPos.y)
 		);
 		ImGui::SetNextWindowSize(
-			ImVec2(viewport->WorkSize.x, viewport->WorkSize.y - (m_BottomToolbar.GetSize() + m_TopToolbar.GetSize() + +padding.y))
+			ImVec2(viewport->WorkSize.x, viewport->WorkSize.y - m_BottomToolbar.GetSize())
 		);
 
 		m_MainDock.Render();

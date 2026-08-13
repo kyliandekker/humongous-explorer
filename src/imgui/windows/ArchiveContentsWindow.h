@@ -1,8 +1,14 @@
 #pragma once
 
+#include <memory>
+
 #include "imgui/windows/HEBaseWindow.h"
 #include "imgui/views/SearchBar.h"
 
+namespace humongousexplorer::editor
+{
+	struct ArchiveData;
+}
 namespace humongousexplorer::imgui
 {
 	class FileEntryView;
@@ -33,6 +39,7 @@ namespace humongousexplorer::imgui
 		bool OnInitialized() override;
 
 		void RenderDropZone();
+		void GetOnArchiveAdded(std::unique_ptr<editor::ArchiveData>& a_pArchiveData);
 
 		FileEntryView* m_pFilterFileEntryView = nullptr; // TODO: move
 		SearchBar m_SearchBar;
