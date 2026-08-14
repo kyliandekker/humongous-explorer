@@ -1,7 +1,5 @@
 #pragma once
 
-#include "humongous/ChunkHeader.h"
-
 namespace humongousexplorer::parsing
 {
 #pragma pack(push, 1)

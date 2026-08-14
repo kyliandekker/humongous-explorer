@@ -1,7 +1,5 @@
 #pragma once
 
-#include "humongous/ChunkHeader.h"
-
 namespace humongousexplorer::parsing
 {
 #pragma pack(push, 1)
@@ -9,7 +7,7 @@ namespace humongousexplorer::parsing
 	// Scripts contain a set of bytecode instructions with arguments following each instruction (usually).
 	// Instructions might for instance be "play sound from talk file with offset x).
 	// Instructions might also be simple push byte, push dword instructions.
-	class EXCD_Chunk : public HumongousHeader
+	class EXCD_Chunk
 	{};
 #pragma pack(pop)
 }

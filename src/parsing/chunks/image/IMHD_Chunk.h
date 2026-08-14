@@ -1,14 +1,12 @@
 #pragma once
 
-#include "humongous/ChunkHeader.h"
-
 namespace humongousexplorer::parsing
 {
 #pragma pack(push, 1)
 	// This chunk contains information about the room images such as width and height and where on the screen they should appear.
 	// It is usually found in a OBIM chunk inside the Resource file (*.(A)).
 	// It is used for multiple images.
-	class IMHD_Chunk : public HumongousHeader
+	class IMHD_Chunk
 	{
 		uint16_t id = 0;
 		uint16_t num_imnn = 0;

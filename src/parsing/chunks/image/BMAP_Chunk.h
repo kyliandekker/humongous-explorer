@@ -1,7 +1,5 @@
 #pragma once
 
-#include "humongous/ChunkHeader.h"
-
 namespace humongousexplorer::parsing
 {
 #pragma pack(push, 1)
@@ -10,7 +8,7 @@ namespace humongousexplorer::parsing
 	// The first byte is the encoding and says whether it is transparent or not and what encoding it exactly is (basic, Humongous, etc).
 	// The second byte is the fill color of the image.
 	// BMAP chunks are usually found inside IMxx chunks in Resource files (*.(A)).
-	class BMAP_Chunk : public HumongousHeader
+	class BMAP_Chunk
 	{
 		uint8_t encoding = 0;
 		uint8_t fill_color = 0;
