@@ -14,7 +14,7 @@
 #include "resources/Resource.h"
 #include "core/Data.h"
 
-#include "humongous/sound/SBNG_Chunk.h"
+#include "parsing/chunks/sound/SBNG_Chunk.h"
 
 #undef min
 #undef max
@@ -459,12 +459,12 @@ namespace humongousexplorer::imgui
 
 					if (!data.empty())
 					{
-						const headers::SBNGRecord* records =
-							data.dataAs<headers::SBNGRecord>();
+						const parsing::SBNGRecord* records =
+							data.dataAs<parsing::SBNGRecord>();
 
 						const size_t recordCount =
 							data.size() /
-							sizeof(headers::SBNGRecord);
+							sizeof(parsing::SBNGRecord);
 
 						for (size_t i = 0; i < recordCount; ++i)
 						{

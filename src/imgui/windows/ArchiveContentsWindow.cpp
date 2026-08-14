@@ -2,19 +2,20 @@
 
 #include <imgui/imgui.h>
 #include <string>
-#include <future>
 
 #include "dx11/SVGTextureCache.h"
 #include "file/file_abstractions.h"
 #include "resources/ResourceType.h"
 #include "resources/ArchiveType.h"
+#include "resources/ResourceFactory.h"
+#include "resources/Resource.h"
 #include "editor/Workspace.h"
-#include "parsing/HEParser.h"
-#include "logger/Logger.h"
+#include "parsing/ChunkParser.h"
+#include "resources/ArchiveEntry.h"
 
-#include "core/Memory.h"
-
+#include "core/DataStream.h"
 #include "imgui/ImGuiSetup.h"
+#include "imgui/views/FileEntryView.h"
 #include "imgui/views/ResourceFileEntryView.h"
 #include "imgui/views/SearchBar.h"
 #include "imgui/Helpers.h"
@@ -24,8 +25,6 @@
 namespace humongousexplorer::imgui
 {
 	//---------------------------------------------------------------------
-	static std::vector<std::unique_ptr<TreeFileEntryView>> s_aArchives;
-
 	using ChunkPair = std::pair<parsing::Chunk*, resources::DisplayableChunk>;
 	//---------------------------------------------------------------------
 	static void CollectDisplayableChunks(
@@ -35,9 +34,9 @@ namespace humongousexplorer::imgui
 	)
 	{
 		const auto& displayable = resources::GetDisplayableChunks(a_ArchiveType);
-		for (auto& child : a_Parent.m_aChildren)
+		for (auto& child : a_Parent.GetChildren())
 		{
-			std::string tag(child->m_sTag, 4);
+			std::string tag(child->GetTag(), 4);
 			if (displayable.count(tag))
 			{
 				a_Out.push_back({ child.get(), displayable.at(tag)});
@@ -50,144 +49,6 @@ namespace humongousexplorer::imgui
 	}
 
 	//---------------------------------------------------------------------
-	static std::optional<editor::ArchiveData> LoadArchive(const fs::path& a_sPath)
-	{
-		editor::ArchiveData archive;
-
-		archive.m_sPath = a_sPath;
-		archive.m_eType =
-			resources::GetArchiveTypeFromExtension(
-				a_sPath.extension().string().substr(1)
-			);
-
-		if (archive.m_eType < resources::ArchiveType::HE0)
-		{
-			return std::nullopt;
-		}
-
-		if (!file::LoadFile(a_sPath, archive.m_Data))
-		{
-			return std::nullopt;
-		}
-
-		if (!archive.m_Data.empty())
-		{
-			if (!parsing::ParseChunks(archive.m_Root, archive.m_Data, 0))
-			{
-				core::Data xorredData = archive.m_Data;
-
-				unsigned char* data = xorredData.dataAs<unsigned char>();
-
-				core::xorShift(data, xorredData.size(), 0x69);
-
-				if (!parsing::ParseChunks(archive.m_Root, xorredData, 0))
-				{
-					return std::nullopt;
-				}
-			}
-		}
-
-		return archive;
-	}
-
-	//---------------------------------------------------------------------
-	static void LoadArchives(const std::string& a_sPath)
-	{
-		GetWorkspace().ClearArchives();
-
-		fs::path path = a_sPath;
-		fs::path folder = path.parent_path();
-
-		std::vector<fs::path> paths;
-
-		for (const auto& entry : fs::directory_iterator(folder))
-		{
-			if (!entry.is_regular_file())
-			{
-				continue;
-			}
-
-			const fs::path& filePath = entry.path();
-
-			std::string extension = filePath.extension().string().substr(1);
-
-			if (resources::GetArchiveTypeFromExtension(extension) < resources::ArchiveType::HE0)
-			{
-				continue;
-			}
-
-			if (filePath.stem().generic_string() != path.stem().generic_string())
-			{
-				continue;
-			}
-
-			paths.push_back(filePath);
-		}
-
-		std::vector<std::future<std::optional<editor::ArchiveData>>> futures;
-
-		futures.reserve(paths.size());
-
-		// Start loading all archives asynchronously.
-		for (const fs::path& filePath : paths)
-		{
-			futures.emplace_back(std::async(
-				std::launch::async,
-				LoadArchive,
-				filePath
-			));
-		}
-
-		// Back on the calling/main thread.
-		size_t completed = 0;
-		std::vector<bool> processed(futures.size(), false);
-
-		while (completed < futures.size())
-		{
-			for (size_t i = 0; i < futures.size(); ++i)
-			{
-				if (processed[i])
-				{
-					continue;
-				}
-
-				if (futures[i].wait_for(std::chrono::milliseconds(0)) !=
-					std::future_status::ready)
-				{
-					continue;
-				}
-
-				processed[i] = true;
-				++completed;
-
-				auto archive = futures[i].get();
-
-				if (!archive)
-				{
-					LOGF(
-						LogSeverity::LOGSEVERITY_ERROR,
-						"Could not load archive: \"%s\"",
-						paths[i].filename().generic_string().c_str()
-					);
-				}
-				else
-				{
-					GetWorkspace().AddArchive(std::move(*archive));
-				}
-
-				const int progress =
-					static_cast<int>((completed * 100) / futures.size());
-
-				GetWorkspace().GetOnLoadArchiveProgressed().invoke(progress);
-			}
-
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		}
-
-		GetWorkspace().GetOnLoadArchiveProgressed().invoke(100);
-	}
-
-	//---------------------------------------------------------------------
 	// ArchiveContentsWindow
 	//---------------------------------------------------------------------
 	ArchiveContentsWindow::ArchiveContentsWindow() : HEBaseWindow(ImGuiWindowFlags_NoCollapse, "ARCHIVE CONTENTS", "ArchiveContentsWindow"),
@@ -197,8 +58,66 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	bool imgui::ArchiveContentsWindow::OnInitialized()
 	{
-		GetWorkspace().GetOnArchiveAdded() += std::bind(&ArchiveContentsWindow::GetOnArchiveAdded, this, std::placeholders::_1);
+		GetWorkspace().GetArchivesChanged() += std::bind(&ArchiveContentsWindow::OnArchivesChanged, this);
+
 		return true;
+	}
+
+	//---------------------------------------------------------------------
+	void ArchiveContentsWindow::RebuildArchiveViews()
+	{
+		m_aArchiveViews.clear();
+
+		const auto& archives = GetWorkspace().GetArchives();
+
+		for (size_t a = 0; a < archives.size(); ++a)
+		{
+			const resources::ArchiveEntry& archiveEntry = *archives[a];
+			std::string name = archiveEntry.GetPath().filename().string();
+
+			std::vector<ChunkPair> displayableChunks;
+			CollectDisplayableChunks(archiveEntry.GetType(), const_cast<parsing::Chunk&>(archiveEntry.GetRoot()), displayableChunks);
+
+			std::vector<std::unique_ptr<FileEntryView>> children;
+			for (size_t i = 0; i < displayableChunks.size(); ++i)
+			{
+				const ChunkPair& displayableChunk = displayableChunks[i];
+
+				std::string resName = resources::GetNameFromResourceType(displayableChunk.second.m_eResourceType);
+				std::string resIcon = resources::GetIconFromResourceType(displayableChunk.second.m_eResourceType);
+				size_t size = displayableChunk.first->ChunkSize();
+
+				auto child = std::make_unique<TreeFileEntryView>(
+					MakeRows(
+						MakeIconRow(resIcon),
+						MakeNameRow(resName),
+						MakeCountRow(std::to_string(displayableChunks.size()) + " resources")
+					)
+				);
+				child->m_pChunk = displayableChunk.first;
+				child->m_bVisible = displayableChunk.second.m_bVisible;
+				children.push_back(std::move(child));
+			}
+
+			auto archiveView = std::make_unique<TreeFileEntryView>(
+				MakeRows(
+					MakeIconRow(resources::GetIconFromArchiveType(archiveEntry.GetType())),
+					MakeNameRow(name),
+					MakeCountRow(std::to_string(displayableChunks.size()) + " entries")
+				),
+				std::move(children)
+			);
+			archiveView->m_pChunk = const_cast<parsing::Chunk*>(&archiveEntry.GetRoot());
+			archiveView->m_bExpanded = true;
+
+			m_aArchiveViews.push_back(std::move(archiveView));
+		}
+	}
+
+	//---------------------------------------------------------------------
+	void ArchiveContentsWindow::OnArchivesChanged()
+	{
+		RebuildArchiveViews();
 	}
 
 	//---------------------------------------------------------------------
@@ -219,13 +138,13 @@ namespace humongousexplorer::imgui
 			if (m_SearchBar.Render())
 			{
 				std::string objective = string_extensions::StringToLower(m_SearchBar.GetText());
-				for (size_t i = 0; i < s_aArchives.size(); i++)
+				for (size_t i = 0; i < m_aArchiveViews.size(); i++)
 				{
-					s_aArchives[i]->Filter(objective);
+					m_aArchiveViews[i]->Filter(objective);
 				}
 			}
 
-			for (const std::unique_ptr<TreeFileEntryView>& view : s_aArchives)
+			for (const std::unique_ptr<TreeFileEntryView>& view : m_aArchiveViews)
 			{
 				if (!view->m_bVisible)
 				{
@@ -235,7 +154,7 @@ namespace humongousexplorer::imgui
 				view->Render(
 					[this, &view](FileEntryView* fileEntry)
 					{
-						return m_pFilterFileEntryView == fileEntry;
+						return GetWorkspace().GetSelectedView() == fileEntry;
 					},
 					[this](FileEntryInteractionType interaction, FileEntryView* fileEntry)
 					{
@@ -247,12 +166,17 @@ namespace humongousexplorer::imgui
 							}
 							case FileEntryInteractionType::LeftClicked:
 							{
-								m_pFilterFileEntryView = fileEntry;
-								GetWorkspace().SetSelectedFileEntryView(dynamic_cast<TreeFileEntryView*>(fileEntry));
+								if (TreeFileEntryView* treeView = dynamic_cast<TreeFileEntryView*>(fileEntry))
+								{
+									GetWorkspace().SetSelectedFileEntryView(treeView);
+								}
 								break;
 							}
 							case FileEntryInteractionType::RightClicked:
 							{
+								core::DataStream data;
+								fileEntry->m_pChunk->GetRoot()->Build(data);
+								file::SaveFile("C:/ekkes/aah.txt", data);
 								break;
 							}
 							case FileEntryInteractionType::DoubleClicked:
@@ -260,10 +184,6 @@ namespace humongousexplorer::imgui
 								if (TreeFileEntryView* treeView = dynamic_cast<TreeFileEntryView*>(fileEntry))
 								{
 									treeView->m_bExpanded = !treeView->m_bExpanded;
-								}
-								else
-								{
-									// TODO: Read room.
 								}
 								break;
 							}
@@ -294,7 +214,7 @@ namespace humongousexplorer::imgui
 			dropPos.x >= zoneMin.x && dropPos.x <= zoneMax.x &&
 			dropPos.y >= zoneMin.y && dropPos.y <= zoneMax.y)
 		{
-			LoadArchives(dropped);
+			GetWorkspace().LoadArchives(dropped);
 		}
 
 		bool hovered = false;
@@ -307,7 +227,7 @@ namespace humongousexplorer::imgui
 			};
 			if (file::PickFile(selected, filters))
 			{
-				LoadArchives(selected.string());
+				GetWorkspace().LoadArchives(selected.string());
 			}
 		}
 		hovered = ImGui::IsItemHovered();
@@ -347,45 +267,5 @@ namespace humongousexplorer::imgui
 		drawList->AddText(ImVec2(centerX - hintSize.x * 0.5f, curY), IM_COL32(110, 110, 130, 255), hint);
 
 		drawList->PopClipRect();
-	}
-
-	//---------------------------------------------------------------------
-	void ArchiveContentsWindow::GetOnArchiveAdded(editor::ArchiveData& a_pArchiveData)
-	{
-		std::string name = a_pArchiveData.m_sPath.filename().string();
-
-		std::vector<ChunkPair> displayableChunks;
-		CollectDisplayableChunks(a_pArchiveData.m_eType, a_pArchiveData.m_Root, displayableChunks);
-
-		std::vector<std::unique_ptr<FileEntryView>> children;
-		for (const ChunkPair& displayableChunk : displayableChunks)
-		{
-			std::string tag(displayableChunk.first->m_sTag, 4);
-			size_t size = displayableChunk.first->ChunkSize();
-			std::unique_ptr<TreeFileEntryView> child = std::make_unique<TreeFileEntryView>(
-				MakeRows(
-					MakeIconRow(resources::GetIconFromResourceType(displayableChunk.second.m_eResourceType)),
-					MakeNameRow(resources::GetNameFromResourceType(displayableChunk.second.m_eResourceType)),
-					MakeCountRow(std::to_string(size) + " bytes")
-				)
-			);
-			child->m_pChunk = displayableChunk.first;
-			child->m_bVisible = displayableChunk.second.m_bVisible;
-			children.push_back(std::move(child));
-		}
-
-		auto archiveView = std::make_unique<TreeFileEntryView>(
-			MakeRows(
-				MakeIconRow(resources::GetIconFromArchiveType(a_pArchiveData.m_eType)),
-				MakeNameRow(name),
-				MakeCountRow(std::to_string(displayableChunks.size()) + " entries")
-			),
-			std::move(children)
-		);
-		archiveView->m_bExpanded = true;
-
-		GetWorkspace().GetOnLoadArchiveSuccess().invoke(a_pArchiveData.m_sPath.generic_string());
-
-		s_aArchives.push_back(std::move(archiveView));
 	}
 }

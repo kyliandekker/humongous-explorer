@@ -179,6 +179,19 @@ namespace humongousexplorer::imgui
 	}
 
 	//---------------------------------------------------------------------
+	TreeFileEntryView::TreeFileEntryView(std::vector<std::unique_ptr<RowEntry>> a_aRows, std::vector<std::unique_ptr<FileEntryView>> a_aChildren) : FileEntryView(std::move(a_aRows)),
+		m_aChildren(std::move(a_aChildren))
+	{
+		for (const std::unique_ptr<FileEntryView>& child : m_aChildren)
+		{
+			if (child->m_bVisible)
+			{
+				m_bShowArrow = true;
+			}
+		}
+	}
+
+	//---------------------------------------------------------------------
 	void TreeFileEntryView::Render(std::function<bool(FileEntryView* fileEntry)> a_fnSelected, std::function<void(FileEntryInteractionType, FileEntryView*)> a_fnOnInteraction, float a_fIndent)
 	{
 		const float arrowSize = ImGui::GetFontSize() * 0.7f;
@@ -186,7 +199,7 @@ namespace humongousexplorer::imgui
 		float arrowIndent = a_fIndent + arrowSize + 4.0f;
 
 		// Draw expand/collapse arrow only if has children
-		if (!m_aChildren.empty())
+		if (m_bShowArrow && !m_aChildren.empty())
 		{
 			ImDrawList* drawList = ImGui::GetWindowDrawList();
 			ImVec2 pos = ImGui::GetCursorScreenPos();

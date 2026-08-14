@@ -9,7 +9,7 @@
 
 namespace humongousexplorer::parsing
 {
-	struct Chunk;
+	class Chunk;
 }
 
 namespace humongousexplorer::imgui
@@ -114,16 +114,15 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	struct TreeFileEntryView : public FileEntryView
 	{
-		TreeFileEntryView(std::vector<std::unique_ptr<RowEntry>> a_aRows, std::vector<std::unique_ptr<FileEntryView>> a_aChildren = {}) : FileEntryView(std::move(a_aRows)),
-			m_aChildren(std::move(a_aChildren))
-		{
-		}
+		TreeFileEntryView(std::vector<std::unique_ptr<RowEntry>> a_aRows, std::vector<std::unique_ptr<FileEntryView>> a_aChildren = {});
 
 		std::vector<std::unique_ptr<FileEntryView>> m_aChildren;
 		bool m_bExpanded = false;
 
 		void Render(std::function<bool(FileEntryView* fileEntry)> a_fnSelected, std::function<void(FileEntryInteractionType, FileEntryView*)> a_fnOnInteraction, float a_fIndent = 0.0f) override;
 		bool Filter(const std::string& a_sObjective) override;
+	private:
+		bool m_bShowArrow = false;
 	};
 
 	//---------------------------------------------------------------------

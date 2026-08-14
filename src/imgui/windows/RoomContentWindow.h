@@ -38,7 +38,6 @@ namespace humongousexplorer::imgui
 		SearchBar m_SearchBar;
 		int m_iSortColumn = -1;
 		bool m_bSortAscending = true;
-		int m_iSelectedRow = -1;
 		int m_iSelectedTab = 0;
 
 		bool MatchesTabFilter(resources::ResourceType a_eType, int a_iTab) const;

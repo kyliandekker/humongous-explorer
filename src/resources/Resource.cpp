@@ -1,8 +1,10 @@
 #include "./Resource.h"
 
-#include "parsing/HEParser.h"
+#include "parsing/ChunkParser.h"
 
 #include "resources/ResourceType.h"
+
+#include "parsing/Chunk.h"
 
 namespace humongousexplorer::resources
 {
@@ -21,7 +23,7 @@ namespace humongousexplorer::resources
 	//---------------------------------------------------------------------
 	core::Data SoundResource::GetData() const
 	{
-		return m_pDataChunk->m_Data;
+		return m_pDataChunk->GetData();
 	}
 	
 	//---------------------------------------------------------------------
@@ -52,7 +54,7 @@ namespace humongousexplorer::resources
 			(size_t)m_iSampleRate * 1 * (8 / 8);
 
 		size_t totalMs =
-			(m_pDataChunk->m_Data.size() * 1000) / bytesPerSecond;
+			(m_pDataChunk->GetData().size() * 1000) / bytesPerSecond;
 
 		// size_t hours = totalMs / 3600000;
 		size_t minutes = (totalMs % 3600000) / 60000;
@@ -86,7 +88,7 @@ namespace humongousexplorer::resources
 		{
 			return core::Data();
 		}
-		return m_pLipSyncChunk->m_Data;
+		return m_pLipSyncChunk->GetData();
 	}
 
 	//---------------------------------------------------------------------

@@ -1,10 +1,13 @@
 #include "Workspace.h"
 
 #include "file/file_abstractions.h"
-
 #include "imgui/views/FileEntryView.h"
-
 #include "resources/Resource.h"
+#include "resources/ArchiveType.h"
+#include "parsing/ChunkParser.h"
+#include "core/Memory.h"
+#include "logger/Logger.h"
+#include "resources/ArchiveEntry.h"
 
 namespace humongousexplorer
 {
@@ -46,25 +49,132 @@ namespace humongousexplorer::editor
 	}
 
 	//---------------------------------------------------------------------
-	ArchiveData& Workspace::AddArchive(ArchiveData a_Archive)
+	void Workspace::LoadArchives(const fs::path& a_sPath)
 	{
-		m_aArchives.push_back(std::make_unique<ArchiveData>(std::move(a_Archive)));
-		std::unique_ptr<ArchiveData>& archiveData = m_aArchives.back();
-		archiveData->m_Root.FixParents(archiveData->m_Root);
+		m_aArchives.clear();
+		m_bLastLoadSuccess = false;
+		m_sLastLoadMessage.clear();
+		m_pSelectedResource = nullptr;
+		m_pSelectedFileEntryView = nullptr;
 
-		m_evntOnArchiveAdded(*archiveData);
-		return *archiveData;
+		fs::path folder = a_sPath.parent_path();
+
+		std::vector<fs::path> paths;
+
+		for (const auto& entry : fs::directory_iterator(folder))
+		{
+			if (!entry.is_regular_file())
+			{
+				continue;
+			}
+
+			const fs::path& filePath = entry.path();
+
+			std::string extension = filePath.extension().string().substr(1);
+
+			if (resources::GetArchiveTypeFromExtension(extension) < resources::ArchiveType::HE0)
+			{
+				continue;
+			}
+
+			if (filePath.stem().generic_string() != a_sPath.stem().generic_string())
+			{
+				continue;
+			}
+
+			paths.push_back(filePath);
+		}
+
+		for (const fs::path& filePath : paths)
+		{
+			auto ptr = std::make_unique<resources::ArchiveEntry>(
+				filePath,
+				resources::GetArchiveTypeFromExtension(filePath.extension().string().substr(1))
+			);
+			if (!file::LoadFile(filePath, ptr->GetData()))
+			{
+				LOGF(
+					LogSeverity::LOGSEVERITY_ERROR,
+					"Could not load archive: \"%s\"",
+					filePath.filename().generic_string().c_str()
+				);
+				continue;
+			}
+
+			if (!ptr->GetData().empty())
+			{
+				if (!parsing::ParseChunks(ptr->GetRoot(), ptr->GetData(), 0))
+				{
+					core::Data xorredData = ptr->GetData();
+
+					unsigned char* data = xorredData.dataAs<unsigned char>();
+
+					ptr->GetRoot().SetEncrypted(true);
+					ptr->GetRoot().SetEncryptionKey(0x69);
+
+					core::xorShift(data, xorredData.size(), ptr->GetRoot().GetEncryptionKey());
+
+					if (!parsing::ParseChunks(ptr->GetRoot(), xorredData, 0))
+					{
+						LOGF(
+							LogSeverity::LOGSEVERITY_ERROR,
+							"Could not parse archive: \"%s\"",
+							filePath.filename().generic_string().c_str()
+						);
+						continue;
+					}
+				}
+			}
+
+			m_aArchives.push_back(std::move(ptr));
+		}
+
+		m_bLastLoadSuccess = !m_aArchives.empty();
+
+		if (m_bLastLoadSuccess)
+		{
+			m_sLastLoadMessage = a_sPath.stem().generic_string() + " loaded successfully";
+		}
+		else
+		{
+			m_sLastLoadMessage = "Failed to load: " + a_sPath.filename().generic_string();
+		}
+
+		m_onArchivesChanged();
 	}
 
 	//---------------------------------------------------------------------
-	const std::vector<std::unique_ptr<ArchiveData>>& Workspace::GetArchives() const
+	const std::vector<std::unique_ptr<resources::ArchiveEntry>>& Workspace::GetArchives() const
 	{
 		return m_aArchives;
 	}
 
 	//---------------------------------------------------------------------
+	const core::Event<>& Workspace::GetArchivesChanged() const
+	{
+		return m_onArchivesChanged;
+	}
+
+	//---------------------------------------------------------------------
+	bool Workspace::GetLastLoadSuccess() const
+	{
+		return m_bLastLoadSuccess;
+	}
+
+	//---------------------------------------------------------------------
+	const std::string& Workspace::GetLastLoadMessage() const
+	{
+		return m_sLastLoadMessage;
+	}
+
+	//---------------------------------------------------------------------
 	void Workspace::SetSelectedFileEntryView(imgui::TreeFileEntryView* a_pSelectedView)
 	{
+		if (m_pSelectedFileEntryView == a_pSelectedView)
+		{
+			return;
+		}
+
 		m_pSelectedFileEntryView = a_pSelectedView;
 	}
 
@@ -96,29 +206,5 @@ namespace humongousexplorer::editor
 	const core::Observable<resources::Resource*>& Workspace::GetSelectedResource() const
 	{
 		return m_pSelectedResource;
-	}
-
-	//---------------------------------------------------------------------
-	const core::SimpleEvent<const std::string&, const std::string&>& Workspace::GetOnLoadArchiveFailed() const
-	{
-		return m_evntOnLoadArchiveFailed;
-	}
-
-	//---------------------------------------------------------------------
-	const core::SimpleEvent<const std::string&>& Workspace::GetOnLoadArchiveSuccess() const
-	{
-		return m_evntOnLoadArchiveSuccess;
-	}
-
-	//---------------------------------------------------------------------
-	const core::SimpleEvent<float>& Workspace::GetOnLoadArchiveProgressed() const
-	{
-		return m_evntOnLoadArchiveProgressed;
-	}
-
-	//---------------------------------------------------------------------
-	const core::SimpleEvent<ArchiveData&>& Workspace::GetOnArchiveAdded() const
-	{
-		return m_evntOnArchiveAdded;
 	}
 }

@@ -106,8 +106,15 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void RoomContentWindow::OnSelectedViewChanged(const imgui::TreeFileEntryView* oldView, const imgui::TreeFileEntryView* newView)
 	{
+		GetWorkspace().SetSelectedResource(nullptr);
+
 		s_aResourceEntries.clear();
 		s_aResources.clear();
+
+		if (!newView)
+		{
+			return;
+		}
 
 		for (size_t i = 0; i < newView->m_aChildren.size(); i++)
 		{
@@ -267,7 +274,7 @@ namespace humongousexplorer::imgui
 					ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0, 0, 0, 0));
 					ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0, 0, 0, 0));
 
-					bool isSelected = (m_iSelectedRow == static_cast<int>(i));
+					bool isSelected = (GetWorkspace().GetSelectedResource() == s_aResources[i].get());
 
 					if (ImGui::Selectable(
 						FormatId("", SELECTABLE_ID, m_sName, "ROW", std::to_string(i)).c_str(),
@@ -276,7 +283,6 @@ namespace humongousexplorer::imgui
 						ImVec2(0.0f, 0.0f)
 					))
 					{
-						m_iSelectedRow = static_cast<int>(i);
 						GetWorkspace().SetSelectedResource(s_aResources[i].get());
 					}
 					if (ImGui::IsItemHovered())

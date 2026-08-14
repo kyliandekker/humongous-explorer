@@ -5,7 +5,7 @@
 
 namespace humongousexplorer::parsing
 {
-	struct Chunk;
+	class Chunk;
 }
 namespace humongousexplorer::resources
 {

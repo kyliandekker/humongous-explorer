@@ -20,6 +20,7 @@ namespace humongousexplorer::core
 #define _128MB _MB(128)
 #define _256MB _MB(256)
 
+	//---------------------------------------------------------------------
 	inline const char* SizeToString(size_t size)
 	{
 		static char buffer[32];
@@ -58,21 +59,25 @@ namespace humongousexplorer::core
 		return reinterpret_cast<T*>(add(a_pPtr, a_iSize));
 	}
 
+	//---------------------------------------------------------------------
 	inline int getBit(char i, size_t a_Position)
 	{
 		return (i & (1 << a_Position)) >> a_Position;
 	}
 
+	//---------------------------------------------------------------------
 	inline int chunkcmp(const char* a_ChunkID1, const char* a_ChunkID2, size_t a_iSize = 4)
 	{
 		return strncmp(a_ChunkID1, a_ChunkID2, a_iSize);
 	}
 
+	//---------------------------------------------------------------------
 	inline int unsignedCharCmp(unsigned char a_ChunkID1, unsigned char a_ChunkID2)
 	{
 		return a_ChunkID1 == a_ChunkID2;
 	}
 
+	//---------------------------------------------------------------------
 	inline void reverseBytes(unsigned char* a_Start, int a_Size)
 	{
 		unsigned char* lo = a_Start;
@@ -86,6 +91,7 @@ namespace humongousexplorer::core
 		}
 	}
 
+	//---------------------------------------------------------------------
 	inline void xorShift(unsigned char*& a_Data, size_t a_Size, char a_Key)
 	{
 		for (int i = 0; i < a_Size; i++)
@@ -94,10 +100,19 @@ namespace humongousexplorer::core
 		}
 	}
 
+	//---------------------------------------------------------------------
 	template <class T>
 	inline T reverseBytesC(unsigned char* a_Number)
 	{
 		reverseBytes(a_Number, sizeof(T));
 		return *reinterpret_cast<T*>(a_Number);
 	}
+
+	//---------------------------------------------------------------------
+	inline uint32_t ReadBE32(const uint8_t* p)
+	{
+		return (uint32_t(p[0]) << 24) | (uint32_t(p[1]) << 16) |
+			(uint32_t(p[2]) << 8) | uint32_t(p[3]);
+	}
+
 }

@@ -2,11 +2,10 @@
 
 #include "imgui/windows/HEBaseWindow.h"
 #include "imgui/views/SearchBar.h"
+#include "imgui/views/FileEntryView.h"
+#include <vector>
+#include <memory>
 
-namespace humongousexplorer::editor
-{
-	struct ArchiveData;
-}
 namespace humongousexplorer::imgui
 {
 	class FileEntryView;
@@ -37,9 +36,11 @@ namespace humongousexplorer::imgui
 		bool OnInitialized() override;
 
 		void RenderDropZone();
-		void GetOnArchiveAdded(editor::ArchiveData& a_pArchiveData);
+		void RebuildArchiveViews();
 
-		FileEntryView* m_pFilterFileEntryView = nullptr; // TODO: move
+		void OnArchivesChanged();
+
+		std::vector<std::unique_ptr<TreeFileEntryView>> m_aArchiveViews;
 		SearchBar m_SearchBar;
 	};
 }

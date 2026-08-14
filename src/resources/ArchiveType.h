@@ -4,7 +4,7 @@
 #include <vector>
 #include <unordered_map>
 
-#include "humongous/ChunkIDs.h"
+#include "parsing/ChunkIDs.h"
 #include "resources/ResourceType.h"
 
 namespace humongousexplorer::resources

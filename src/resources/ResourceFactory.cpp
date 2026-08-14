@@ -2,28 +2,29 @@
 
 #include "core/Memory.h"
 
-#include "parsing/HEParser.h"
+#include "parsing/ChunkParser.h"
+#include "parsing/Chunk.h"
 
-#include "humongous/ChunkIDs.h"
+#include "parsing/ChunkIDs.h"
 
 #include "resources/Resource.h"
 
-#include "humongous/sound/HSHD_Chunk.h"
-#include "humongous/sound/SGEN_Chunk.h"
+#include "parsing/chunks/sound/HSHD_Chunk.h"
+#include "parsing/chunks/sound/SGEN_Chunk.h"
 
 namespace humongousexplorer::resources
 {
 	//---------------------------------------------------------------------
 	std::unique_ptr<Resource> ResourceFactory::GetResource(parsing::Chunk* a_pChunk, const std::string& a_sFallbackName)
 	{
-		if (core::chunkcmp(a_pChunk->m_sTag, parsing::TALK_CHUNK_ID) == 0)
+		if (core::chunkcmp(a_pChunk->GetTag(), parsing::TALK_CHUNK_ID) == 0)
 		{
-			parsing::Chunk* hshd = a_pChunk->TryFindChild(parsing::HSHD_CHUNK_ID);
+			const parsing::Chunk* hshd = a_pChunk->TryFindChild(parsing::HSHD_CHUNK_ID);
 			if (!hshd)
 			{
 				return nullptr;
 			}
-			headers::HSHD_Chunk* hshdData = hshd->m_Data.dataAs<headers::HSHD_Chunk>();
+			const parsing::HSHD_Chunk* hshdData = hshd->GetData().dataAs<parsing::HSHD_Chunk>();
 
 			std::unique_ptr<TalkResource> talkResource = std::make_unique<TalkResource>();
 			talkResource->SetName(a_sFallbackName);
@@ -33,9 +34,9 @@ namespace humongousexplorer::resources
 
 			return talkResource;
 		}
-		if (core::chunkcmp(a_pChunk->m_sTag, parsing::SGEN_CHUNK_ID) == 0)
+		if (core::chunkcmp(a_pChunk->GetTag(), parsing::SGEN_CHUNK_ID) == 0)
 		{
-			headers::SGEN_Chunk* sgenData = a_pChunk->m_Data.dataAs<headers::SGEN_Chunk>();
+			parsing::SGEN_Chunk* sgenData = a_pChunk->GetData().dataAs<parsing::SGEN_Chunk>();
 			parsing::Chunk* digiChunk = a_pChunk->GetRoot()->FindChunkAt(sgenData->songPos);
 			if (!digiChunk)
 			{
@@ -47,7 +48,7 @@ namespace humongousexplorer::resources
 			{
 				return nullptr;
 			}
-			headers::HSHD_Chunk* hshdData = hshd->m_Data.dataAs<headers::HSHD_Chunk>();
+			parsing::HSHD_Chunk* hshdData = hshd->GetData().dataAs<parsing::HSHD_Chunk>();
 
 			std::unique_ptr<SongResource> songResource = std::make_unique<SongResource>();
 			songResource->SetName(std::to_string(sgenData->id));
