@@ -12,6 +12,7 @@
 #include "editor/Workspace.h"
 #include "parsing/ChunkParser.h"
 #include "resources/ArchiveEntry.h"
+#include "core/Memory.h"
 
 #include "core/DataStream.h"
 #include "imgui/ImGuiSetup.h"
@@ -112,8 +113,8 @@ namespace humongousexplorer::imgui
 			m_aArchiveViews.push_back(std::move(archiveView));
 		}
 
-		resources::ArchiveEntry* he0;
-		resources::ArchiveEntry* a;
+		resources::ArchiveEntry* he0 = nullptr;
+		resources::ArchiveEntry* a = nullptr;
 		for (const std::unique_ptr<resources::ArchiveEntry>& archiveEntry : archives)
 		{
 			if (archiveEntry->GetType() == resources::ArchiveType::A)
@@ -132,7 +133,36 @@ namespace humongousexplorer::imgui
 		}
 
 		parsing::Chunk* rnam = he0->GetRoot().TryFindChild(parsing::RNAM_CHUNK_ID);
-		printf("Test");
+
+		std::vector<std::string> room_names;
+
+		const size_t rnam_end = rnam->ChunkSize();
+		size_t pos = 0;
+
+		while (pos < rnam_end)
+		{
+			uint16_t room_number;
+			memcpy(&room_number, rnam->GetData().dataAs<unsigned char>() + pos, sizeof(room_number));
+			pos += sizeof(room_number);
+
+			std::string room_name;
+
+			while (pos < rnam_end && rnam->GetData()[pos] != '\0')
+			{
+				room_name += rnam->GetData()[pos];
+				++pos;
+			}
+
+			if (pos < rnam_end)
+				++pos; // skip '\0'
+
+			room_names.push_back(std::to_string(room_number) + ". " + room_name);
+		}
+
+		if (room_names.size() == 0)
+		{
+			return;
+		}
 	}
 
 	//---------------------------------------------------------------------

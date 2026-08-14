@@ -18,11 +18,10 @@ namespace humongousexplorer::parsing
 	}
 
 	//---------------------------------------------------------------------
-	bool ParseChunks(Chunk& a_Out, const core::Data& a_Buf, size_t a_iPos /* = 0 */)
+	static bool ParseSingleChunk(Chunk& a_Out, const core::Data& a_Buf, size_t a_iPos)
 	{
 		const unsigned char* data = a_Buf.dataAs<unsigned char>();
 
-		// A chunk always needs an 8-byte header.
 		if (a_iPos > a_Buf.size() || a_Buf.size() - a_iPos < 8)
 		{
 			return false;
@@ -32,13 +31,11 @@ namespace humongousexplorer::parsing
 
 		const size_t size = ReadBE32(data + a_iPos + 4);
 
-		// Size includes the 8-byte header.
 		if (size < 8)
 		{
 			return false;
 		}
 
-		// Entire chunk must fit inside the buffer.
 		if (size > a_Buf.size() - a_iPos)
 		{
 			return false;
@@ -56,7 +53,6 @@ namespace humongousexplorer::parsing
 
 			while (childPos < endPos)
 			{
-				// Remaining bytes aren't enough for a child header.
 				if (endPos - childPos < 8)
 				{
 					return false;
@@ -64,7 +60,6 @@ namespace humongousexplorer::parsing
 
 				const size_t childSize = ReadBE32(data + childPos + 4);
 
-				// Child must have a header and fit inside parent.
 				if (childSize < 8 || childSize > endPos - childPos)
 				{
 					return false;
@@ -75,7 +70,7 @@ namespace humongousexplorer::parsing
 				child->SetEncrypted(a_Out.IsEncrypted());
 				child->SetEncryptionKey(a_Out.GetEncryptionKey());
 
-				if (!ParseChunks(*child, a_Buf, childPos))
+				if (!ParseSingleChunk(*child, a_Buf, childPos))
 				{
 					return false;
 				}
@@ -93,6 +88,39 @@ namespace humongousexplorer::parsing
 					size - 8
 				)
 			);
+		}
+
+		return true;
+	}
+
+	//---------------------------------------------------------------------
+	bool ParseChunks(Chunk& a_Out, const core::Data& a_Buf, size_t a_iPos /* = 0 */)
+	{
+		const unsigned char* data = a_Buf.dataAs<unsigned char>();
+		size_t currentPos = a_iPos;
+
+		while (currentPos + 8 <= a_Buf.size())
+		{
+			const size_t chunkSize = ReadBE32(data + currentPos + 4);
+
+			if (chunkSize < 8 || chunkSize > a_Buf.size() - currentPos)
+			{
+				return false;
+			}
+
+			std::unique_ptr<Chunk> child = std::make_unique<Chunk>();
+			child->SetParent(a_Out);
+			child->SetEncrypted(a_Out.IsEncrypted());
+			child->SetEncryptionKey(a_Out.GetEncryptionKey());
+
+			if (!ParseSingleChunk(*child, a_Buf, currentPos))
+			{
+				return false;
+			}
+
+			a_Out.GetChildren().emplace_back(std::move(child));
+
+			currentPos += chunkSize;
 		}
 
 		return true;
