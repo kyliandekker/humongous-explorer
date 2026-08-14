@@ -126,6 +126,16 @@ namespace humongousexplorer::resources
 	{
 	};
 
+	static const std::unordered_map<std::string, DisplayableChunk> s_ADisplayableChunks =
+	{
+		{ parsing::LFLF_CHUNK_ID, { resources::ResourceType::Room, true } }
+	};
+
+	static const std::unordered_map<std::string, DisplayableChunk> s_HE0DisplayableChunks =
+	{
+		{ parsing::RNAM_CHUNK_ID, { resources::ResourceType::Room, false } }
+	};
+
 	static const std::unordered_map<std::string, DisplayableChunk> s_HE2DisplayableChunks =
 	{
 		{ parsing::TALK_CHUNK_ID, { resources::ResourceType::Talkie, false } }
@@ -176,7 +186,7 @@ namespace humongousexplorer::resources
 			}
 			case ArchiveType::A:
 			{
-				return s_Empty;
+				return s_ADisplayableChunks;
 			}
 		}
 		return s_Empty;

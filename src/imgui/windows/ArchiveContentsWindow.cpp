@@ -90,8 +90,7 @@ namespace humongousexplorer::imgui
 				auto child = std::make_unique<TreeFileEntryView>(
 					MakeRows(
 						MakeIconRow(resIcon),
-						MakeNameRow(resName),
-						MakeCountRow(std::to_string(displayableChunks.size()) + " resources")
+						MakeNameRow(resName)
 					)
 				);
 				child->m_pChunk = displayableChunk.first;
@@ -112,6 +111,28 @@ namespace humongousexplorer::imgui
 
 			m_aArchiveViews.push_back(std::move(archiveView));
 		}
+
+		resources::ArchiveEntry* he0;
+		resources::ArchiveEntry* a;
+		for (const std::unique_ptr<resources::ArchiveEntry>& archiveEntry : archives)
+		{
+			if (archiveEntry->GetType() == resources::ArchiveType::A)
+			{
+				a = archiveEntry.get();
+			}
+			else if (archiveEntry->GetType() == resources::ArchiveType::HE0)
+			{
+				he0 = archiveEntry.get();
+			}
+		}
+
+		if (!he0 || !a)
+		{
+			return;
+		}
+
+		parsing::Chunk* rnam = he0->GetRoot().TryFindChild(parsing::RNAM_CHUNK_ID);
+		printf("Test");
 	}
 
 	//---------------------------------------------------------------------
