@@ -104,6 +104,7 @@ namespace humongousexplorer::imgui
 		}
 
 		bool m_bVisible = true;
+		bool m_bFiltered = false;
 		std::vector<std::unique_ptr<RowEntry>> m_aRows;
 		parsing::Chunk* m_pChunk = nullptr;
 

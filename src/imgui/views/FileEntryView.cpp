@@ -85,6 +85,11 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void FileEntryView::Render(std::function<bool(FileEntryView* fileEntry)> a_fnSelected, std::function<void(FileEntryInteractionType, FileEntryView*)> a_fnOnInteraction, float a_fIndent)
 	{
+		if (!m_bVisible || m_bFiltered)
+		{
+			return;
+		}
+
 		FileEntryInteractionType interaction = FileEntryInteractionType::None;
 
 		bool selected = a_fnSelected(this);
@@ -174,8 +179,9 @@ namespace humongousexplorer::imgui
 				}
 			}
 		}
-		m_bVisible = found;
-		return found;
+
+		m_bFiltered = !found;
+		return !m_bFiltered && m_bVisible;
 	}
 
 	//---------------------------------------------------------------------
@@ -194,6 +200,11 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void TreeFileEntryView::Render(std::function<bool(FileEntryView* fileEntry)> a_fnSelected, std::function<void(FileEntryInteractionType, FileEntryView*)> a_fnOnInteraction, float a_fIndent)
 	{
+		if (!m_bVisible || m_bFiltered)
+		{
+			return;
+		}
+
 		const float arrowSize = ImGui::GetFontSize() * 0.7f;
 		const float indentStep = 20.0f;
 		float arrowIndent = a_fIndent + arrowSize + 4.0f;
@@ -247,11 +258,6 @@ namespace humongousexplorer::imgui
 		{
 			for (const std::unique_ptr<FileEntryView>& child : m_aChildren)
 			{
-				if (!child->m_bVisible)
-				{
-					continue;
-				}
-
 				child->Render(a_fnSelected, a_fnOnInteraction, arrowIndent + indentStep);
 			}
 		}
@@ -267,7 +273,7 @@ namespace humongousexplorer::imgui
 			found |= entry->Filter(a_sObjective);
 		}
 
-		m_bVisible = found;
-		return found;
+		m_bFiltered = !found;
+		return !m_bFiltered && m_bVisible;
 	}
 }
