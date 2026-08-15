@@ -96,7 +96,7 @@ namespace humongousexplorer::imgui
 		// Zoom controls in the center
 		float totalControlsWidth = 28.0f + 100.0f + 28.0f;
 		float availWidth = ImGui::GetContentRegionAvail().x;
-		float offsetX = (availWidth - totalControlsWidth) * 0.5f;
+		float offsetX = (availWidth - totalControlsWidth) * 0.3f;
 		if (offsetX > 0.0f)
 		{
 			ImGui::SameLine();
@@ -171,6 +171,8 @@ namespace humongousexplorer::imgui
 		bool prevCheckerboard = m_bShowCheckerboard;
 		if (m_bShowCheckerboard)
 			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+
+		ImGui::NewLine();
 
 		if (ImGui::ImageButton(FormatId("", BUTTON_ID, "PreviewWindow", "Checkerboard").c_str(),
 			(ImTextureID)dx11::SVGTextureCache::Get("../icons/icon_transparent.svg"),
@@ -874,7 +876,10 @@ namespace humongousexplorer::imgui
 		{
 			RenderAudio();
 		}
-		//RenderImage();
+		else if (resource->GetResourceType() == resources::ResourceType::RoomBackground || resource->GetResourceType() == resources::ResourceType::RoomImage)
+		{
+			RenderImage();
+		}
 	}
 
 	//---------------------------------------------------------------------
