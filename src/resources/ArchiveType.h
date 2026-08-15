@@ -163,7 +163,11 @@ namespace humongousexplorer::resources
 		{ parsing::IM0C_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
 		{ parsing::IM0D_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
 		{ parsing::IM0E_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
-		{ parsing::IM0F_CHUNK_ID, { resources::ResourceType::RoomImage, false } }
+		{ parsing::IM0F_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+
+		{ parsing::DIGI_CHUNK_ID, { resources::ResourceType::SFX, false } },
+
+		{ parsing::TALK_CHUNK_ID, { resources::ResourceType::Talkie, false } }
 	};
 
 	static const std::unordered_map<std::string, DisplayableChunk> s_HE0DisplayableChunks =

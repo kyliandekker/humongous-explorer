@@ -26,12 +26,19 @@
 namespace humongousexplorer::imgui
 {
 	//---------------------------------------------------------------------
-	using ChunkPair = std::pair<parsing::Chunk*, resources::DisplayableChunk>;
+	struct DisplayableChunkNode
+	{
+		parsing::Chunk* m_pChunk = nullptr;
+		resources::ResourceType m_eResourceType = resources::ResourceType::Unknown;
+		bool m_bVisible = true;
+		std::vector<std::unique_ptr<DisplayableChunkNode>> m_aChildren;
+	};
+
 	//---------------------------------------------------------------------
 	static void CollectDisplayableChunks(
 		resources::ArchiveType a_ArchiveType,
 		parsing::Chunk& a_Parent,
-		std::vector<ChunkPair>& a_Out
+		std::vector<std::unique_ptr<DisplayableChunkNode>>& a_Out
 	)
 	{
 		const auto& displayable = resources::GetDisplayableChunks(a_ArchiveType);
@@ -40,9 +47,17 @@ namespace humongousexplorer::imgui
 			std::string tag(child->GetTag(), 4);
 			if (displayable.count(tag))
 			{
-				a_Out.push_back({ child.get(), displayable.at(tag)});
+				auto node = std::make_unique<DisplayableChunkNode>();
+				node->m_pChunk = child.get();
+				node->m_eResourceType = displayable.at(tag).m_eResourceType;
+				node->m_bVisible = displayable.at(tag).m_bVisible;
+				CollectDisplayableChunks(a_ArchiveType, *child, node->m_aChildren);
+				a_Out.push_back(std::move(node));
 			}
-			CollectDisplayableChunks(a_ArchiveType, *child, a_Out);
+			else
+			{
+				CollectDisplayableChunks(a_ArchiveType, *child, a_Out);
+			}
 		}
 	}
 
@@ -92,8 +107,52 @@ namespace humongousexplorer::imgui
 		return roomNames;
 	}
 
-	std::vector<std::string> roomNames = ParseRNAM(rnam);
-	size_t roomIndex = 0;
+	//---------------------------------------------------------------------
+	static std::vector<std::unique_ptr<FileEntryView>> BuildFileEntryViews(
+		std::vector<std::unique_ptr<DisplayableChunkNode>>& a_Nodes,
+		std::vector<std::string>& a_RoomNames,
+		size_t& a_RoomIndex
+	)
+	{
+		std::unordered_map<std::string, size_t> entryCount;
+
+		std::vector<std::unique_ptr<FileEntryView>> views;
+		for (auto& node : a_Nodes)
+		{
+			std::string tag(node->m_pChunk->GetTag(), 4);
+
+			entryCount[tag]++;
+
+			std::string resName = resources::GetNameFromResourceType(node->m_eResourceType) + " " + std::to_string(entryCount[tag]);
+			if (tag == parsing::LFLF_CHUNK_ID)
+			{
+				resName = std::to_string(a_RoomIndex + 1) + ". " + a_RoomNames[a_RoomIndex];
+				a_RoomIndex++;
+			}
+
+			std::string resIcon = resources::GetIconFromResourceType(node->m_eResourceType);
+
+			std::vector<std::unique_ptr<FileEntryView>> children;
+			if (!node->m_aChildren.empty())
+			{
+				children = BuildFileEntryViews(node->m_aChildren, a_RoomNames, a_RoomIndex);
+			}
+
+			auto view = std::make_unique<TreeFileEntryView>(
+				MakeRows(
+					MakeIconRow(resIcon),
+					MakeNameRow(resName)
+				),
+				std::move(children)
+			);
+			view->m_sName = resName;
+			view->m_pChunk = node->m_pChunk;
+			view->m_bVisible = node->m_bVisible;
+			views.push_back(std::move(view));
+		}
+		return views;
+	}
+
 	//---------------------------------------------------------------------
 	void ArchiveContentsWindow::RebuildArchiveViews()
 	{
@@ -115,59 +174,41 @@ namespace humongousexplorer::imgui
 			}
 		}
 
-		if (!he0 || !a)
+		std::vector<std::string> roomNames;
+		size_t roomIndex = 0;
+
+		if (he0 && a)
 		{
-			return;
+			parsing::Chunk* rnam = he0->GetRoot().TryFindChild(parsing::RNAM_CHUNK_ID);
+			if (rnam)
+			{
+				roomNames = ParseRNAM(rnam);
+			}
 		}
 
-		parsing::Chunk* rnam = he0->GetRoot().TryFindChild(parsing::RNAM_CHUNK_ID);
-
-		for (size_t a = 0; a < archives.size(); ++a)
+		for (size_t i = 0; i < archives.size(); ++i)
 		{
-			roomIndex = 0;
-
-			const resources::ArchiveEntry& archiveEntry = *archives[a];
+			const resources::ArchiveEntry& archiveEntry = *archives[i];
 			std::string name = archiveEntry.GetPath().filename().string();
 
-			std::vector<ChunkPair> displayableChunks;
-			CollectDisplayableChunks(archiveEntry.GetType(), const_cast<parsing::Chunk&>(archiveEntry.GetRoot()), displayableChunks);
+			std::vector<std::unique_ptr<DisplayableChunkNode>> displayableNodes;
+			CollectDisplayableChunks(archiveEntry.GetType(), const_cast<parsing::Chunk&>(archiveEntry.GetRoot()), displayableNodes);
 
 			std::vector<std::unique_ptr<FileEntryView>> children;
-			for (size_t i = 0; i < displayableChunks.size(); ++i)
+			if (!displayableNodes.empty())
 			{
-				const ChunkPair& displayableChunk = displayableChunks[i];
-
-				std::string tag(displayableChunk.first->GetTag(), 4);
-
-				std::string resName = resources::GetNameFromResourceType(displayableChunk.second.m_eResourceType);
-				if (tag == parsing::LFLF_CHUNK_ID)
-				{
-					resName = std::to_string(roomIndex + 1) + ". " + roomNames[roomIndex];
-					roomIndex++;
-				}
-
-				std::string resIcon = resources::GetIconFromResourceType(displayableChunk.second.m_eResourceType);
-				size_t size = displayableChunk.first->ChunkSize();
-
-				auto child = std::make_unique<TreeFileEntryView>(
-					MakeRows(
-						MakeIconRow(resIcon),
-						MakeNameRow(resName)
-					)
-				);
-				child->m_pChunk = displayableChunk.first;
-				child->m_bVisible = displayableChunk.second.m_bVisible;
-				children.push_back(std::move(child));
+				children = BuildFileEntryViews(displayableNodes, roomNames, roomIndex);
 			}
 
 			auto archiveView = std::make_unique<TreeFileEntryView>(
 				MakeRows(
 					MakeIconRow(resources::GetIconFromArchiveType(archiveEntry.GetType())),
 					MakeNameRow(name),
-					MakeCountRow(std::to_string(displayableChunks.size()) + " entries")
+					MakeCountRow(std::to_string(displayableNodes.size()) + " entries")
 				),
 				std::move(children)
 			);
+			archiveView->m_sName = name;
 			archiveView->m_pChunk = const_cast<parsing::Chunk*>(&archiveEntry.GetRoot());
 			archiveView->m_bExpanded = true;
 

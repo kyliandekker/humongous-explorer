@@ -124,22 +124,18 @@ namespace humongousexplorer::imgui
 				continue;
 			}
 
-			s_aResources.push_back(std::move(resources::ResourceFactory::GetResource(view->m_pChunk, std::to_string(i + 1))));
+			s_aResources.push_back(std::move(resources::ResourceFactory::GetResource(view->m_pChunk, view->m_sName)));
 		}
 
 		for (size_t i = 0; i < s_aResources.size(); i++)
 		{
 			auto& resource = s_aResources[i];
-			if (!resource)
-			{
-				continue;
-			}
 
 			std::unique_ptr<ResourceEntry> resourceEntry = std::make_unique<ResourceEntry>();
-			resourceEntry->eType = resource->GetResourceType();
-			resourceEntry->sName = resource->GetName();
-			resourceEntry->sSize = core::SizeToString(resource->GetSize());
-			resourceEntry->sDuration = resource->GetDurationStr();
+			resourceEntry->eType = resource ? resource->GetResourceType() : resources::ResourceType::Unknown;
+			resourceEntry->sName = resource ? resource->GetName() : "Unknown";
+			resourceEntry->sSize = resource ? core::SizeToString(resource->GetSize()) : "0";
+			resourceEntry->sDuration = resource ? resource->GetDurationStr() : "";
 			resourceEntry->m_iOrder = i;
 			s_aResourceEntries.push_back(std::move(resourceEntry));
 		}
@@ -274,7 +270,9 @@ namespace humongousexplorer::imgui
 					ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0, 0, 0, 0));
 					ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0, 0, 0, 0));
 
-					bool isSelected = (GetWorkspace().GetSelectedResource() == s_aResources[i].get());
+					auto selectedRes = GetWorkspace().GetSelectedResource();
+					auto currentRes = s_aResources[i].get();
+					bool isSelected = (selectedRes != nullptr && currentRes == selectedRes);
 
 					if (ImGui::Selectable(
 						FormatId("", SELECTABLE_ID, m_sName, "ROW", std::to_string(i)).c_str(),
@@ -283,7 +281,7 @@ namespace humongousexplorer::imgui
 						ImVec2(0.0f, 0.0f)
 					))
 					{
-						GetWorkspace().SetSelectedResource(s_aResources[i].get());
+						GetWorkspace().SetSelectedResource(currentRes);
 					}
 					if (ImGui::IsItemHovered())
 					{

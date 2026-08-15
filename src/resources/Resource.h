@@ -79,4 +79,101 @@ namespace humongousexplorer::resources
 	private:
 		parsing::Chunk* m_pLipSyncChunk = nullptr;
 	};
+
+	//---------------------------------------------------------------------
+	class SFXResource : public SoundResource
+	{
+	public:
+		SFXResource();
+	};
+
+	//---------------------------------------------------------------------
+	class RoomResource : public Resource
+	{
+	public:
+		RoomResource();
+
+		size_t GetSize() const override;
+		std::string GetDurationStr() override;
+	};
+
+	//---------------------------------------------------------------------
+	class LocalScriptResource : public Resource
+	{
+	public:
+		LocalScriptResource();
+
+		core::Data GetData() const;
+		void SetDataChunk(parsing::Chunk* a_pChunk);
+
+		size_t GetSize() const override;
+
+		std::string GetDurationStr() override;
+	protected:
+		parsing::Chunk* m_pDataChunk = nullptr;
+	};
+
+	//---------------------------------------------------------------------
+	class GlobalScriptResource : public Resource
+	{
+	public:
+		GlobalScriptResource();
+
+		core::Data GetData() const;
+		void SetDataChunk(parsing::Chunk* a_pChunk);
+
+		size_t GetSize() const override;
+
+		std::string GetDurationStr() override;
+	protected:
+		parsing::Chunk* m_pDataChunk = nullptr;
+	};
+
+	//---------------------------------------------------------------------
+	class VerbScriptResource : public Resource
+	{
+	public:
+		VerbScriptResource();
+
+		core::Data GetData() const;
+		void SetDataChunk(parsing::Chunk* a_pChunk);
+
+		size_t GetSize() const override;
+
+		std::string GetDurationStr() override;
+	protected:
+		parsing::Chunk* m_pDataChunk = nullptr;
+	};
+
+	//---------------------------------------------------------------------
+	class RoomBackgroundResource : public Resource
+	{
+	public:
+		RoomBackgroundResource();
+
+		core::Data GetData() const;
+		void SetDataChunk(parsing::Chunk* a_pChunk);
+
+		size_t GetSize() const override;
+
+		std::string GetDurationStr() override;
+	protected:
+		parsing::Chunk* m_pDataChunk = nullptr;
+	};
+
+	//---------------------------------------------------------------------
+	class RoomImageResource : public Resource
+	{
+	public:
+		RoomImageResource();
+
+		core::Data GetData() const;
+		void SetDataChunk(parsing::Chunk* a_pChunk);
+
+		size_t GetSize() const override;
+
+		std::string GetDurationStr() override;
+	protected:
+		parsing::Chunk* m_pDataChunk = nullptr;
+	};
 }

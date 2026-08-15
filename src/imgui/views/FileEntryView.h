@@ -106,6 +106,7 @@ namespace humongousexplorer::imgui
 
 		void AddRow(std::unique_ptr<RowEntry> a_pRow);
 
+		std::string m_sName;
 		bool m_bVisible = true;
 		bool m_bFiltered = false;
 		std::vector<std::unique_ptr<RowEntry>> m_aRows;

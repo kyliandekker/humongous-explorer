@@ -99,6 +99,22 @@ namespace humongousexplorer::parsing
 		const unsigned char* data = a_Buf.dataAs<unsigned char>();
 		size_t currentPos = a_iPos;
 
+		if (currentPos + 8 > a_Buf.size())
+		{
+			return false;
+		}
+
+		const size_t firstChunkSize = ReadBE32(data + currentPos + 4);
+		if (firstChunkSize < 8 || firstChunkSize > a_Buf.size() - currentPos)
+		{
+			return false;
+		}
+
+		if (firstChunkSize == a_Buf.size() - currentPos)
+		{
+			return ParseSingleChunk(a_Out, a_Buf, currentPos);
+		}
+
 		while (currentPos + 8 <= a_Buf.size())
 		{
 			const size_t chunkSize = ReadBE32(data + currentPos + 4);

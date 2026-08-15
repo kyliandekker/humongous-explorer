@@ -1,36 +1,9 @@
 #include "ResourceType.h"
 
-#include "humongous/ChunkIDs.h"
+#include "parsing/ChunkIDs.h"
 
 namespace humongousexplorer::resources
 {
-	//---------------------------------------------------------------------
-	ResourceType GetResourceTypeFromChunkID(const std::string& a_sChunkID)
-	{
-		if (a_sChunkID == parsing::LFLF_CHUNK_ID)
-		{
-			return ResourceType::RoomBackground;
-		}
-		else if (a_sChunkID == parsing::OBIM_CHUNK_ID)
-		{
-			return ResourceType::RoomImage;
-		}
-		else if (a_sChunkID == parsing::TALK_CHUNK_ID)
-		{
-			return ResourceType::Talkie;
-		}
-		else if (a_sChunkID == parsing::DIGI_CHUNK_ID)
-		{
-			return ResourceType::SFX;
-		}
-		else if (a_sChunkID == parsing::DIGI_CHUNK_ID)
-		{
-			return ResourceType::Song;
-		}
-
-		return ResourceType::Unknown;
-	}
-
 	//---------------------------------------------------------------------
 	std::string GetIconFromResourceType(ResourceType a_ResourceType)
 	{

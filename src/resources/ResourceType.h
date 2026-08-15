@@ -25,9 +25,6 @@ namespace humongousexplorer::resources
 	};
 
 	//---------------------------------------------------------------------
-	ResourceType GetResourceTypeFromChunkID(const std::string& a_sChunkID);
-
-	//---------------------------------------------------------------------
 	std::string GetIconFromResourceType(ResourceType a_ResourceType);
 
 	//---------------------------------------------------------------------
