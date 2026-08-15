@@ -98,10 +98,13 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	struct FileEntryView
 	{
+	public:
+		FileEntryView() = default;
 		FileEntryView(std::vector<std::unique_ptr<RowEntry>> a_aRows) :
 			m_aRows(std::move(a_aRows))
-		{
-		}
+		{}
+
+		void AddRow(std::unique_ptr<RowEntry> a_pRow);
 
 		bool m_bVisible = true;
 		bool m_bFiltered = false;
@@ -115,6 +118,7 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	struct TreeFileEntryView : public FileEntryView
 	{
+		TreeFileEntryView() = default;
 		TreeFileEntryView(std::vector<std::unique_ptr<RowEntry>> a_aRows, std::vector<std::unique_ptr<FileEntryView>> a_aChildren = {});
 
 		std::vector<std::unique_ptr<FileEntryView>> m_aChildren;

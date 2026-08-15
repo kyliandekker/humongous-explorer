@@ -83,6 +83,12 @@ namespace humongousexplorer::imgui
 	}
 
 	//---------------------------------------------------------------------
+	void FileEntryView::AddRow(std::unique_ptr<RowEntry> a_pRow)
+	{
+		m_aRows.push_back(std::move(a_pRow));
+	}
+
+	//---------------------------------------------------------------------
 	void FileEntryView::Render(std::function<bool(FileEntryView* fileEntry)> a_fnSelected, std::function<void(FileEntryInteractionType, FileEntryView*)> a_fnOnInteraction, float a_fIndent)
 	{
 		if (!m_bVisible || m_bFiltered)

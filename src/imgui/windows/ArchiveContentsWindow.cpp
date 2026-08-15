@@ -42,10 +42,7 @@ namespace humongousexplorer::imgui
 			{
 				a_Out.push_back({ child.get(), displayable.at(tag)});
 			}
-			else
-			{
-				CollectDisplayableChunks(a_ArchiveType, *child, a_Out);
-			}
+			CollectDisplayableChunks(a_ArchiveType, *child, a_Out);
 		}
 	}
 
@@ -65,14 +62,70 @@ namespace humongousexplorer::imgui
 	}
 
 	//---------------------------------------------------------------------
+	std::vector<std::string> ParseRNAM(parsing::Chunk* a_pChunk)
+	{
+		std::vector<std::string> roomNames;
+
+		const size_t rnamEnd = a_pChunk->ChunkSize();
+		size_t pos = 0;
+
+		while (pos < rnamEnd)
+		{
+			uint16_t roomNumber;
+			memcpy(&roomNumber, a_pChunk->GetData().dataAs<unsigned char>() + pos, sizeof(roomNumber));
+			pos += sizeof(roomNumber);
+
+			std::string roomName;
+
+			while (pos < rnamEnd && a_pChunk->GetData()[pos] != '\0')
+			{
+				roomName += a_pChunk->GetData()[pos];
+				++pos;
+			}
+
+			if (pos < rnamEnd)
+				++pos; // skip '\0'
+
+			roomNames.push_back(roomName);
+		}
+
+		return roomNames;
+	}
+
+	std::vector<std::string> roomNames = ParseRNAM(rnam);
+	size_t roomIndex = 0;
+	//---------------------------------------------------------------------
 	void ArchiveContentsWindow::RebuildArchiveViews()
 	{
 		m_aArchiveViews.clear();
 
 		const auto& archives = GetWorkspace().GetArchives();
 
+		resources::ArchiveEntry* he0 = nullptr;
+		resources::ArchiveEntry* a = nullptr;
+		for (const std::unique_ptr<resources::ArchiveEntry>& archiveEntry : archives)
+		{
+			if (archiveEntry->GetType() == resources::ArchiveType::A)
+			{
+				a = archiveEntry.get();
+			}
+			else if (archiveEntry->GetType() == resources::ArchiveType::HE0)
+			{
+				he0 = archiveEntry.get();
+			}
+		}
+
+		if (!he0 || !a)
+		{
+			return;
+		}
+
+		parsing::Chunk* rnam = he0->GetRoot().TryFindChild(parsing::RNAM_CHUNK_ID);
+
 		for (size_t a = 0; a < archives.size(); ++a)
 		{
+			roomIndex = 0;
+
 			const resources::ArchiveEntry& archiveEntry = *archives[a];
 			std::string name = archiveEntry.GetPath().filename().string();
 
@@ -84,7 +137,15 @@ namespace humongousexplorer::imgui
 			{
 				const ChunkPair& displayableChunk = displayableChunks[i];
 
+				std::string tag(displayableChunk.first->GetTag(), 4);
+
 				std::string resName = resources::GetNameFromResourceType(displayableChunk.second.m_eResourceType);
+				if (tag == parsing::LFLF_CHUNK_ID)
+				{
+					resName = std::to_string(roomIndex + 1) + ". " + roomNames[roomIndex];
+					roomIndex++;
+				}
+
 				std::string resIcon = resources::GetIconFromResourceType(displayableChunk.second.m_eResourceType);
 				size_t size = displayableChunk.first->ChunkSize();
 
@@ -111,57 +172,6 @@ namespace humongousexplorer::imgui
 			archiveView->m_bExpanded = true;
 
 			m_aArchiveViews.push_back(std::move(archiveView));
-		}
-
-		resources::ArchiveEntry* he0 = nullptr;
-		resources::ArchiveEntry* a = nullptr;
-		for (const std::unique_ptr<resources::ArchiveEntry>& archiveEntry : archives)
-		{
-			if (archiveEntry->GetType() == resources::ArchiveType::A)
-			{
-				a = archiveEntry.get();
-			}
-			else if (archiveEntry->GetType() == resources::ArchiveType::HE0)
-			{
-				he0 = archiveEntry.get();
-			}
-		}
-
-		if (!he0 || !a)
-		{
-			return;
-		}
-
-		parsing::Chunk* rnam = he0->GetRoot().TryFindChild(parsing::RNAM_CHUNK_ID);
-
-		std::vector<std::string> room_names;
-
-		const size_t rnam_end = rnam->ChunkSize();
-		size_t pos = 0;
-
-		while (pos < rnam_end)
-		{
-			uint16_t room_number;
-			memcpy(&room_number, rnam->GetData().dataAs<unsigned char>() + pos, sizeof(room_number));
-			pos += sizeof(room_number);
-
-			std::string room_name;
-
-			while (pos < rnam_end && rnam->GetData()[pos] != '\0')
-			{
-				room_name += rnam->GetData()[pos];
-				++pos;
-			}
-
-			if (pos < rnam_end)
-				++pos; // skip '\0'
-
-			room_names.push_back(std::to_string(room_number) + ". " + room_name);
-		}
-
-		if (room_names.size() == 0)
-		{
-			return;
 		}
 	}
 

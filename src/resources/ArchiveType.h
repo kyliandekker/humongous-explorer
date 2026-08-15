@@ -128,7 +128,42 @@ namespace humongousexplorer::resources
 
 	static const std::unordered_map<std::string, DisplayableChunk> s_ADisplayableChunks =
 	{
-		{ parsing::LFLF_CHUNK_ID, { resources::ResourceType::Room, true } }
+		{ parsing::LFLF_CHUNK_ID, { resources::ResourceType::Room, true } },
+
+		{ parsing::SCRP_CHUNK_ID, { resources::ResourceType::GlobalScript, false } },
+		{ parsing::EXCD_CHUNK_ID, { resources::ResourceType::GlobalScript, false } },
+		{ parsing::ENCD_CHUNK_ID, { resources::ResourceType::GlobalScript, false } },
+
+		{ parsing::LSCR_CHUNK_ID, { resources::ResourceType::LocalScript, false } },
+		{ parsing::LSC2_CHUNK_ID, { resources::ResourceType::LocalScript, false } },
+
+		{ parsing::VERB_CHUNK_ID, { resources::ResourceType::VerbScript, false } },
+
+		{ parsing::IM00_CHUNK_ID, { resources::ResourceType::RoomBackground, false } },
+
+		{ parsing::IM01_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM02_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM03_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM04_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM05_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM06_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM07_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM08_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM09_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM10_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM11_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM12_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM13_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM14_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM15_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM16_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM17_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM0A_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM0B_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM0C_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM0D_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM0E_CHUNK_ID, { resources::ResourceType::RoomImage, false } },
+		{ parsing::IM0F_CHUNK_ID, { resources::ResourceType::RoomImage, false } }
 	};
 
 	static const std::unordered_map<std::string, DisplayableChunk> s_HE0DisplayableChunks =
