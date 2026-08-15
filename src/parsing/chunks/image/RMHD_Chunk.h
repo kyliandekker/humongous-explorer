@@ -7,6 +7,7 @@ namespace humongousexplorer::parsing
 	// It is usually found in a RMDA chunk inside the Resource file (*.(A)).
 	class RMHD_Chunk
 	{
+	public:
 		uint16_t width = 0;
 		uint16_t height = 0;
 		uint16_t robjs = 0;

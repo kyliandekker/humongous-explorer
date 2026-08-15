@@ -7,6 +7,7 @@ namespace humongousexplorer::parsing
 	// TRNS chunks are usually found inside RMDA chunks in Resource files (*.(A)).
 	class TRNS_Chunk
 	{
+	public:
 		// This seems to be the room transparency.
 		uint8_t trns_val = 0;
 	};

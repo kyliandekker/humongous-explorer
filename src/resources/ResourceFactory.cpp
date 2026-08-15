@@ -4,13 +4,11 @@
 
 #include "parsing/ChunkParser.h"
 #include "parsing/Chunk.h"
-
 #include "parsing/ChunkIDs.h"
-
-#include "resources/Resource.h"
-
 #include "parsing/chunks/sound/HSHD_Chunk.h"
 #include "parsing/chunks/sound/SGEN_Chunk.h"
+
+#include "resources/Resource.h"
 
 namespace humongousexplorer::resources
 {

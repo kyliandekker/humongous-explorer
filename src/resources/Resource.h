@@ -2,11 +2,15 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
-namespace humongousexplorer::core
+#include "core/Data.h"
+
+struct Color
 {
-	class Data;
-}
+	uint8_t r, g, b;
+};
+
 namespace humongousexplorer::parsing
 {
 	class Chunk;
@@ -24,7 +28,7 @@ namespace humongousexplorer::resources
 			return m_eResourceType;
 		}
 
-		virtual size_t GetSize() const = 0;
+		virtual std::string GetSize() const = 0;
 		virtual std::string GetDurationStr()
 		{
 			return "";
@@ -38,6 +42,8 @@ namespace humongousexplorer::resources
 		{
 			m_sName = a_sName;
 		}
+
+		virtual void Open() {};
 	protected:
 		ResourceType m_eResourceType;
 		std::string m_sName;
@@ -53,7 +59,7 @@ namespace humongousexplorer::resources
 		core::Data GetData() const;
 		void SetDataChunk(parsing::Chunk* a_pChunk);
 
-		size_t GetSize() const override;
+		std::string GetSize() const override;
 
 		std::string GetDurationStr() override;
 	protected:
@@ -93,7 +99,7 @@ namespace humongousexplorer::resources
 	public:
 		RoomResource();
 
-		size_t GetSize() const override;
+		std::string GetSize() const override;
 		std::string GetDurationStr() override;
 	};
 
@@ -106,7 +112,7 @@ namespace humongousexplorer::resources
 		core::Data GetData() const;
 		void SetDataChunk(parsing::Chunk* a_pChunk);
 
-		size_t GetSize() const override;
+		std::string GetSize() const override;
 
 		std::string GetDurationStr() override;
 	protected:
@@ -122,7 +128,7 @@ namespace humongousexplorer::resources
 		core::Data GetData() const;
 		void SetDataChunk(parsing::Chunk* a_pChunk);
 
-		size_t GetSize() const override;
+		std::string GetSize() const override;
 
 		std::string GetDurationStr() override;
 	protected:
@@ -138,7 +144,7 @@ namespace humongousexplorer::resources
 		core::Data GetData() const;
 		void SetDataChunk(parsing::Chunk* a_pChunk);
 
-		size_t GetSize() const override;
+		std::string GetSize() const override;
 
 		std::string GetDurationStr() override;
 	protected:
@@ -154,11 +160,22 @@ namespace humongousexplorer::resources
 		core::Data GetData() const;
 		void SetDataChunk(parsing::Chunk* a_pChunk);
 
-		size_t GetSize() const override;
+		std::string GetSize() const override;
 
 		std::string GetDurationStr() override;
+
+		void Open() override;
+
+		uint16_t GetWidth() const;
+		uint16_t GetHeight() const;
+		const std::vector<Color>& GetColors() const;
 	protected:
 		parsing::Chunk* m_pDataChunk = nullptr;
+		core::Data m_ImageData;
+
+		uint16_t m_iWidth = 0;
+		uint16_t m_iHeight = 0;
+		std::vector<Color> m_aColors;
 	};
 
 	//---------------------------------------------------------------------
@@ -170,9 +187,11 @@ namespace humongousexplorer::resources
 		core::Data GetData() const;
 		void SetDataChunk(parsing::Chunk* a_pChunk);
 
-		size_t GetSize() const override;
+		std::string GetSize() const override;
 
 		std::string GetDurationStr() override;
+
+		void Open() override;
 	protected:
 		parsing::Chunk* m_pDataChunk = nullptr;
 	};

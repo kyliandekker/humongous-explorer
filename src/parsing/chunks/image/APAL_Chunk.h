@@ -8,6 +8,7 @@ namespace humongousexplorer::parsing
 	// The APAL chunk is found inside a Resource file (*.(A)).
 	class APAL_Chunk
 	{
+	public:
 		// Color palette with 256 colors * rgb.
 		unsigned char data[256 * 3];
 	};

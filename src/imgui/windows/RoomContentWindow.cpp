@@ -134,7 +134,7 @@ namespace humongousexplorer::imgui
 			std::unique_ptr<ResourceEntry> resourceEntry = std::make_unique<ResourceEntry>();
 			resourceEntry->eType = resource ? resource->GetResourceType() : resources::ResourceType::Unknown;
 			resourceEntry->sName = resource ? resource->GetName() : "Unknown";
-			resourceEntry->sSize = resource ? core::SizeToString(resource->GetSize()) : "0";
+			resourceEntry->sSize = resource ? resource->GetSize() : "0";
 			resourceEntry->sDuration = resource ? resource->GetDurationStr() : "";
 			resourceEntry->m_iOrder = i;
 			s_aResourceEntries.push_back(std::move(resourceEntry));
@@ -282,6 +282,7 @@ namespace humongousexplorer::imgui
 					))
 					{
 						GetWorkspace().SetSelectedResource(currentRes);
+						currentRes->Open();
 					}
 					if (ImGui::IsItemHovered())
 					{
