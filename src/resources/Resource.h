@@ -6,6 +6,8 @@
 
 #include "core/Data.h"
 
+#include <d3d11.h>
+
 struct Color
 {
 	uint8_t r, g, b;
@@ -44,6 +46,7 @@ namespace humongousexplorer::resources
 		}
 
 		virtual void Open() {};
+		virtual void Replace(const core::Data& a_Data) {};
 	protected:
 		ResourceType m_eResourceType;
 		std::string m_sName;
@@ -82,6 +85,8 @@ namespace humongousexplorer::resources
 
 		core::Data GetLipSyncData() const;
 		void SetLipSyncChunk(parsing::Chunk* a_pChunk);
+
+		void Replace(const core::Data& a_Data) override;
 	private:
 		parsing::Chunk* m_pLipSyncChunk = nullptr;
 	};
@@ -156,9 +161,13 @@ namespace humongousexplorer::resources
 	{
 	public:
 		RoomBackgroundResource();
+		~RoomBackgroundResource();
 
 		core::Data GetData() const;
 		void SetDataChunk(parsing::Chunk* a_pChunk);
+		const core::Data& GetImageData() const;
+
+		ID3D11ShaderResourceView* GetSRV();
 
 		std::string GetSize() const override;
 
@@ -176,6 +185,7 @@ namespace humongousexplorer::resources
 		uint16_t m_iWidth = 0;
 		uint16_t m_iHeight = 0;
 		std::vector<Color> m_aColors;
+		ID3D11ShaderResourceView* m_pSRV = nullptr;
 	};
 
 	//---------------------------------------------------------------------

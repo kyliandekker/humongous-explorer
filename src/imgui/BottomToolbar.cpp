@@ -11,28 +11,23 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void BottomToolbar::Initialize()
 	{
+		if (m_bInitialized)
+		{
+			return;
+		}
+
+		GetWorkspace().GetStatusMessageUpdated() += std::bind(&BottomToolbar::OnStatusMessageUpdated, this, std::placeholders::_1, std::placeholders::_2);
+
+		m_sMessage = "Drop an archive to begin";
+		m_sIcon = "../icons/icon_drop_file.svg";
+
+		m_bInitialized = true;
 	}
 
 	//---------------------------------------------------------------------
 	void BottomToolbar::Render()
 	{
 		const auto& workspace = GetWorkspace();
-
-		if (workspace.GetLastLoadSuccess())
-		{
-			m_sMessage = workspace.GetLastLoadMessage();
-			m_sIcon = "../icons/icon_checkmark.svg";
-		}
-		else if (!workspace.GetLastLoadMessage().empty())
-		{
-			m_sMessage = workspace.GetLastLoadMessage();
-			m_sIcon = "../icons/icon_error.svg";
-		}
-		else
-		{
-			m_sMessage = "Drop an archive to begin";
-			m_sIcon = "../icons/icon_drop_file.svg";
-		}
 
 		ImGuiViewport* viewport = ImGui::GetMainViewport();
 
@@ -98,5 +93,19 @@ namespace humongousexplorer::imgui
 	float BottomToolbar::GetSize() const
 	{
 		return m_fSize;
+	}
+
+	//---------------------------------------------------------------------
+	void BottomToolbar::OnStatusMessageUpdated(bool a_bSuccess, const std::string& a_sMessage)
+	{
+		m_sMessage = a_sMessage;
+		if (a_bSuccess)
+		{
+			m_sIcon = "../icons/icon_checkmark.svg";
+		}
+		else
+		{
+			m_sIcon = "../icons/icon_error.svg";
+		}
 	}
 }

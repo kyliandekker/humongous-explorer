@@ -63,9 +63,12 @@ namespace humongousexplorer::file
 					if (SUCCEEDED(pfd->GetFileTypeIndex(&fileTypeIndex)) && fileTypeIndex > 0 && fileTypeIndex <= a_aFilters.size())
 					{
 						std::wstring defExt = a_aFilters[fileTypeIndex - 1].pszSpec;
-						// pszSpec can be "*.ext", so strip the "*."
-						if (defExt.rfind(L"*.", 0) == 0)
-							defExt = defExt.substr(1); // remove '*'
+						// pszSpec can be "*.ext1;*.ext2", take the first one and strip "*."
+						auto semi = defExt.find(L';');
+						if (semi != std::wstring::npos)
+							defExt = defExt.substr(0, semi);
+						if (defExt.size() > 1 && defExt[0] == L'*')
+							defExt = defExt.substr(1); // remove '*', keeps '.'
 
 						resultPath += defExt;
 					}

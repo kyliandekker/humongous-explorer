@@ -7,7 +7,7 @@
 #undef min
 #undef max
 
-namespace humongousexplorer::core
+namespace humongousexplorer::audio
 {
     AudioPlayer::AudioPlayer()
     {

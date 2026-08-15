@@ -32,10 +32,30 @@ std::string ToUpperSnakeCase(const std::string& a_String)
 //---------------------------------------------------------------------
 bool TextButton(const std::string& a_Label, const ImVec2& a_Size, const ImVec4& a_Color)
 {
-	ImVec2 pos = ImGui::GetCursorScreenPos(); // Get the top-left corner of the button
+	ImVec2 pos = ImGui::GetCursorScreenPos();
+	ImVec2 btnSize = a_Size;
+
+	ImVec4 invisible(0, 0, 0, 0);
+	ImGui::PushStyleColor(ImGuiCol_Text, invisible);
+	bool b = ImGui::Button(a_Label.c_str(), btnSize);
+	ImGui::PopStyleColor();
+
+	const char* display = a_Label.c_str();
+	const char* sep = strstr(a_Label.c_str(), "###");
+	std::string displayText;
+	if (sep)
+	{
+		displayText = a_Label.substr(0, sep - a_Label.c_str());
+		display = displayText.c_str();
+	}
+
+	ImVec2 textSize = ImGui::CalcTextSize(display);
+	ImVec2 textPos(
+		pos.x + (btnSize.x - textSize.x) * 0.5f,
+		pos.y + (btnSize.y - textSize.y) * 0.5f);
 
 	ImGui::PushStyleColor(ImGuiCol_Text, a_Color);
-	bool b = ImGui::Button(a_Label.c_str(), a_Size);
+	ImGui::GetWindowDrawList()->AddText(textPos, ImGui::GetColorU32(ImGuiCol_Text), display);
 	ImGui::PopStyleColor();
 
 	return b;

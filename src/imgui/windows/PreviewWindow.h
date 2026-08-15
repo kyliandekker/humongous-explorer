@@ -1,7 +1,7 @@
 #pragma once
 
 #include "imgui/windows/HEBaseWindow.h"
-#include "core/AudioPlayer.h"
+#include "audio/AudioPlayer.h"
 
 struct ID3D11ShaderResourceView;
 
@@ -43,7 +43,7 @@ namespace humongousexplorer::imgui
 
 		float m_fAudioVolume = 0.75f;
 
-		core::AudioPlayer m_AudioPlayer;
+		audio::AudioPlayer m_AudioPlayer;
 		uint16_t m_iAudioSampleRate = 0;
 
 		void RenderCheckerboard(const ImVec2& a_vMin, const ImVec2& a_vMax);

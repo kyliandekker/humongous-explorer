@@ -52,8 +52,6 @@ namespace humongousexplorer::editor
 	void Workspace::LoadArchives(const fs::path& a_sPath)
 	{
 		m_aArchives.clear();
-		m_bLastLoadSuccess = false;
-		m_sLastLoadMessage.clear();
 		m_pSelectedResource = nullptr;
 		m_pSelectedFileEntryView = nullptr;
 
@@ -129,16 +127,7 @@ namespace humongousexplorer::editor
 			m_aArchives.push_back(std::move(ptr));
 		}
 
-		m_bLastLoadSuccess = !m_aArchives.empty();
-
-		if (m_bLastLoadSuccess)
-		{
-			m_sLastLoadMessage = a_sPath.stem().generic_string() + " loaded successfully";
-		}
-		else
-		{
-			m_sLastLoadMessage = "Failed to load: " + a_sPath.filename().generic_string();
-		}
+		m_onStatusMessageUpdated(!m_aArchives.empty(), !m_aArchives.empty() ? "Successfully loaded archives." : "Failed to load archives.");
 
 		m_onArchivesChanged();
 	}
@@ -156,15 +145,9 @@ namespace humongousexplorer::editor
 	}
 
 	//---------------------------------------------------------------------
-	bool Workspace::GetLastLoadSuccess() const
+	const core::Event<bool, const std::string&>& Workspace::GetStatusMessageUpdated() const
 	{
-		return m_bLastLoadSuccess;
-	}
-
-	//---------------------------------------------------------------------
-	const std::string& Workspace::GetLastLoadMessage() const
-	{
-		return m_sLastLoadMessage;
+		return m_onStatusMessageUpdated;
 	}
 
 	//---------------------------------------------------------------------

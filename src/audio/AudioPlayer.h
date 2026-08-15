@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace humongousexplorer::core
+namespace humongousexplorer::audio
 {
     class AudioPlayer
     {

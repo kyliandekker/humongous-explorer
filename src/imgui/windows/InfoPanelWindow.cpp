@@ -49,7 +49,7 @@ namespace humongousexplorer::imgui
 				ImGui::Separator();
 				ImGui::Text("Name: %s", soundResource->GetName().c_str());
 				ImGui::Text("Type: Sound");
-				ImGui::Text("Size: %s", soundResource->GetSize());
+				ImGui::Text("Size: %s", soundResource->GetSize().c_str());
 				ImGui::Text("Channels: 1 (Mono)");
 				ImGui::Text("Sample Rate: %i Hz", soundResource->GetSampleRate());
 				ImGui::Text("Bits per Sample: %i", 8);
@@ -123,10 +123,10 @@ namespace humongousexplorer::imgui
 					const Color& color = colors[i];
 
 					ImVec4 imguiColor(
-						color.r,
-						color.g,
-						color.b,
-						256
+						color.r / 255.0f,
+						color.g / 255.0f,
+						color.b / 255.0f,
+						1.0f
 					);
 
 					// Draw swatch

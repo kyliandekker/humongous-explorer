@@ -13,7 +13,8 @@
 #include "editor/Workspace.h"
 #include "resources/Resource.h"
 #include "core/Data.h"
-
+#include "audio/WaveLoader.h"
+#include "file/file_abstractions.h"
 #include "parsing/chunks/sound/SBNG_Chunk.h"
 
 #undef min
@@ -230,8 +231,30 @@ namespace humongousexplorer::imgui
 			m_vPan.y += delta.y;
 		}
 
-		float imgW = 320.0f * m_fZoom;
-		float imgH = 200.0f * m_fZoom;
+		resources::Resource* resource = GetWorkspace().GetSelectedResource();
+		if (!resource)
+		{
+			return;
+		}
+
+		float imgW = 320.0f;
+		float imgH = 200.0f;
+		ID3D11ShaderResourceView* srv = nullptr;
+
+		if (resource->GetResourceType() == resources::ResourceType::RoomBackground)
+		{
+			resources::RoomBackgroundResource* rb = dynamic_cast<resources::RoomBackgroundResource*>(resource);
+			imgW = static_cast<float>(rb->GetWidth());
+			imgH = static_cast<float>(rb->GetHeight());
+			srv = rb->GetSRV();
+		}
+		else if (resource->GetResourceType() == resources::ResourceType::RoomImage)
+		{
+			// TODO: support RoomImage
+		}
+
+		imgW *= m_fZoom;
+		imgH *= m_fZoom;
 		float centerX = areaMin.x + previewArea.x * 0.5f + m_vPan.x;
 		float centerY = areaMin.y + previewArea.y * 0.5f + m_vPan.y;
 		ImVec2 imgMin(centerX - imgW * 0.5f, centerY - imgH * 0.5f);
@@ -239,8 +262,21 @@ namespace humongousexplorer::imgui
 
 		// Clip to preview area
 		drawList->PushClipRect(areaMin, areaMax, true);
-		drawList->AddRectFilled(imgMin, imgMax, IM_COL32(80, 60, 135, 255));
-		drawList->AddRect(imgMin, imgMax, IM_COL32(160, 130, 255, 255));
+		if (srv)
+		{
+			drawList->AddImage(
+				(ImTextureID)srv,
+				imgMin,
+				imgMax,
+				ImVec2(0, 0),
+				ImVec2(1, 1)
+			);
+		}
+		else
+		{
+			drawList->AddRectFilled(imgMin, imgMax, IM_COL32(80, 60, 135, 255));
+			drawList->AddRect(imgMin, imgMax, IM_COL32(160, 130, 255, 255));
+		}
 		drawList->PopClipRect();
 
 		// Reserve space for the preview area
@@ -249,8 +285,6 @@ namespace humongousexplorer::imgui
 		// Controls bar at the bottom
 		RenderImageControlsBar();
 	}
-
-	constexpr float PLAY_BUTTON_PADDING = 50;
 
 	//---------------------------------------------------------------------
 	static int FormatTime(double value, char* buff, int size, void* user_data)
@@ -300,6 +334,14 @@ namespace humongousexplorer::imgui
 		{
 			return;
 		}
+
+		const float fontSize = ImGui::GetFontSize();
+		const float playBtnSize = fontSize * 3.0f + 3.0f;
+		const float playBtnPad = (playBtnSize - fontSize) * 0.5f;
+		const float smallBtnSize = fontSize * 3.0f;
+		const float smallBtnPad = (smallBtnSize - fontSize) * 0.5f;
+		const float smallRounding = fontSize * 0.4f;
+		const float knobSize = smallBtnSize;
 
 		const size_t totalBytes = pcmData.size();
 
@@ -363,8 +405,7 @@ namespace humongousexplorer::imgui
 		ImVec2 avail = ImGui::GetContentRegionAvail();
 
 		const float controlsBarHeight =
-			ImGui::GetFontSize() +
-			PLAY_BUTTON_PADDING +
+			playBtnSize +
 			ImGui::GetStyle().ItemSpacing.y;
 
 		ImVec2 plotSize(
@@ -618,7 +659,7 @@ namespace humongousexplorer::imgui
 
 		ImGui::PushStyleVar(
 			ImGuiStyleVar_FrameRounding,
-			40.0f);
+			playBtnSize / 2.0f);
 
 		ImGui::PushStyleColor(
 			ImGuiCol_Button,
@@ -643,8 +684,8 @@ namespace humongousexplorer::imgui
 		ImGui::PushStyleVar(
 			ImGuiStyleVar_FramePadding,
 			ImVec2(
-				PLAY_BUTTON_PADDING / 2,
-				PLAY_BUTTON_PADDING / 2));
+				playBtnPad,
+				playBtnPad));
 
 		ImGui::SetCursorPosY(rowY);
 
@@ -657,7 +698,7 @@ namespace humongousexplorer::imgui
 			FormatId(
 				playIcon,
 				BUTTON_ID,
-				"PLAY").c_str(), ImVec2(80, 80)))
+				"PLAY").c_str(), ImVec2(playBtnSize, playBtnSize)))
 		{
 			if (isPlaying)
 			{
@@ -693,16 +734,13 @@ namespace humongousexplorer::imgui
 		ImGui::PopStyleColor();
 		ImGui::PopStyleVar();
 
-		const float smallBtnSize =
-			ImGui::GetFontSize() + 30.0f;
-
 		ImGui::PushStyleVar(
 			ImGuiStyleVar_FrameRounding,
-			6.0f);
+			smallRounding);
 
 		ImGui::PushStyleVar(
 			ImGuiStyleVar_FramePadding,
-			ImVec2(15.0f, 15.0f));
+			ImVec2(smallBtnPad, smallBtnPad));
 
 		const float smallHeight =
 			ImGui::GetFrameHeight();
@@ -841,11 +879,65 @@ namespace humongousexplorer::imgui
 		const float availWidth =
 			ImGui::GetContentRegionAvail().x;
 
-		const float knobSize = 64.0f;
-
 		ImGui::SameLine(
-			availWidth - knobSize);
+			availWidth - (knobSize + smallBtnSize + smallBtnSize));
 
+		ImGui::SetCursorPosY(rowY + offset);
+		if (TextButton(
+			FormatId(
+				icon::ICON_SAVE,
+				BUTTON_ID,
+				"SAVE").c_str(),
+			ImVec2(
+				smallBtnSize,
+				smallBtnSize)))
+		{
+			fs::path savePath;
+			const std::vector<COMDLG_FILTERSPEC> filters =
+			{
+				{L"WAVE files (*.wav)", L"*.wav;*.WAV"}
+			};
+			if (file::SaveFile(savePath, filters))
+			{
+				if (audio::WaveLoader::Save(savePath.string(), soundResource->GetData(), soundResource->GetSampleRate()))
+				{
+					GetWorkspace().GetStatusMessageUpdated().invoke(true, "Successfully saved file.");
+				}
+				else
+				{
+					GetWorkspace().GetStatusMessageUpdated().invoke(false, "Failed to save file.");
+				}
+			}
+		}
+
+		ImGui::SameLine();
+
+		ImGui::SetCursorPosY(rowY + offset);
+		if (TextButton(
+			FormatId(
+				icon::ICON_LOAD,
+				BUTTON_ID,
+				"LOAD").c_str(),
+			ImVec2(
+				smallBtnSize,
+				smallBtnSize)))
+		{
+			fs::path savePath;
+			const std::vector<COMDLG_FILTERSPEC> filters =
+			{
+				{L"WAVE files (*.wav)", L"*.wav;*.WAV"}
+			};
+			if (file::PickFile(savePath, filters))
+			{
+				core::Data data;
+				uint16_t sampleRate;
+				audio::WaveLoader::Load(savePath.string(), data, sampleRate);
+			}
+		}
+
+		ImGui::SameLine();
+
+		ImGui::SetCursorPosY(rowY + offset);
 		Knob(
 			FormatId(
 				"",
@@ -855,7 +947,8 @@ namespace humongousexplorer::imgui
 			0,
 			1,
 			ImVec2(knobSize, knobSize),
-			0.0f);
+			0.0f
+		);
 	}
 
 	//---------------------------------------------------------------------

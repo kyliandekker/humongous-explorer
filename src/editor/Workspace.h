@@ -51,8 +51,7 @@ namespace humongousexplorer::editor
 		const std::vector<std::unique_ptr<resources::ArchiveEntry>>& GetArchives() const;
 
 		const core::Event<>& GetArchivesChanged() const;
-		bool GetLastLoadSuccess() const;
-		const std::string& GetLastLoadMessage() const;
+		const core::Event<bool, const std::string&>& GetStatusMessageUpdated() const;
 
 		void SetSelectedFileEntryView(imgui::TreeFileEntryView* a_pSelectedView);
 		imgui::TreeFileEntryView* GetSelectedView();
@@ -67,8 +66,7 @@ namespace humongousexplorer::editor
 		std::vector<std::unique_ptr<resources::ArchiveEntry>> m_aArchives;
 
 		core::Event<> m_onArchivesChanged;
-		bool m_bLastLoadSuccess = false;
-		std::string m_sLastLoadMessage;
+		core::Event<bool, const std::string&> m_onStatusMessageUpdated;
 
 		core::Observable<imgui::TreeFileEntryView*> m_pSelectedFileEntryView{nullptr};
 		core::Observable<resources::Resource*> m_pSelectedResource{nullptr};

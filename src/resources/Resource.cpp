@@ -14,6 +14,8 @@
 #include "parsing/chunks/image/APAL_Chunk.h"
 #include "parsing/chunks/image/TRNS_Chunk.h"
 
+#include "dx11/DX11System.h"
+
 namespace humongousexplorer::resources
 {
 	//---------------------------------------------------------------------
@@ -107,6 +109,11 @@ namespace humongousexplorer::resources
 	void TalkResource::SetLipSyncChunk(parsing::Chunk* a_pChunk)
 	{
 		m_pLipSyncChunk = a_pChunk;
+	}
+
+	//---------------------------------------------------------------------
+	void TalkResource::Replace(const core::Data& a_Data)
+	{
 	}
 
 	//---------------------------------------------------------------------
@@ -254,6 +261,16 @@ namespace humongousexplorer::resources
 	}
 
 	//---------------------------------------------------------------------
+	RoomBackgroundResource::~RoomBackgroundResource()
+	{
+		if (m_pSRV)
+		{
+			m_pSRV->Release();
+			m_pSRV = nullptr;
+		}
+	}
+
+	//---------------------------------------------------------------------
 	core::Data RoomBackgroundResource::GetData() const
 	{
 		return m_pDataChunk->GetData();
@@ -263,6 +280,29 @@ namespace humongousexplorer::resources
 	void RoomBackgroundResource::SetDataChunk(parsing::Chunk* a_pChunk)
 	{
 		m_pDataChunk = a_pChunk;
+	}
+
+	//---------------------------------------------------------------------
+	const core::Data& RoomBackgroundResource::GetImageData() const
+	{
+		return m_ImageData;
+	}
+
+	//---------------------------------------------------------------------
+	ID3D11ShaderResourceView* RoomBackgroundResource::GetSRV()
+	{
+		if (m_pSRV || m_ImageData.empty())
+		{
+			return m_pSRV;
+		}
+
+		m_pSRV = GetDX11System().CreateTexture(
+			m_ImageData.data(),
+			m_iWidth,
+			m_iHeight
+		);
+
+		return m_pSRV;
 	}
 
 	//---------------------------------------------------------------------
@@ -308,7 +348,7 @@ namespace humongousexplorer::resources
 		return result;
 	}
 
-	bool DecodeHE(uint8_t a_FillColor, const core::Data& a_BMAPData, uint16_t a_iWidth, uint16_t a_iHeight, int a_iPalen, core::Data a_OutData, bool a_bTransparent)
+	bool DecodeHE(uint8_t a_FillColor, const core::Data& a_BMAPData, uint16_t a_iWidth, uint16_t a_iHeight, int a_iPalen, core::Data& a_OutData, bool a_bTransparent)
 	{
 		std::vector<uint8_t> out;
 
@@ -412,7 +452,7 @@ namespace humongousexplorer::resources
 			return;
 		}
 
-		core::Data bmapImageData = core::Data(core::add(bmap, sizeof(parsing::BMAP_Chunk)), bmap->ChunkSize() - sizeof(parsing::BMAP_Chunk));
+		core::Data bmapImageData = core::Data(core::add(bmap->GetData().data(), sizeof(parsing::BMAP_Chunk)), bmap->ChunkSize() - sizeof(parsing::BMAP_Chunk));
 		if (!DecodeHE(bmapData->fillColor, bmapImageData, m_iWidth, m_iHeight, palen, m_ImageData, he_transparent))
 		{
 			return;
@@ -434,13 +474,16 @@ namespace humongousexplorer::resources
 			}
 		}
 
-		//Color* colors = reinterpret_cast<Color*>(apalData);
-		//size_t numColors = sizeof(apalData->data) / sizeof(colors);
-		//for (size_t i = 0; i < numColors; i++)
-		//{
-		//	m_aColors.push_back({ colors->r, colors->g, colors->b });
-		//	colors++;
-		//}
+		m_ImageData = core::Data(newOut.data(), newOut.size());
+
+		for (size_t i = 0; i < 256; i++)
+		{
+			m_aColors.push_back({
+				apalData->data[i * 3],
+				apalData->data[i * 3 + 1],
+				apalData->data[i * 3 + 2]
+			});
+		}
 	}
 
 	//---------------------------------------------------------------------
