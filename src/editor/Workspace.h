@@ -61,9 +61,13 @@ namespace humongousexplorer::editor
 		resources::Resource* GetSelectedResource();
 		const core::Observable<resources::Resource*>& GetSelectedResource() const;
 	private:
+		void DetermineScriptAndHEVersion();
+
 		resources::ResourceType m_ResourceTypeFilter;
 		std::string m_sAppDataPath;
 		std::vector<std::unique_ptr<resources::ArchiveEntry>> m_aArchives;
+		size_t m_iScriptVersion = 0;
+		size_t m_iHEVersion = 0;
 
 		core::Event<> m_onArchivesChanged;
 		core::Event<bool, const std::string&> m_onStatusMessageUpdated;

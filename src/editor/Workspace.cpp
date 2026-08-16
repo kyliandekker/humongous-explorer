@@ -127,9 +127,72 @@ namespace humongousexplorer::editor
 			m_aArchives.push_back(std::move(ptr));
 		}
 
+		DetermineScriptAndHEVersion();
+
 		m_onStatusMessageUpdated(!m_aArchives.empty(), !m_aArchives.empty() ? "Successfully loaded archives." : "Failed to load archives.");
 
 		m_onArchivesChanged();
+	}
+
+	//---------------------------------------------------------------------
+	void Workspace::DetermineScriptAndHEVersion()
+	{
+		resources::ArchiveEntry* he0 = nullptr;
+		for (const std::unique_ptr<resources::ArchiveEntry>& archiveEntry : m_aArchives)
+		{
+			if (archiveEntry->GetType() == resources::ArchiveType::HE0)
+			{
+				he0 = archiveEntry.get();
+			}
+		}
+		if (!he0)
+		{
+			return;
+		}
+
+		parsing::Chunk* maxs = he0->GetRoot().TryFindChild(parsing::MAXS_CHUNK_ID);
+		if (!maxs)
+		{
+			return;
+		}
+
+		m_iScriptVersion = 6;
+
+		switch (maxs->WholeChunkSize())
+		{
+			case 52:
+			{
+				m_iHEVersion = 99;
+				break;
+			}
+			case 46:
+			{
+				m_iHEVersion = 90;
+				break;
+			}
+			case 40:
+			{
+				m_iHEVersion = 80;
+				break;
+			}
+			case 38:
+			{
+				m_iHEVersion = 71;
+				break;
+			}
+		}
+
+		if (he0->GetRoot().TryFindChild(parsing::INIB_CHUNK_ID))
+		{
+			if (m_iHEVersion >= 90)
+				m_iHEVersion = 98;
+		}
+		else if (m_iHEVersion < 72 && he0->GetRoot().TryFindChild(parsing::DROO_CHUNK_ID))
+		{
+			m_iHEVersion = 60;
+		}
+
+		printf("Test");
 	}
 
 	//---------------------------------------------------------------------
