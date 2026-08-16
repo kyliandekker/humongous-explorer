@@ -32,6 +32,8 @@ namespace humongousexplorer::parsing
         Chunk* FindChunkAt(size_t a_iTarget, size_t a_iBase = 0);
         Chunk* GetRoot();
 
+        size_t GetOffsetFromRoot() const;
+
         const core::Data& GetData() const;
         core::Data& GetData();
         void SetData(const core::Data& a_Data);
@@ -48,8 +50,9 @@ namespace humongousexplorer::parsing
 
         unsigned char GetEncryptionKey() const;
         void SetEncryptionKey(unsigned char a_cEncryptionKey);
-    private:
+
         char m_sTag[CHUNK_ID_SIZE] = {};
+    private:
         core::Data m_Data;           // leaf: Owns its data.
         std::vector<std::unique_ptr<Chunk>> m_aChildren; // container: Owns its children.
         Chunk* m_pParent = nullptr;

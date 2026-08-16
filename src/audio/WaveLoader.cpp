@@ -7,29 +7,7 @@
 
 namespace humongousexplorer::audio
 {
-	//---------------------------------------------------------------------
-	constexpr uint32_t RIFF_ID = 0x46464952;
-	constexpr uint32_t WAVE_ID = 0x45564157;
-	constexpr uint32_t FMT_ID = 0x2074666D;
-	constexpr uint32_t DATA_ID = 0x61746164;
-
 #pragma pack(push, 1)
-	//---------------------------------------------------------------------
-	struct RIFFHeader
-	{
-		uint32_t id;
-		uint32_t size;
-		uint32_t format;
-	};
-
-	//---------------------------------------------------------------------
-	struct ChunkHeader
-	{
-		uint32_t id;
-		uint32_t size;
-	};
-
-	//---------------------------------------------------------------------
 	struct FMTChunk
 	{
 		uint16_t audioFormat;
@@ -48,6 +26,15 @@ namespace humongousexplorer::audio
 	}
 
 	//---------------------------------------------------------------------
+	static uint32_t ReadU32(const uint8_t* a_pData)
+	{
+		return static_cast<uint32_t>(a_pData[0])
+			| (static_cast<uint32_t>(a_pData[1]) << 8)
+			| (static_cast<uint32_t>(a_pData[2]) << 16)
+			| (static_cast<uint32_t>(a_pData[3]) << 24);
+	}
+
+	//---------------------------------------------------------------------
 	bool WaveLoader::Load(const std::string& a_sFilePath, core::Data& a_Data, uint16_t& a_iSampleRate)
 	{
 		core::Data file;
@@ -56,51 +43,57 @@ namespace humongousexplorer::audio
 			return false;
 		}
 
-		const uint8_t* pCurrent = static_cast<const uint8_t*>(file.data());
-		const uint8_t* pEnd = pCurrent + file.size();
+		const uint8_t* p = static_cast<const uint8_t*>(file.data());
+		const uint8_t* pEnd = p + file.size();
 
-		if (pCurrent + sizeof(RIFFHeader) > pEnd)
+		// RIFF header: "RIFF" + uint32 size + "WAVE"
+		if (p + 12 > pEnd)
 		{
 			return false;
 		}
 
-		RIFFHeader riffHeader;
-		std::memcpy(&riffHeader, pCurrent, sizeof(RIFFHeader));
-		pCurrent += sizeof(RIFFHeader);
-
-		if (riffHeader.id != RIFF_ID || riffHeader.format != WAVE_ID)
+		if (std::memcmp(p, "RIFF", 4) != 0 || std::memcmp(p + 8, "WAVE", 4) != 0)
 		{
 			return false;
 		}
 
+		p += 12;
+
+		// Search for "fmt " and "data" chunks
 		FMTChunk fmtChunk = {};
 		bool fmtFound = false;
 		const uint8_t* pData = nullptr;
 		uint32_t dataSize = 0;
 
-		while (pCurrent + sizeof(ChunkHeader) <= pEnd)
+		while (p + 8 <= pEnd)
 		{
-			ChunkHeader chunkHeader;
-			std::memcpy(&chunkHeader, pCurrent, sizeof(ChunkHeader));
-			pCurrent += sizeof(ChunkHeader);
+			const char* chunkId = reinterpret_cast<const char*>(p);
+			uint32_t chunkSize = ReadU32(p + 4);
+			p += 8;
 
-			if (pCurrent + chunkHeader.size > pEnd)
+			if (p + chunkSize > pEnd)
 			{
 				break;
 			}
 
-			if (chunkHeader.id == FMT_ID && chunkHeader.size >= sizeof(FMTChunk))
+			if (std::memcmp(chunkId, "fmt ", 4) == 0 && chunkSize >= sizeof(FMTChunk))
 			{
-				std::memcpy(&fmtChunk, pCurrent, sizeof(FMTChunk));
+				std::memcpy(&fmtChunk, p, sizeof(FMTChunk));
 				fmtFound = true;
 			}
-			else if (chunkHeader.id == DATA_ID)
+			else if (std::memcmp(chunkId, "data", 4) == 0)
 			{
-				pData = pCurrent;
-				dataSize = chunkHeader.size;
+				pData = p;
+				dataSize = chunkSize;
 			}
 
-			pCurrent += chunkHeader.size;
+			p += chunkSize;
+
+			// WAV chunks are word-aligned
+			if (chunkSize & 1)
+			{
+				p++;
+			}
 		}
 
 		if (!fmtFound || !pData)
@@ -117,13 +110,11 @@ namespace humongousexplorer::audio
 			return true;
 		}
 
-		uint8_t* out = nullptr;
-
 		if (fmtChunk.bitsPerSample == 16)
 		{
 			size_t sampleCount = dataSize / (fmtChunk.numChannels * 2);
 			a_Data = core::Data(sampleCount);
-			out = static_cast<uint8_t*>(a_Data.data());
+			uint8_t* out = static_cast<uint8_t*>(a_Data.data());
 
 			for (size_t i = 0; i < sampleCount; ++i)
 			{
@@ -143,7 +134,7 @@ namespace humongousexplorer::audio
 		{
 			size_t sampleCount = dataSize / fmtChunk.numChannels;
 			a_Data = core::Data(sampleCount);
-			out = static_cast<uint8_t*>(a_Data.data());
+			uint8_t* out = static_cast<uint8_t*>(a_Data.data());
 
 			for (size_t i = 0; i < sampleCount; ++i)
 			{

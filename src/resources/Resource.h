@@ -45,9 +45,12 @@ namespace humongousexplorer::resources
 			m_sName = a_sName;
 		}
 
+		void SetChunk(parsing::Chunk* a_pChunk);
+
 		virtual void Open() {};
 		virtual void Replace(const core::Data& a_Data) {};
 	protected:
+		parsing::Chunk* m_pChunk;
 		ResourceType m_eResourceType;
 		std::string m_sName;
 	};

@@ -126,7 +126,7 @@ namespace humongousexplorer::imgui
 			std::string resName = resources::GetNameFromResourceType(node->m_eResourceType) + " " + std::to_string(entryCount[tag]);
 			if (tag == parsing::LFLF_CHUNK_ID)
 			{
-				resName = std::to_string(a_RoomIndex + 1) + ". " + a_RoomNames[a_RoomIndex];
+				resName = std::to_string(a_RoomIndex + 1) + ". " + (a_RoomNames.size() > a_RoomIndex ? a_RoomNames[a_RoomIndex] : "");
 				a_RoomIndex++;
 			}
 

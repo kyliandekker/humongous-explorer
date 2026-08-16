@@ -121,6 +121,27 @@ namespace humongousexplorer::parsing
 	}
 
 	//---------------------------------------------------------------------
+	size_t Chunk::GetOffsetFromRoot() const
+	{
+		if (!m_pParent)
+		{
+			return 0;
+		}
+
+		size_t offset = HEADER_SIZE;
+		for (auto& sibling : m_pParent->m_aChildren)
+		{
+			if (sibling.get() == this)
+			{
+				break;
+			}
+			offset += sibling->WholeChunkSize();
+		}
+
+		return m_pParent->GetOffsetFromRoot() + offset;
+	}
+
+	//---------------------------------------------------------------------
 	const core::Data& Chunk::GetData() const
 	{
 		return m_Data;

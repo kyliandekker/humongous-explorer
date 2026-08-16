@@ -19,6 +19,7 @@ namespace humongousexplorer::resources
 		{
 			std::unique_ptr<RoomResource> roomResource = std::make_unique<RoomResource>();
 			roomResource->SetName(a_sFallbackName);
+			roomResource->SetChunk(a_pChunk);
 			return roomResource;
 		}
 		else if (core::chunkcmp(a_pChunk->GetTag(), parsing::TALK_CHUNK_ID) == 0)
@@ -35,6 +36,7 @@ namespace humongousexplorer::resources
 			talkResource->SetDataChunk(a_pChunk->TryFindChild(parsing::SDAT_CHUNK_ID));
 			talkResource->SetLipSyncChunk(a_pChunk->TryFindChild(parsing::SBNG_CHUNK_ID));
 			talkResource->SetSampleRate(hshdData->sampleRate);
+			talkResource->SetChunk(a_pChunk);
 
 			return talkResource;
 		}
@@ -59,6 +61,7 @@ namespace humongousexplorer::resources
 			songResource->SetName(std::to_string(sgenData->id));
 			songResource->SetDataChunk(digiChunk->TryFindChild(parsing::SDAT_CHUNK_ID));
 			songResource->SetSampleRate(hshdData->sampleRate);
+			songResource->SetChunk(a_pChunk);
 
 			return songResource;
 		}
@@ -75,6 +78,7 @@ namespace humongousexplorer::resources
 			sfxResource->SetName(a_sFallbackName);
 			sfxResource->SetDataChunk(a_pChunk->TryFindChild(parsing::SDAT_CHUNK_ID));
 			sfxResource->SetSampleRate(hshdData->sampleRate);
+			sfxResource->SetChunk(a_pChunk);
 
 			return sfxResource;
 		}
@@ -83,6 +87,7 @@ namespace humongousexplorer::resources
 			std::unique_ptr<LocalScriptResource> scriptResource = std::make_unique<LocalScriptResource>();
 			scriptResource->SetName(a_sFallbackName);
 			scriptResource->SetDataChunk(a_pChunk);
+			scriptResource->SetChunk(a_pChunk);
 
 			return scriptResource;
 		}
@@ -91,6 +96,7 @@ namespace humongousexplorer::resources
 			std::unique_ptr<GlobalScriptResource> scriptResource = std::make_unique<GlobalScriptResource>();
 			scriptResource->SetName(a_sFallbackName);
 			scriptResource->SetDataChunk(a_pChunk);
+			scriptResource->SetChunk(a_pChunk);
 
 			return scriptResource;
 		}
@@ -107,6 +113,7 @@ namespace humongousexplorer::resources
 			std::unique_ptr<RoomBackgroundResource> roomBackgroundResource = std::make_unique<RoomBackgroundResource>();
 			roomBackgroundResource->SetName(a_sFallbackName);
 			roomBackgroundResource->SetDataChunk(a_pChunk);
+			roomBackgroundResource->SetChunk(a_pChunk);
 
 			return roomBackgroundResource;
 		}
@@ -138,6 +145,7 @@ namespace humongousexplorer::resources
 			std::unique_ptr<RoomImageResource> roomImageResource = std::make_unique<RoomImageResource>();
 			roomImageResource->SetName(a_sFallbackName);
 			roomImageResource->SetDataChunk(a_pChunk);
+			roomImageResource->SetChunk(a_pChunk);
 
 			return roomImageResource;
 		}

@@ -114,6 +114,8 @@ namespace humongousexplorer::resources
 	//---------------------------------------------------------------------
 	void TalkResource::Replace(const core::Data& a_Data)
 	{
+		size_t pos = m_pChunk->GetOffsetFromRoot();
+		printf("Test");
 	}
 
 	//---------------------------------------------------------------------
@@ -543,5 +545,11 @@ namespace humongousexplorer::resources
 	//---------------------------------------------------------------------
 	void RoomImageResource::Open()
 	{
+	}
+
+	//---------------------------------------------------------------------
+	void Resource::SetChunk(parsing::Chunk* a_pChunk)
+	{
+		m_pChunk = a_pChunk;
 	}
 }

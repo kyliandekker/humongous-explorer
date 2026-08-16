@@ -931,7 +931,10 @@ namespace humongousexplorer::imgui
 			{
 				core::Data data;
 				uint16_t sampleRate;
-				audio::WaveLoader::Load(savePath.string(), data, sampleRate);
+				if (audio::WaveLoader::Load(savePath.string(), data, sampleRate))
+				{
+					soundResource->Replace(data);
+				}
 			}
 		}
 
