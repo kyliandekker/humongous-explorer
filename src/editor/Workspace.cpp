@@ -185,7 +185,9 @@ namespace humongousexplorer::editor
 		if (he0->GetRoot().TryFindChild(parsing::INIB_CHUNK_ID))
 		{
 			if (m_iHEVersion >= 90)
+			{
 				m_iHEVersion = 98;
+			}
 		}
 		else if (m_iHEVersion < 72 && he0->GetRoot().TryFindChild(parsing::DROO_CHUNK_ID))
 		{
