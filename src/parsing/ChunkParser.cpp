@@ -91,4 +91,40 @@ namespace humongousexplorer::parsing
 
         return true;
     }
+
+    //---------------------------------------------------------------------
+    bool ParseArchive(Chunk& a_Out, const core::Data& a_Buf)
+    {
+        const unsigned char* data = a_Buf.dataAs<unsigned char>(); 
+        
+        if (a_Buf.size() < sizeof(ChunkHeader)) 
+        { 
+            return false; 
+        } 
+        
+        size_t currentPos = 0; 
+        
+        while (currentPos < a_Buf.size())
+        { 
+            if (a_Buf.size() - currentPos < sizeof(ChunkHeader)) 
+            { 
+                return false; 
+            } 
+            const size_t chunkSize = ReadBE32(data + currentPos + CHUNK_ID_SIZE); 
+            if (chunkSize < sizeof(ChunkHeader) || chunkSize > a_Buf.size() - currentPos)
+            { 
+                return false; 
+            } 
+            auto& child = a_Out.GetChildren().emplace_back(std::make_unique<Chunk>()); 
+            child->SetParent(a_Out); 
+            
+            if (!ParseChunk(*child, a_Buf, currentPos)) 
+            { 
+                return false; 
+            } 
+            currentPos += chunkSize; 
+        } 
+        
+        return true;
+    }
 }

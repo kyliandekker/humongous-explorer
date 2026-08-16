@@ -101,7 +101,7 @@ namespace humongousexplorer::editor
 
 			if (!ptr->GetData().empty())
 			{
-				if (!parsing::ParseChunk(ptr->GetRoot(), ptr->GetData(), 0))
+				if (!parsing::ParseArchive(ptr->GetRoot(), ptr->GetData()))
 				{
 					core::Data xorredData = ptr->GetData();
 
@@ -112,7 +112,7 @@ namespace humongousexplorer::editor
 
 					core::xorShift(data, xorredData.size(), ptr->GetRoot().GetEncryptionKey());
 
-					if (!parsing::ParseChunk(ptr->GetRoot(), xorredData, 0))
+					if (!parsing::ParseArchive(ptr->GetRoot(), xorredData))
 					{
 						LOGF(
 							LogSeverity::LOGSEVERITY_ERROR,
