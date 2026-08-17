@@ -148,5 +148,6 @@ namespace humongousexplorer::parsing
 	constexpr auto INIB_CHUNK_ID = "INIB";
 	constexpr auto NOTE_CHUNK_ID = "NOTE";
 
-	constexpr auto TMSK_CHUNK_ID = "TMSK";
+	constexpr auto WSOU_CHUNK_ID = "WSOU";
+	constexpr auto REMP_CHUNK_ID = "REMP";
 }

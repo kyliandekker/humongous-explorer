@@ -9,6 +9,8 @@ namespace humongousexplorer::parsing
 #define IMXX { SMAP_CHUNK_ID, BMAP_CHUNK_ID, BOMP_CHUNK_ID, ZP00_CHUNK_ID, ZP01_CHUNK_ID, ZP02_CHUNK_ID, ZP03_CHUNK_ID, ZP04_CHUNK_ID, ZP05_CHUNK_ID }
 
 	//---------------------------------------------------------------------
+	// NOTE: This is just a mental note pretty much. We never actually check specifically for chunks.
+	// We just keep track of what chunks are containers and what chunks are pure data.
 	const inline std::unordered_map<std::string, std::vector<std::string>> SCHEMA =
 	{
 		{ LECF_CHUNK_ID, {
@@ -32,6 +34,7 @@ namespace humongousexplorer::parsing
 				AWIZ_CHUNK_ID,
 				TALK_CHUNK_ID,
 				TLKE_CHUNK_ID,
+				WSOU_CHUNK_ID,
 			}
 		},
 		{ ROOM_CHUNK_ID, {
@@ -68,6 +71,10 @@ namespace humongousexplorer::parsing
 				LSC2_CHUNK_ID,
 				LSCR_CHUNK_ID,
 				POLD_CHUNK_ID,
+				BOXD_CHUNK_ID,
+				BOXM_CHUNK_ID,
+				SCAL_CHUNK_ID,
+				REMP_CHUNK_ID,
 			}
 		},
 		{ RMHD_CHUNK_ID, NO_CHILD },
@@ -119,6 +126,12 @@ namespace humongousexplorer::parsing
 				IM15_CHUNK_ID,
 				IM16_CHUNK_ID,
 				IM17_CHUNK_ID,
+				IM0A_CHUNK_ID,
+				IM0B_CHUNK_ID,
+				IM0C_CHUNK_ID,
+				IM0D_CHUNK_ID,
+				IM0E_CHUNK_ID,
+				IM0F_CHUNK_ID,
 			}
 		},
 		{ IM00_CHUNK_ID, IMXX },
@@ -139,6 +152,13 @@ namespace humongousexplorer::parsing
 		{ IM15_CHUNK_ID, IMXX },
 		{ IM16_CHUNK_ID, IMXX },
 		{ IM17_CHUNK_ID, IMXX },
+		{ IM17_CHUNK_ID, IMXX },
+		{ IM0A_CHUNK_ID, IMXX },
+		{ IM0B_CHUNK_ID, IMXX },
+		{ IM0C_CHUNK_ID, IMXX },
+		{ IM0D_CHUNK_ID, IMXX },
+		{ IM0E_CHUNK_ID, IMXX },
+		{ IM0F_CHUNK_ID, IMXX },
 		{ ZP00_CHUNK_ID, NO_CHILD },
 		{ ZP01_CHUNK_ID, NO_CHILD },
 		{ ZP02_CHUNK_ID, NO_CHILD },
@@ -311,6 +331,7 @@ namespace humongousexplorer::parsing
 		{ NOTE_CHUNK_ID, NO_CHILD },
 		{ TLKB_CHUNK_ID, {
 				TALK_CHUNK_ID,
+				SBNG_CHUNK_ID,
 			}
 		},
 		{ SONG_CHUNK_ID, {
@@ -322,30 +343,7 @@ namespace humongousexplorer::parsing
 		{ SGHD_CHUNK_ID, NO_CHILD },
 		{ SGEN_CHUNK_ID , NO_CHILD },
 		{ ANAM_CHUNK_ID , NO_CHILD },
-		{ IM0A_CHUNK_ID, {
-				SMAP_CHUNK_ID,
-			}
-		},
-		{ IM0B_CHUNK_ID, {
-				SMAP_CHUNK_ID,
-			}
-		},
-		{ IM0C_CHUNK_ID, {
-				SMAP_CHUNK_ID,
-			}
-		},
-		{ IM0D_CHUNK_ID, {
-				SMAP_CHUNK_ID,
-			}
-		},
-		{ IM0E_CHUNK_ID, {
-				SMAP_CHUNK_ID,
-			}
-		},
-		{ IM0F_CHUNK_ID, {
-				SMAP_CHUNK_ID,
-			}
-		},
-		{ TMSK_CHUNK_ID, {} },
+		{ WSOU_CHUNK_ID, NO_CHILD },
+		{ REMP_CHUNK_ID, NO_CHILD },
 	};
 }

@@ -124,6 +124,14 @@ namespace humongousexplorer::editor
 				}
 			}
 
+			if (ptr->GetType() == resources::ArchiveType::A)
+			{
+				core::Data xorredData = ptr->GetData();
+				unsigned char* data = xorredData.dataAs<unsigned char>();
+				core::xorShift(data, xorredData.size(), ptr->GetRoot().GetEncryptionKey());
+				file::SaveFile("C:/ekkes/t.txt", xorredData);
+			}
+
 			m_aArchives.push_back(std::move(ptr));
 		}
 
