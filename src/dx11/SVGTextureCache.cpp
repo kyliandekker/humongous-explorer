@@ -2,7 +2,7 @@
 
 #include "core/Data.h"
 #include "dx11/DX11System.h"
-#include "file/SVGParser.h"
+#include "ui/SVGParser.h"
 #include "logger/Logger.h"
 
 namespace humongousexplorer::dx11

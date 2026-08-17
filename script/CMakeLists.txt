@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(HumongousExplorer)
+project(Gallus)
 
 if (MSVC)
     add_compile_options(/MP)
@@ -34,13 +34,5 @@ set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER CMakePredefinedTargets)
 
 # Third-party libraries
 
-# IMGUI
-file(GLOB_RECURSE IMGUI_SOURCES ${CMAKE_SOURCE_DIR}/external/imgui/*.cpp)
-
-add_library(imgui STATIC ${IMGUI_SOURCES})
-target_include_directories(imgui PUBLIC ${CMAKE_SOURCE_DIR}/external/imgui)
-set_target_properties(imgui PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON FOLDER "ThirdParty")
-source_group(TREE ${CMAKE_SOURCE_DIR}/external/imgui PREFIX "" FILES ${IMGUI_SOURCES})
-
 # Include modules
-include(humongousexplorer.cmake)
+include(scripttest.cmake)
