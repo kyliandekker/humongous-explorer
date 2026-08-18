@@ -20,6 +20,7 @@ namespace humongousexplorer::script
 		}
 
 		size_t GetArgumentsSize() const;
+		size_t GetSize() const;
 
 		const std::vector<ScrArgument>& GetArguments() const
 		{

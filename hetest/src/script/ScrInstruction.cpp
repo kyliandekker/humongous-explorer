@@ -21,6 +21,12 @@ namespace humongousexplorer::script
 		}
 		return size;
 	}
+	
+	//---------------------------------------------------------------------
+	size_t ScrInstruction::GetSize() const
+	{
+		return GetArgumentsSize() + 1;
+	}
 
 	//---------------------------------------------------------------------
 	uint8_t ScrInstruction::GetByteCode() const

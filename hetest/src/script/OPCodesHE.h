@@ -15,6 +15,8 @@ namespace humongousexplorer::script
 		std::function<std::unique_ptr<ScrInstruction>(uint8_t, const unsigned char*)> m_fnSize = default_func;
 	};
 
+	using OPCodeMap = std::unordered_map<uint8_t, bytecode>;
+
 	std::unique_ptr<ScrInstruction> extended_b_op(uint8_t a_iByte, const unsigned char* a_pData);
 	std::unique_ptr<ScrInstruction> extended_w_op(uint8_t a_iByte, const unsigned char* a_pData);
 	std::unique_ptr<ScrInstruction> extended_ww_op(uint8_t a_iByte, const unsigned char* a_pData);
@@ -47,11 +49,6 @@ namespace humongousexplorer::script
 	std::unique_ptr<ScrInstruction> ini_op_v71(uint8_t a_iByte, const unsigned char* a_pData);
 	std::unique_ptr<ScrInstruction> file_op(uint8_t a_iByte, const unsigned char* a_pData);
 	std::unique_ptr<ScrInstruction> file_op_he100(uint8_t a_iByte, const unsigned char* a_pData);
-
-	// ============================================================================
-// V6
-// ============================================================================
-	using OPCodeMap = std::unordered_map<uint8_t, bytecode>;
 
 	//---------------------------------------------------------------------
 	inline void GetV6codes(OPCodeMap& a_mOPCodes)
