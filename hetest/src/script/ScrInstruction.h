@@ -19,7 +19,7 @@ namespace humongousexplorer::script
 			m_aArguments.emplace_back(std::forward<Args>(args)...);
 		}
 
-		size_t GetSize() const;
+		size_t GetArgumentsSize() const;
 
 		const std::vector<ScrArgument>& GetArguments() const
 		{

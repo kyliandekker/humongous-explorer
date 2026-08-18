@@ -13,7 +13,7 @@ using namespace humongousexplorer::script;
 using namespace humongousexplorer;
 
 //---------------------------------------------------------------------
-bool CheckJumpValidity(const ScrInstruction& a_Instruction, size_t a_iCmdPos, const core::Data& a_Data)
+bool CheckJumpValidity(const ScrInstruction& a_Instruction, const OPCodeMap& a_mScrCodes, size_t a_iCmdPos, const core::Data& a_Data)
 {
 	size_t cmdSizeTillJump = sizeof(a_Instruction.GetByteCode());
 	for (const ScrArgument& argument : a_Instruction.GetArguments())
@@ -26,6 +26,12 @@ bool CheckJumpValidity(const ScrInstruction& a_Instruction, size_t a_iCmdPos, co
 			int32_t posInScript = endOfArgument + jump;
 
 			if (posInScript < 0 || posInScript >= static_cast<int32_t>(a_Data.size()))
+			{
+				return false;
+			}
+
+			auto it = a_mScrCodes.find(a_Data[posInScript]);
+			if (it == a_mScrCodes.end())
 			{
 				return false;
 			}
@@ -60,9 +66,9 @@ bool ParseScript(const core::Data& a_Data, const OPCodeMap& a_mScrCodes, std::ve
 		a_aInstructions.push_back(it->second.m_fnSize(code, pureDat + 1));
 		ScrInstruction& instruction = *a_aInstructions[a_aInstructions.size() - 1];
 
-		assert(CheckJumpValidity(instruction, tell, a_Data));
+		assert(CheckJumpValidity(instruction, a_mScrCodes, tell, a_Data));
 
-		size_t skip = instruction.GetSize();
+		size_t skip = instruction.GetArgumentsSize();
 		tell += skip + 1;
 	}
 
@@ -89,7 +95,7 @@ bool BuildScript(core::DataStream& a_Data, const OPCodeMap& a_mScrCodes, const s
 	size_t pos = 0;
 	for (const std::unique_ptr<ScrInstruction>& instruction : a_aInstructions)
 	{
-		assert(CheckJumpValidity(*instruction, pos, a_Data));
+		assert(CheckJumpValidity(*instruction, a_mScrCodes, pos, a_Data));
 
 		uint8_t byteCode = instruction->GetByteCode();
 		a_Data.Write(&byteCode, sizeof(byteCode));
@@ -97,7 +103,7 @@ bool BuildScript(core::DataStream& a_Data, const OPCodeMap& a_mScrCodes, const s
 		{
 			a_Data.Write(argument.GetData().data(), argument.GetData().size());
 		}
-		pos += instruction->GetSize() + 1;
+		pos += instruction->GetArgumentsSize() + 1;
 	}
 
 	return true;

@@ -54,4 +54,34 @@ namespace humongousexplorer::script
 
 		return 0;
 	}
+
+	//---------------------------------------------------------------------
+	void ScrArgument::SetData(const core::Data& a_Data)
+	{
+		m_Data = a_Data;
+	}
+
+	//---------------------------------------------------------------------
+	void ScrArgument::SetByte(uint8_t a_iValue)
+	{
+		m_Data = core::Data(&a_iValue, sizeof(uint8_t));
+	}
+
+	//---------------------------------------------------------------------
+	void ScrArgument::SetInt16(int16_t a_iValue)
+	{
+		m_Data = core::Data(&a_iValue, sizeof(int16_t));
+	}
+
+	//---------------------------------------------------------------------
+	void ScrArgument::SetInt32(int32_t a_iValue)
+	{
+		m_Data = core::Data(&a_iValue, sizeof(int32_t));
+	}
+
+	//---------------------------------------------------------------------
+	void ScrArgument::SetString(const std::string& a_sString)
+	{
+		m_Data = core::Data(a_sString.c_str(), a_sString.size() + 1);
+	}
 }

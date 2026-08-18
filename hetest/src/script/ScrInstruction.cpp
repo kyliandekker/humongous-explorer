@@ -12,7 +12,7 @@ namespace humongousexplorer::script
 	{ }
 	
 	//---------------------------------------------------------------------
-	size_t ScrInstruction::GetSize() const
+	size_t ScrInstruction::GetArgumentsSize() const
 	{
 		size_t size = 0;
 		for (const ScrArgument& argument : m_aArguments)
