@@ -31,7 +31,7 @@
 
 #ifdef _DEBUG
 	//---------------------------------------------------------------------
-    std::string ToUpperSnakeCase(const std::string& a_String);
+	std::string ToUpperSnakeCase(const std::string& a_String);
 
 	//---------------------------------------------------------------------
 	template<typename... TArgs>
@@ -61,7 +61,7 @@
 	
 	
 	//---------------------------------------------------------------------
-    bool TextButton(const std::string& a_Label, const ImVec2& a_Size = ImVec2(), const ImVec4& a_Color = ImVec4(1, 1, 1, 1));
+	bool TextButton(const std::string& a_Label, const ImVec2& a_Size = ImVec2(), const ImVec4& a_Color = ImVec4(1, 1, 1, 1));
 
 	//---------------------------------------------------------------------
 	bool Knob(char const* label, float* p_value, float v_min, float v_max, ImVec2 const& size, float default_value);

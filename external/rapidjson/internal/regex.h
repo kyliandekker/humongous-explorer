@@ -1,4 +1,4 @@
-﻿// Tencent is pleased to support the open source community by making RapidJSON available.
+// Tencent is pleased to support the open source community by making RapidJSON available.
 // 
 // Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All rights reserved.
 //
@@ -52,18 +52,18 @@ static const SizeType kRegexInvalidRange = ~SizeType(0);
 //! Regular expression engine with subset of ECMAscript grammar.
 /*!
 	Supported regular expression syntax:
-	- \c ab     Concatenation
-	- \c a|b    Alternation
-	- \c a?     Zero or one
-	- \c a*     Zero or more
-	- \c a+     One or more
+	- \c ab	 Concatenation
+	- \c a|b	Alternation
+	- \c a?	 Zero or one
+	- \c a*	 Zero or more
+	- \c a+	 One or more
 	- \c a{3}   Exactly 3 times
 	- \c a{3,}  At least 3 times
 	- \c a{3,5} 3 to 5 times
 	- \c (ab)   Grouping
-	- \c ^a     At the beginning
-	- \c a$     At the end
-	- \c .      Any character
+	- \c ^a	 At the beginning
+	- \c a$	 At the end
+	- \c .	  Any character
 	- \c [abc]  Character classes
 	- \c [a-c]  Character class range
 	- \c [a-z0-9_] Character class combination
@@ -144,8 +144,8 @@ private:
 	};
 
 	struct State {
-		SizeType out;     //!< Equals to kInvalid for matching state
-		SizeType out1;    //!< Equals to non-kInvalid for split
+		SizeType out;	 //!< Equals to kInvalid for matching state
+		SizeType out1;	//!< Equals to non-kInvalid for split
 		SizeType rangeStart;
 		unsigned codepoint;
 	};
@@ -202,8 +202,8 @@ private:
 	template <typename InputStream>
 	void Parse(DecodedStream<InputStream>& ds) {
 		Allocator allocator;
-		Stack<Allocator> operandStack(&allocator, 256);     // Frag
-		Stack<Allocator> operatorStack(&allocator, 256);    // Operator
+		Stack<Allocator> operandStack(&allocator, 256);	 // Frag
+		Stack<Allocator> operatorStack(&allocator, 256);	// Operator
 		Stack<Allocator> atomCountStack(&allocator, 256);   // unsigned (Atom per parenthesis)
 
 		*atomCountStack.template Push<unsigned>() = 0;
@@ -431,36 +431,36 @@ private:
 		RAPIDJSON_ASSERT(operandStack.GetSize() >= sizeof(Frag));
 
 		if (n == 0) {
-			if (m == 0)                             // a{0} not support
+			if (m == 0)							 // a{0} not support
 				return false;
 			else if (m == kInfinityQuantifier)
-				Eval(operandStack, kZeroOrMore);    // a{0,} -> a*
+				Eval(operandStack, kZeroOrMore);	// a{0,} -> a*
 			else {
-				Eval(operandStack, kZeroOrOne);         // a{0,5} -> a?
+				Eval(operandStack, kZeroOrOne);		 // a{0,5} -> a?
 				for (unsigned i = 0; i < m - 1; i++)
-					CloneTopOperand(operandStack);      // a{0,5} -> a? a? a? a? a?
+					CloneTopOperand(operandStack);	  // a{0,5} -> a? a? a? a? a?
 				for (unsigned i = 0; i < m - 1; i++)
 					Eval(operandStack, kConcatenation); // a{0,5} -> a?a?a?a?a?
 			}
 			return true;
 		}
 
-		for (unsigned i = 0; i < n - 1; i++)        // a{3} -> a a a
+		for (unsigned i = 0; i < n - 1; i++)		// a{3} -> a a a
 			CloneTopOperand(operandStack);
 
 		if (m == kInfinityQuantifier)
-			Eval(operandStack, kOneOrMore);         // a{3,} -> a a a+
+			Eval(operandStack, kOneOrMore);		 // a{3,} -> a a a+
 		else if (m > n) {
-			CloneTopOperand(operandStack);          // a{3,5} -> a a a a
-			Eval(operandStack, kZeroOrOne);         // a{3,5} -> a a a a?
+			CloneTopOperand(operandStack);		  // a{3,5} -> a a a a
+			Eval(operandStack, kZeroOrOne);		 // a{3,5} -> a a a a?
 			for (unsigned i = n; i < m - 1; i++)
-				CloneTopOperand(operandStack);      // a{3,5} -> a a a a? a?
+				CloneTopOperand(operandStack);	  // a{3,5} -> a a a a? a?
 			for (unsigned i = n; i < m; i++)
 				Eval(operandStack, kConcatenation); // a{3,5} -> a a aa?a?
 		}
 
 		for (unsigned i = 0; i < n - 1; i++)
-			Eval(operandStack, kConcatenation);     // a{3} -> aaa, a{3,} -> aaa+, a{3.5} -> aaaa?a?
+			Eval(operandStack, kConcatenation);	 // a{3} -> aaa, a{3,} -> aaa+, a{3.5} -> aaaa?a?
 
 		return true;
 	}
@@ -678,7 +678,7 @@ private:
 	static const unsigned kInfinityQuantifier = ~0u;
 
 	// For SearchWithAnchoring()
-	uint32_t* stateSet_;        // allocated by states_.GetAllocator()
+	uint32_t* stateSet_;		// allocated by states_.GetAllocator()
 	mutable Stack<Allocator> state0_;
 	mutable Stack<Allocator> state1_;
 	bool anchorBegin_;

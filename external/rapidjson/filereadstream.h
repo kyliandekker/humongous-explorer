@@ -1,4 +1,4 @@
-﻿// Tencent is pleased to support the open source community by making RapidJSON available.
+// Tencent is pleased to support the open source community by making RapidJSON available.
 // 
 // Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All rights reserved.
 //
@@ -33,7 +33,7 @@ RAPIDJSON_NAMESPACE_BEGIN
 */
 class FileReadStream {
 public:
-	typedef char Ch;    //!< Character type (byte).
+	typedef char Ch;	//!< Character type (byte).
 
 	//! Constructor.
 	/*!

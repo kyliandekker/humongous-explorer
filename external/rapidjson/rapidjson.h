@@ -1,4 +1,4 @@
-﻿// Tencent is pleased to support the open source community by making RapidJSON available.
+// Tencent is pleased to support the open source community by making RapidJSON available.
 // 
 // Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All rights reserved.
 //
@@ -191,7 +191,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // RAPIDJSON_ENDIAN
 #define RAPIDJSON_LITTLEENDIAN  0   //!< Little endian machine
-#define RAPIDJSON_BIGENDIAN     1   //!< Big endian machine
+#define RAPIDJSON_BIGENDIAN	 1   //!< Big endian machine
 
 //! Endianness of the machine.
 /*!
@@ -209,39 +209,39 @@
 #ifndef RAPIDJSON_ENDIAN
 // Detect with GCC 4.6's macro
 #  ifdef __BYTE_ORDER__
-#    if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-#      define RAPIDJSON_ENDIAN RAPIDJSON_LITTLEENDIAN
-#    elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#      define RAPIDJSON_ENDIAN RAPIDJSON_BIGENDIAN
-#    else
-#      error Unknown machine endianess detected. User needs to define RAPIDJSON_ENDIAN.
-#    endif // __BYTE_ORDER__
+#	if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#	  define RAPIDJSON_ENDIAN RAPIDJSON_LITTLEENDIAN
+#	elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#	  define RAPIDJSON_ENDIAN RAPIDJSON_BIGENDIAN
+#	else
+#	  error Unknown machine endianess detected. User needs to define RAPIDJSON_ENDIAN.
+#	endif // __BYTE_ORDER__
 // Detect with GLIBC's endian.h
 #  elif defined(__GLIBC__)
-#    include <endian.h>
-#    if (__BYTE_ORDER == __LITTLE_ENDIAN)
-#      define RAPIDJSON_ENDIAN RAPIDJSON_LITTLEENDIAN
-#    elif (__BYTE_ORDER == __BIG_ENDIAN)
-#      define RAPIDJSON_ENDIAN RAPIDJSON_BIGENDIAN
-#    else
-#      error Unknown machine endianess detected. User needs to define RAPIDJSON_ENDIAN.
+#	include <endian.h>
+#	if (__BYTE_ORDER == __LITTLE_ENDIAN)
+#	  define RAPIDJSON_ENDIAN RAPIDJSON_LITTLEENDIAN
+#	elif (__BYTE_ORDER == __BIG_ENDIAN)
+#	  define RAPIDJSON_ENDIAN RAPIDJSON_BIGENDIAN
+#	else
+#	  error Unknown machine endianess detected. User needs to define RAPIDJSON_ENDIAN.
 #   endif // __GLIBC__
 // Detect with _LITTLE_ENDIAN and _BIG_ENDIAN macro
 #  elif defined(_LITTLE_ENDIAN) && !defined(_BIG_ENDIAN)
-#    define RAPIDJSON_ENDIAN RAPIDJSON_LITTLEENDIAN
+#	define RAPIDJSON_ENDIAN RAPIDJSON_LITTLEENDIAN
 #  elif defined(_BIG_ENDIAN) && !defined(_LITTLE_ENDIAN)
-#    define RAPIDJSON_ENDIAN RAPIDJSON_BIGENDIAN
+#	define RAPIDJSON_ENDIAN RAPIDJSON_BIGENDIAN
 // Detect with architecture macros
 #  elif defined(__sparc) || defined(__sparc__) || defined(_POWER) || defined(__powerpc__) || defined(__ppc__) || defined(__hpux) || defined(__hppa) || defined(_MIPSEB) || defined(_POWER) || defined(__s390__)
-#    define RAPIDJSON_ENDIAN RAPIDJSON_BIGENDIAN
+#	define RAPIDJSON_ENDIAN RAPIDJSON_BIGENDIAN
 #  elif defined(__i386__) || defined(__alpha__) || defined(__ia64) || defined(__ia64__) || defined(_M_IX86) || defined(_M_IA64) || defined(_M_ALPHA) || defined(__amd64) || defined(__amd64__) || defined(_M_AMD64) || defined(__x86_64) || defined(__x86_64__) || defined(_M_X64) || defined(__bfin__)
-#    define RAPIDJSON_ENDIAN RAPIDJSON_LITTLEENDIAN
+#	define RAPIDJSON_ENDIAN RAPIDJSON_LITTLEENDIAN
 #  elif defined(_MSC_VER) && defined(_M_ARM)
-#    define RAPIDJSON_ENDIAN RAPIDJSON_LITTLEENDIAN
+#	define RAPIDJSON_ENDIAN RAPIDJSON_LITTLEENDIAN
 #  elif defined(RAPIDJSON_DOXYGEN_RUNNING)
-#    define RAPIDJSON_ENDIAN
+#	define RAPIDJSON_ENDIAN
 #  else
-#    error Unknown machine endianess detected. User needs to define RAPIDJSON_ENDIAN.   
+#	error Unknown machine endianess detected. User needs to define RAPIDJSON_ENDIAN.   
 #  endif
 #endif // RAPIDJSON_ENDIAN
 
@@ -522,7 +522,7 @@ RAPIDJSON_NAMESPACE_END
 
 #define RAPIDJSON_DIAG_OFF(x) /* ignored */
 #define RAPIDJSON_DIAG_PUSH   /* ignored */
-#define RAPIDJSON_DIAG_POP    /* ignored */
+#define RAPIDJSON_DIAG_POP	/* ignored */
 
 #endif // RAPIDJSON_DIAG_*
 
@@ -550,7 +550,7 @@ RAPIDJSON_NAMESPACE_END
 #if defined(__clang__)
 #define RAPIDJSON_HAS_CXX11_NOEXCEPT __has_feature(cxx_noexcept)
 #elif (defined(RAPIDJSON_GNUC) && (RAPIDJSON_GNUC >= RAPIDJSON_VERSION_CODE(4,6,0)) && defined(__GXX_EXPERIMENTAL_CXX0X__))
-//    (defined(_MSC_VER) && _MSC_VER >= ????) // not yet supported
+//	(defined(_MSC_VER) && _MSC_VER >= ????) // not yet supported
 #define RAPIDJSON_HAS_CXX11_NOEXCEPT 1
 #else
 #define RAPIDJSON_HAS_CXX11_NOEXCEPT 0
@@ -603,13 +603,13 @@ RAPIDJSON_NAMESPACE_BEGIN
 
 //! Type of JSON value
 enum Type {
-	kNullType = 0,      //!< null
-	kFalseType = 1,     //!< false
-	kTrueType = 2,      //!< true
-	kObjectType = 3,    //!< object
-	kArrayType = 4,     //!< array 
-	kStringType = 5,    //!< string
-	kNumberType = 6     //!< number
+	kNullType = 0,	  //!< null
+	kFalseType = 1,	 //!< false
+	kTrueType = 2,	  //!< true
+	kObjectType = 3,	//!< object
+	kArrayType = 4,	 //!< array 
+	kStringType = 5,	//!< string
+	kNumberType = 6	 //!< number
 };
 
 RAPIDJSON_NAMESPACE_END

@@ -1,4 +1,4 @@
-﻿// Tencent is pleased to support the open source community by making RapidJSON available.
+// Tencent is pleased to support the open source community by making RapidJSON available.
 // 
 // Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All rights reserved.
 //
@@ -62,31 +62,31 @@ RAPIDJSON_NAMESPACE_BEGIN
 	\see GenericReader::Parse, GenericReader::GetParseErrorCode
 */
 enum ParseErrorCode {
-	kParseErrorNone = 0,                        //!< No error.
+	kParseErrorNone = 0,						//!< No error.
 
-	kParseErrorDocumentEmpty,                   //!< The document is empty.
-	kParseErrorDocumentRootNotSingular,         //!< The document root must not follow by other values.
+	kParseErrorDocumentEmpty,				   //!< The document is empty.
+	kParseErrorDocumentRootNotSingular,		 //!< The document root must not follow by other values.
 
-	kParseErrorValueInvalid,                    //!< Invalid value.
+	kParseErrorValueInvalid,					//!< Invalid value.
 
-	kParseErrorObjectMissName,                  //!< Missing a name for object member.
-	kParseErrorObjectMissColon,                 //!< Missing a colon after a name of object member.
+	kParseErrorObjectMissName,				  //!< Missing a name for object member.
+	kParseErrorObjectMissColon,				 //!< Missing a colon after a name of object member.
 	kParseErrorObjectMissCommaOrCurlyBracket,   //!< Missing a comma or '}' after an object member.
 
 	kParseErrorArrayMissCommaOrSquareBracket,   //!< Missing a comma or ']' after an array element.
 
 	kParseErrorStringUnicodeEscapeInvalidHex,   //!< Incorrect hex digit after \\u escape in string.
 	kParseErrorStringUnicodeSurrogateInvalid,   //!< The surrogate pair in string is invalid.
-	kParseErrorStringEscapeInvalid,             //!< Invalid escape character in string.
-	kParseErrorStringMissQuotationMark,         //!< Missing a closing quotation mark in string.
-	kParseErrorStringInvalidEncoding,           //!< Invalid encoding in string.
+	kParseErrorStringEscapeInvalid,			 //!< Invalid escape character in string.
+	kParseErrorStringMissQuotationMark,		 //!< Missing a closing quotation mark in string.
+	kParseErrorStringInvalidEncoding,		   //!< Invalid encoding in string.
 
-	kParseErrorNumberTooBig,                    //!< Number too big to be stored in double.
-	kParseErrorNumberMissFraction,              //!< Miss fraction part in number.
-	kParseErrorNumberMissExponent,              //!< Miss exponent in number.
+	kParseErrorNumberTooBig,					//!< Number too big to be stored in double.
+	kParseErrorNumberMissFraction,			  //!< Miss fraction part in number.
+	kParseErrorNumberMissExponent,			  //!< Miss exponent in number.
 
-	kParseErrorTermination,                     //!< Parsing was terminated.
-	kParseErrorUnspecificSyntaxError            //!< Unspecific syntax error.
+	kParseErrorTermination,					 //!< Parsing was terminated.
+	kParseErrorUnspecificSyntaxError			//!< Unspecific syntax error.
 };
 
 //! Result of parsing (wraps ParseErrorCode)

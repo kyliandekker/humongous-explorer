@@ -1,4 +1,4 @@
-﻿// Tencent is pleased to support the open source community by making RapidJSON available.
+// Tencent is pleased to support the open source community by making RapidJSON available.
 // 
 // Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All rights reserved.
 //
@@ -37,12 +37,12 @@ static const SizeType kPointerInvalidIndex = ~SizeType(0);  //!< Represents an i
 	\see GenericPointer::GenericPointer, GenericPointer::GetParseErrorCode
 */
 enum PointerParseErrorCode {
-	kPointerParseErrorNone = 0,                     //!< The parse is successful
+	kPointerParseErrorNone = 0,					 //!< The parse is successful
 
-	kPointerParseErrorTokenMustBeginWithSolidus,    //!< A token must begin with a '/'
-	kPointerParseErrorInvalidEscape,                //!< Invalid escape
-	kPointerParseErrorInvalidPercentEncoding,       //!< Invalid percent encoding in URI fragment
-	kPointerParseErrorCharacterMustPercentEncode    //!< A character must percent encoded in URI fragment
+	kPointerParseErrorTokenMustBeginWithSolidus,	//!< A token must begin with a '/'
+	kPointerParseErrorInvalidEscape,				//!< Invalid escape
+	kPointerParseErrorInvalidPercentEncoding,	   //!< Invalid percent encoding in URI fragment
+	kPointerParseErrorCharacterMustPercentEncode	//!< A character must percent encoded in URI fragment
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -81,7 +81,7 @@ template <typename ValueType, typename Allocator = CrtAllocator>
 class GenericPointer {
 public:
 	typedef typename ValueType::EncodingType EncodingType;  //!< Encoding type from Value
-	typedef typename ValueType::Ch Ch;                      //!< Character type from Value
+	typedef typename ValueType::Ch Ch;					  //!< Character type from Value
 
 	//! A token is the basic units of internal representation.
 	/*!
@@ -97,9 +97,9 @@ public:
 		allocation, using a special constructor.
 	*/
 	struct Token {
-		const Ch* name;             //!< Name of the token. It has null character at the end but it can contain null character.
-		SizeType length;            //!< Length of the name.
-		SizeType index;             //!< A valid array index, if it is not equal to kPointerInvalidIndex.
+		const Ch* name;			 //!< Name of the token. It has null character at the end but it can contain null character.
+		SizeType length;			//!< Length of the name.
+		SizeType index;			 //!< A valid array index, if it is not equal to kPointerInvalidIndex.
 	};
 
 	//!@name Constructors and destructor.
@@ -171,7 +171,7 @@ public:
 
 	//! Destructor.
 	~GenericPointer() {
-		if (nameBuffer_)    // If user-supplied tokens constructor is used, nameBuffer_ is nullptr and tokens_ are not deallocated.
+		if (nameBuffer_)	// If user-supplied tokens constructor is used, nameBuffer_ is nullptr and tokens_ are not deallocated.
 			Allocator::Free(tokens_);
 		RAPIDJSON_DELETE(ownAllocator_);
 	}
@@ -872,7 +872,7 @@ private:
 				if (c == '~') {
 					if (i < length) {
 						c = source[i];
-						if (c == '0')       c = '~';
+						if (c == '0')	   c = '~';
 						else if (c == '1')  c = '/';
 						else {
 							parseErrorCode_ = kPointerParseErrorInvalidEscape;
@@ -998,7 +998,7 @@ private:
 			for (int j = 0; j < 2; j++) {
 				c = static_cast<Ch>(c << 4);
 				Ch h = *src_;
-				if      (h >= '0' && h <= '9') c = static_cast<Ch>(c + h - '0');
+				if	  (h >= '0' && h <= '9') c = static_cast<Ch>(c + h - '0');
 				else if (h >= 'A' && h <= 'F') c = static_cast<Ch>(c + h - 'A' + 10);
 				else if (h >= 'a' && h <= 'f') c = static_cast<Ch>(c + h - 'a' + 10);
 				else {
@@ -1014,10 +1014,10 @@ private:
 		bool IsValid() const { return valid_; }
 
 	private:
-		const Ch* src_;     //!< Current read position.
-		const Ch* head_;    //!< Original head of the string.
-		const Ch* end_;     //!< Past-the-end position.
-		bool valid_;        //!< Whether the parsing is valid.
+		const Ch* src_;	 //!< Current read position.
+		const Ch* head_;	//!< Original head of the string.
+		const Ch* end_;	 //!< Past-the-end position.
+		bool valid_;		//!< Whether the parsing is valid.
 	};
 
 	//! A helper stream to encode character (UTF-8 code unit) into percent-encoded sequence.
@@ -1036,12 +1036,12 @@ private:
 		OutputStream& os_;
 	};
 
-	Allocator* allocator_;                  //!< The current allocator. It is either user-supplied or equal to ownAllocator_.
-	Allocator* ownAllocator_;               //!< Allocator owned by this Pointer.
-	Ch* nameBuffer_;                        //!< A buffer containing all names in tokens.
-	Token* tokens_;                         //!< A list of tokens.
-	size_t tokenCount_;                     //!< Number of tokens in tokens_.
-	size_t parseErrorOffset_;               //!< Offset in code unit when parsing fail.
+	Allocator* allocator_;				  //!< The current allocator. It is either user-supplied or equal to ownAllocator_.
+	Allocator* ownAllocator_;			   //!< Allocator owned by this Pointer.
+	Ch* nameBuffer_;						//!< A buffer containing all names in tokens.
+	Token* tokens_;						 //!< A list of tokens.
+	size_t tokenCount_;					 //!< Number of tokens in tokens_.
+	size_t parseErrorOffset_;			   //!< Offset in code unit when parsing fail.
 	PointerParseErrorCode parseErrorCode_;  //!< Parsing error code.
 };
 

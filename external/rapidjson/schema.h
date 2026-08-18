@@ -1,4 +1,4 @@
-﻿// Tencent is pleased to support the open source community by making RapidJSON available->
+// Tencent is pleased to support the open source community by making RapidJSON available->
 // 
 // Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip-> All rights reserved->
 //
@@ -177,7 +177,7 @@ public:
 	bool Double(double d) { 
 		Number n; 
 		if (d < 0) n.u.i = static_cast<int64_t>(d);
-		else       n.u.u = static_cast<uint64_t>(d); 
+		else	   n.u.u = static_cast<uint64_t>(d); 
 		n.d = d;
 		return WriteNumber(n);
 	}
@@ -1037,7 +1037,7 @@ private:
 #endif // RAPIDJSON_SCHEMA_USE_STDREGEX
 
 	void AddType(const ValueType& type) {
-		if      (type == GetNullString()   ) type_ |= 1 << kNullSchemaType;
+		if	  (type == GetNullString()   ) type_ |= 1 << kNullSchemaType;
 		else if (type == GetBooleanString()) type_ |= 1 << kBooleanSchemaType;
 		else if (type == GetObjectString() ) type_ |= 1 << kObjectSchemaType;
 		else if (type == GetArrayString()  ) type_ |= 1 << kArraySchemaType;
@@ -1521,7 +1521,7 @@ private:
 	IRemoteSchemaDocumentProviderType* remoteProvider_;
 	Allocator *allocator_;
 	Allocator *ownAllocator_;
-	const SchemaType* root_;                //!< Root schema.
+	const SchemaType* root_;				//!< Root schema.
 	internal::Stack<Allocator> schemaMap_;  // Stores created Pointer -> Schemas
 	internal::Stack<Allocator> schemaRef_;  // Stores Pointer from $ref and schema which holds the $ref
 };
@@ -1684,11 +1684,11 @@ RAPIDJSON_MULTILINEMACRO_END
 #define RAPIDJSON_SCHEMA_HANDLE_VALUE_(method, arg1, arg2) \
 	RAPIDJSON_SCHEMA_HANDLE_BEGIN_   (method, arg1);\
 	RAPIDJSON_SCHEMA_HANDLE_PARALLEL_(method, arg2);\
-	RAPIDJSON_SCHEMA_HANDLE_END_     (method, arg2)
+	RAPIDJSON_SCHEMA_HANDLE_END_	 (method, arg2)
 
-	bool Null()             { RAPIDJSON_SCHEMA_HANDLE_VALUE_(Null,   (CurrentContext()   ), ( )); }
-	bool Bool(bool b)       { RAPIDJSON_SCHEMA_HANDLE_VALUE_(Bool,   (CurrentContext(), b), (b)); }
-	bool Int(int i)         { RAPIDJSON_SCHEMA_HANDLE_VALUE_(Int,    (CurrentContext(), i), (i)); }
+	bool Null()			 { RAPIDJSON_SCHEMA_HANDLE_VALUE_(Null,   (CurrentContext()   ), ( )); }
+	bool Bool(bool b)	   { RAPIDJSON_SCHEMA_HANDLE_VALUE_(Bool,   (CurrentContext(), b), (b)); }
+	bool Int(int i)		 { RAPIDJSON_SCHEMA_HANDLE_VALUE_(Int,	(CurrentContext(), i), (i)); }
 	bool Uint(unsigned u)   { RAPIDJSON_SCHEMA_HANDLE_VALUE_(Uint,   (CurrentContext(), u), (u)); }
 	bool Int64(int64_t i)   { RAPIDJSON_SCHEMA_HANDLE_VALUE_(Int64,  (CurrentContext(), i), (i)); }
 	bool Uint64(uint64_t u) { RAPIDJSON_SCHEMA_HANDLE_VALUE_(Uint64, (CurrentContext(), u), (u)); }
@@ -1921,7 +1921,7 @@ private:
 	OutputHandler& outputHandler_;
 	StateAllocator* stateAllocator_;
 	StateAllocator* ownStateAllocator_;
-	internal::Stack<StateAllocator> schemaStack_;    //!< stack to store the current path of schema (BaseSchemaType *)
+	internal::Stack<StateAllocator> schemaStack_;	//!< stack to store the current path of schema (BaseSchemaType *)
 	internal::Stack<StateAllocator> documentStack_;  //!< stack to store the current path of validating document (Ch)
 	bool valid_;
 #if RAPIDJSON_SCHEMA_VERBOSE

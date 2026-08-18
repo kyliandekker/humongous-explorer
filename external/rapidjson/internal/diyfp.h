@@ -1,4 +1,4 @@
-﻿// Tencent is pleased to support the open source community by making RapidJSON available.
+// Tencent is pleased to support the open source community by making RapidJSON available.
 // 
 // Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All rights reserved.
 //
@@ -214,7 +214,7 @@ inline DiyFp GetCachedPowerByIndex(size_t index) {
 		-954,  -927,  -901,  -874,  -847,  -821,  -794,  -768,  -741,  -715,
 		-688,  -661,  -635,  -608,  -582,  -555,  -529,  -502,  -475,  -449,
 		-422,  -396,  -369,  -343,  -316,  -289,  -263,  -236,  -210,  -183,
-		-157,  -130,  -103,   -77,   -50,   -24,     3,    30,    56,    83,
+		-157,  -130,  -103,   -77,   -50,   -24,	 3,	30,	56,	83,
 		109,   136,   162,   189,   216,   242,   269,   295,   322,   348,
 		375,   402,   428,   455,   481,   508,   534,   561,   588,   614,
 		641,   667,   694,   720,   747,   774,   800,   827,   853,   880,
@@ -232,7 +232,7 @@ inline DiyFp GetCachedPower(int e, int* K) {
 		k++;
 
 	unsigned index = static_cast<unsigned>((k >> 3) + 1);
-	*K = -(-348 + static_cast<int>(index << 3));    // decimal exponent no need lookup table
+	*K = -(-348 + static_cast<int>(index << 3));	// decimal exponent no need lookup table
 
 	return GetCachedPowerByIndex(index);
 }

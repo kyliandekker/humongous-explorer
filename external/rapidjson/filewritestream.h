@@ -1,4 +1,4 @@
-﻿// Tencent is pleased to support the open source community by making RapidJSON available.
+// Tencent is pleased to support the open source community by making RapidJSON available.
 // 
 // Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All rights reserved.
 //
@@ -31,7 +31,7 @@ RAPIDJSON_NAMESPACE_BEGIN
 */
 class FileWriteStream {
 public:
-	typedef char Ch;    //!< Character type. Only support char.
+	typedef char Ch;	//!< Character type. Only support char.
 
 	FileWriteStream(std::FILE* fp, char* buffer, size_t bufferSize) : fp_(fp), buffer_(buffer), bufferEnd_(buffer + bufferSize), current_(buffer_) { 
 		RAPIDJSON_ASSERT(fp_ != 0);

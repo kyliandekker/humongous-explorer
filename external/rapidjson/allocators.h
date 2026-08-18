@@ -1,4 +1,4 @@
-﻿// Tencent is pleased to support the open source community by making RapidJSON available.
+// Tencent is pleased to support the open source community by making RapidJSON available.
 // 
 // Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All rights reserved.
 //
@@ -32,7 +32,7 @@ RAPIDJSON_NAMESPACE_BEGIN
 
 \code
 concept Allocator {
-	static const bool kNeedFree;    //!< Whether this allocator needs to call Free().
+	static const bool kNeedFree;	//!< Whether this allocator needs to call Free().
 
 	// Allocate a memory block.
 	// \param size of the memory block in bytes.
@@ -101,7 +101,7 @@ public:
 template <typename BaseAllocator = CrtAllocator>
 class MemoryPoolAllocator {
 public:
-	static const bool kNeedFree = false;    //!< Tell users that no need to call Free() with this allocator. (concept Allocator)
+	static const bool kNeedFree = false;	//!< Tell users that no need to call Free() with this allocator. (concept Allocator)
 
 	//! Constructor with chunkSize.
 	/*! \param chunkSize The size of memory chunk. The default is kDefaultChunkSize.
@@ -254,14 +254,14 @@ private:
 	/*! Chunks are stored as a singly linked list.
 	*/
 	struct ChunkHeader {
-		size_t capacity;    //!< Capacity of the chunk in bytes (excluding the header itself).
-		size_t size;        //!< Current size of allocated memory in bytes.
+		size_t capacity;	//!< Capacity of the chunk in bytes (excluding the header itself).
+		size_t size;		//!< Current size of allocated memory in bytes.
 		ChunkHeader *next;  //!< Next chunk in the linked list.
 	};
 
-	ChunkHeader *chunkHead_;    //!< Head of the chunk linked-list. Only the head chunk serves allocation.
-	size_t chunk_capacity_;     //!< The minimum capacity of chunk when they are allocated.
-	void *userBuffer_;          //!< User supplied buffer.
+	ChunkHeader *chunkHead_;	//!< Head of the chunk linked-list. Only the head chunk serves allocation.
+	size_t chunk_capacity_;	 //!< The minimum capacity of chunk when they are allocated.
+	void *userBuffer_;		  //!< User supplied buffer.
 	BaseAllocator* baseAllocator_;  //!< base allocator for allocating memory chunks.
 	BaseAllocator* ownBaseAllocator_;   //!< base allocator created by this object.
 };

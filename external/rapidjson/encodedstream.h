@@ -1,4 +1,4 @@
-﻿// Tencent is pleased to support the open source community by making RapidJSON available.
+// Tencent is pleased to support the open source community by making RapidJSON available.
 // 
 // Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All rights reserved.
 //
@@ -143,7 +143,7 @@ public:
 		\param type UTF encoding type if it is not detected from the stream.
 	*/
 	AutoUTFInputStream(InputByteStream& is, UTFType type = kUTF8) : is_(&is), type_(type), hasBOM_(false) {
-		RAPIDJSON_ASSERT(type >= kUTF8 && type <= kUTF32BE);        
+		RAPIDJSON_ASSERT(type >= kUTF8 && type <= kUTF32BE);		
 		DetectType();
 		static const TakeFunc f[] = { RAPIDJSON_ENCODINGS_FUNC(Take) };
 		takeFunc_ = f[type_];
@@ -172,9 +172,9 @@ private:
 		// BOM (Byte Order Mark):
 		// 00 00 FE FF  UTF-32BE
 		// FF FE 00 00  UTF-32LE
-		// FE FF        UTF-16BE
-		// FF FE        UTF-16LE
-		// EF BB BF     UTF-8
+		// FE FF		UTF-16BE
+		// FF FE		UTF-16LE
+		// EF BB BF	 UTF-8
 
 		const unsigned char* c = reinterpret_cast<const unsigned char *>(is_->Peek4());
 		if (!c)
@@ -182,11 +182,11 @@ private:
 
 		unsigned bom = static_cast<unsigned>(c[0] | (c[1] << 8) | (c[2] << 16) | (c[3] << 24));
 		hasBOM_ = false;
-		if (bom == 0xFFFE0000)                  { type_ = kUTF32BE; hasBOM_ = true; is_->Take(); is_->Take(); is_->Take(); is_->Take(); }
-		else if (bom == 0x0000FEFF)             { type_ = kUTF32LE; hasBOM_ = true; is_->Take(); is_->Take(); is_->Take(); is_->Take(); }
-		else if ((bom & 0xFFFF) == 0xFFFE)      { type_ = kUTF16BE; hasBOM_ = true; is_->Take(); is_->Take();                           }
-		else if ((bom & 0xFFFF) == 0xFEFF)      { type_ = kUTF16LE; hasBOM_ = true; is_->Take(); is_->Take();                           }
-		else if ((bom & 0xFFFFFF) == 0xBFBBEF)  { type_ = kUTF8;    hasBOM_ = true; is_->Take(); is_->Take(); is_->Take();              }
+		if (bom == 0xFFFE0000)				  { type_ = kUTF32BE; hasBOM_ = true; is_->Take(); is_->Take(); is_->Take(); is_->Take(); }
+		else if (bom == 0x0000FEFF)			 { type_ = kUTF32LE; hasBOM_ = true; is_->Take(); is_->Take(); is_->Take(); is_->Take(); }
+		else if ((bom & 0xFFFF) == 0xFFFE)	  { type_ = kUTF16BE; hasBOM_ = true; is_->Take(); is_->Take();						   }
+		else if ((bom & 0xFFFF) == 0xFEFF)	  { type_ = kUTF16LE; hasBOM_ = true; is_->Take(); is_->Take();						   }
+		else if ((bom & 0xFFFFFF) == 0xBFBBEF)  { type_ = kUTF8;	hasBOM_ = true; is_->Take(); is_->Take(); is_->Take();			  }
 
 		// RFC 4627: Section 3
 		// "Since the first two characters of a JSON text will always be ASCII
@@ -206,7 +206,7 @@ private:
 			case 0x0A: type_ = kUTF16BE; break;
 			case 0x01: type_ = kUTF32LE; break;
 			case 0x05: type_ = kUTF16LE; break;
-			case 0x0F: type_ = kUTF8;    break;
+			case 0x0F: type_ = kUTF8;	break;
 			default: break; // Use type defined by user.
 			}
 		}

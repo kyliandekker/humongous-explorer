@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <rapidjson/document.h>
 #include <string>
@@ -92,8 +92,8 @@ namespace rapidjson
 		}
 		else
 		{
-			Value key(name, allocator);        // copy the key string
-			Value val(value, allocator);       // copy the value string
+			Value key(name, allocator);		// copy the key string
+			Value val(value, allocator);	   // copy the value string
 			obj.AddMember(key, val, allocator);
 		}
 	}

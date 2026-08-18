@@ -156,7 +156,7 @@ typedef struct NSVGshape
 	char strokeLineCap;			// Stroke cap type.
 	float miterLimit;			// Miter limit
 	char fillRule;				// Fill rule, see NSVGfillRule.
-    unsigned char paintOrder;	// Encoded paint order (3×2-bit fields) see NSVGpaintOrder
+	unsigned char paintOrder;	// Encoded paint order (3Ã—2-bit fields) see NSVGpaintOrder
 	unsigned char flags;		// Logical or of NSVG_FLAGS_* flags
 	float bounds[4];			// Tight bounding box of the shape [minx,miny,maxx,maxy].
 	char fillGradient[64];		// Optional 'id' of fill gradient
@@ -445,7 +445,7 @@ typedef struct NSVGattrib
 	char hasFill;
 	char hasStroke;
 	char visible;
-    unsigned char paintOrder;
+	unsigned char paintOrder;
 } NSVGattrib;
 
 typedef struct NSVGstyleDeclaration
@@ -633,7 +633,7 @@ static void nsvg__curveBounds(float* bounds, float* curve)
 }
 
 static unsigned char nsvg__encodePaintOrder(enum NSVGpaintOrder a, enum NSVGpaintOrder b, enum NSVGpaintOrder c) {
-    return (a & 0x03) | ((b & 0x03) << 2) | ((c & 0x03) << 4);
+	return (a & 0x03) | ((b & 0x03) << 2) | ((c & 0x03) << 4);
 }
 
 static NSVGparser* nsvg__createParser(void)
@@ -663,7 +663,7 @@ static NSVGparser* nsvg__createParser(void)
 	p->attr[0].fillRule = NSVG_FILLRULE_NONZERO;
 	p->attr[0].hasFill = 1;
 	p->attr[0].visible = 1;
-    p->attr[0].paintOrder = nsvg__encodePaintOrder(NSVG_PAINT_FILL, NSVG_PAINT_STROKE, NSVG_PAINT_MARKERS);
+	p->attr[0].paintOrder = nsvg__encodePaintOrder(NSVG_PAINT_FILL, NSVG_PAINT_STROKE, NSVG_PAINT_MARKERS);
 
 	return p;
 
@@ -1005,7 +1005,7 @@ static void nsvg__addShape(NSVGparser* p)
 	shape->miterLimit = attr->miterLimit;
 	shape->fillRule = attr->fillRule;
 	shape->opacity = attr->opacity;
-    shape->paintOrder = attr->paintOrder;
+	shape->paintOrder = attr->paintOrder;
 
 	shape->paths = p->plist;
 	p->plist = NULL;
@@ -2941,9 +2941,9 @@ static void nsvg__content(void* ud, const char* s)
 		int i;
 
 		// 1) Parse the selector list up to '{'. For each simple class selector ('.name'),
-		//    allocate a new NSVGstyleDeclaration into the local staging array. Styles are
-		//    only committed to p->styles in step 3 below, once their propertiesText has
-		//    also been allocated successfully.
+		//	allocate a new NSVGstyleDeclaration into the local staging array. Styles are
+		//	only committed to p->styles in step 3 below, once their propertiesText has
+		//	also been allocated successfully.
 		while (*s && *s != '{') {
 			const char* selStart;
 			const char* selEnd;
@@ -2992,7 +2992,7 @@ static void nsvg__content(void* ud, const char* s)
 		propsEnd = s;
 
 		// 3) Allocate propertiesText for each pending style. Commit successful ones to
-		//    p->styles (head-insertion); free any whose allocation fails.
+		//	p->styles (head-insertion); free any whose allocation fails.
 		for (i = 0; i < nstyles; i++) {
 			styles[i]->propertiesText = nsvg__strndup(propsStart, (size_t)(propsEnd - propsStart));
 			if (styles[i]->propertiesText == NULL) {
@@ -3229,32 +3229,32 @@ error:
 
 NSVGpath* nsvgDuplicatePath(NSVGpath* p)
 {
-    NSVGpath* res = NULL;
+	NSVGpath* res = NULL;
 
-    if (p == NULL)
-        return NULL;
+	if (p == NULL)
+		return NULL;
 
-    res = (NSVGpath*)malloc(sizeof(NSVGpath));
-    if (res == NULL) goto error;
-    memset(res, 0, sizeof(NSVGpath));
+	res = (NSVGpath*)malloc(sizeof(NSVGpath));
+	if (res == NULL) goto error;
+	memset(res, 0, sizeof(NSVGpath));
 
-    res->pts = (float*)malloc(p->npts*2*sizeof(float));
-    if (res->pts == NULL) goto error;
-    memcpy(res->pts, p->pts, p->npts * sizeof(float) * 2);
-    res->npts = p->npts;
+	res->pts = (float*)malloc(p->npts*2*sizeof(float));
+	if (res->pts == NULL) goto error;
+	memcpy(res->pts, p->pts, p->npts * sizeof(float) * 2);
+	res->npts = p->npts;
 
-    memcpy(res->bounds, p->bounds, sizeof(p->bounds));
+	memcpy(res->bounds, p->bounds, sizeof(p->bounds));
 
-    res->closed = p->closed;
+	res->closed = p->closed;
 
-    return res;
+	return res;
 
 error:
-    if (res != NULL) {
-        free(res->pts);
-        free(res);
-    }
-    return NULL;
+	if (res != NULL) {
+		free(res->pts);
+		free(res);
+	}
+	return NULL;
 }
 
 void nsvgDelete(NSVGimage* image)

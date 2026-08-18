@@ -1,4 +1,4 @@
-﻿// Tencent is pleased to support the open source community by making RapidJSON available.
+// Tencent is pleased to support the open source community by making RapidJSON available.
 // 
 // Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All rights reserved.
 //
@@ -56,10 +56,10 @@ struct MemoryStream {
 		return Tell() + 4 <= size_ ? src_ : 0;
 	}
 
-	const Ch* src_;     //!< Current read position.
+	const Ch* src_;	 //!< Current read position.
 	const Ch* begin_;   //!< Original head of the string.
-	const Ch* end_;     //!< End of stream.
-	size_t size_;       //!< Size of the stream.
+	const Ch* end_;	 //!< End of stream.
+	size_t size_;	   //!< Size of the stream.
 };
 
 RAPIDJSON_NAMESPACE_END

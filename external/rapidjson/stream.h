@@ -1,4 +1,4 @@
-﻿// Tencent is pleased to support the open source community by making RapidJSON available.
+// Tencent is pleased to support the open source community by making RapidJSON available.
 // 
 // Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All rights reserved.
 //
@@ -33,7 +33,7 @@ RAPIDJSON_NAMESPACE_BEGIN
 
 \code
 concept Stream {
-	typename Ch;    //!< Character type of the stream.
+	typename Ch;	//!< Character type of the stream.
 
 	//! Read the current character from stream without moving the read cursor.
 	Ch Peek() const;
@@ -121,8 +121,8 @@ struct GenericStringStream {
 	void Flush() { RAPIDJSON_ASSERT(false); }
 	size_t PutEnd(Ch*) { RAPIDJSON_ASSERT(false); return 0; }
 
-	const Ch* src_;     //!< Current read position.
-	const Ch* head_;    //!< Original head of the string.
+	const Ch* src_;	 //!< Current read position.
+	const Ch* head_;	//!< Original head of the string.
 };
 
 template <typename Encoding>

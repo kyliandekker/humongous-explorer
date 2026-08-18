@@ -1,4 +1,4 @@
-﻿// Tencent is pleased to support the open source community by making RapidJSON available.
+// Tencent is pleased to support the open source community by making RapidJSON available.
 // 
 // Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All rights reserved.
 //
@@ -37,7 +37,7 @@ RAPIDJSON_NAMESPACE_BEGIN
 
 \code
 concept Encoding {
-	typename Ch;    //! Type of character. A "character" is actually a code unit in unicode's definition.
+	typename Ch;	//! Type of character. A "character" is actually a code unit in unicode's definition.
 
 	enum { supportUnicode = 1 }; // or 0 if not supporting unicode
 
@@ -601,11 +601,11 @@ struct ASCII {
 
 //! Runtime-specified UTF encoding type of a stream.
 enum UTFType {
-	kUTF8 = 0,      //!< UTF-8.
+	kUTF8 = 0,	  //!< UTF-8.
 	kUTF16LE = 1,   //!< UTF-16 little endian.
 	kUTF16BE = 2,   //!< UTF-16 big endian.
 	kUTF32LE = 3,   //!< UTF-32 little endian.
-	kUTF32BE = 4    //!< UTF-32 big endian.
+	kUTF32BE = 4	//!< UTF-32 big endian.
 };
 
 //! Dynamically select encoding according to stream's runtime-specified UTF encoding type.

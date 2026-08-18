@@ -1,4 +1,4 @@
-﻿// Tencent is pleased to support the open source community by making RapidJSON available.
+// Tencent is pleased to support the open source community by making RapidJSON available.
 // 
 // Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All rights reserved.
 //
@@ -71,13 +71,13 @@ inline void DigitGen(const DiyFp& W, const DiyFp& Mp, uint64_t delta, char* buff
 		switch (kappa) {
 			case  9: d = p1 /  100000000; p1 %=  100000000; break;
 			case  8: d = p1 /   10000000; p1 %=   10000000; break;
-			case  7: d = p1 /    1000000; p1 %=    1000000; break;
-			case  6: d = p1 /     100000; p1 %=     100000; break;
-			case  5: d = p1 /      10000; p1 %=      10000; break;
-			case  4: d = p1 /       1000; p1 %=       1000; break;
-			case  3: d = p1 /        100; p1 %=        100; break;
-			case  2: d = p1 /         10; p1 %=         10; break;
-			case  1: d = p1;              p1 =           0; break;
+			case  7: d = p1 /	1000000; p1 %=	1000000; break;
+			case  6: d = p1 /	 100000; p1 %=	 100000; break;
+			case  5: d = p1 /	  10000; p1 %=	  10000; break;
+			case  4: d = p1 /	   1000; p1 %=	   1000; break;
+			case  3: d = p1 /		100; p1 %=		100; break;
+			case  2: d = p1 /		 10; p1 %=		 10; break;
+			case  1: d = p1;			  p1 =		   0; break;
 			default:;
 		}
 		if (d || *len)
@@ -218,7 +218,7 @@ inline char* dtoa(double value, char* buffer, int maxDecimalPlaces = 324) {
 	Double d(value);
 	if (d.IsZero()) {
 		if (d.Sign())
-			*buffer++ = '-';     // -0.0, Issue #289
+			*buffer++ = '-';	 // -0.0, Issue #289
 		buffer[0] = '0';
 		buffer[1] = '.';
 		buffer[2] = '0';

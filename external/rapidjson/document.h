@@ -25,7 +25,7 @@
 #include "internal/strfunc.h"
 #include "memorystream.h"
 #include "encodedstream.h"
-#include <new>      // placement new
+#include <new>	  // placement new
 #include <limits>
 
 RAPIDJSON_DIAG_PUSH
@@ -73,8 +73,8 @@ class GenericDocument;
 template <typename Encoding, typename Allocator>
 struct GenericMember
 {
-	GenericValue<Encoding, Allocator> name;     //!< name of member (must be a string)
-	GenericValue<Encoding, Allocator> value;    //!< value of member.
+	GenericValue<Encoding, Allocator> name;	 //!< name of member (must be a string)
+	GenericValue<Encoding, Allocator> value;	//!< value of member.
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ struct GenericMember
 //! (Constant) member iterator for a JSON object value
 /*!
 	\tparam Const Is this a constant iterator?
-	\tparam Encoding    Encoding of the value. (Even non-string values need to have the same encoding in a document)
+	\tparam Encoding	Encoding of the value. (Even non-string values need to have the same encoding in a document)
 	\tparam Allocator   Allocator type for allocating memory of object, array and string.
 
 	This class implements a Random Access Iterator for GenericMember elements
@@ -123,9 +123,9 @@ public:
 	typedef GenericMemberIterator<false, Encoding, Allocator> NonConstIterator;
 
 	//! Pointer to (const) GenericMember
-	typedef typename BaseType::pointer         Pointer;
+	typedef typename BaseType::pointer		 Pointer;
 	//! Reference to (const) GenericMember
-	typedef typename BaseType::reference       Reference;
+	typedef typename BaseType::reference	   Reference;
 	//! Signed integer type (e.g. \c ptrdiff_t)
 	typedef typename BaseType::difference_type DifferenceType;
 
@@ -778,7 +778,7 @@ template <bool, typename> class GenericObject;
 
 	Use the Value if UTF8 and default allocator
 
-	\tparam Encoding    Encoding of the value. (Even non-string values need to have the same encoding in a document)
+	\tparam Encoding	Encoding of the value. (Even non-string values need to have the same encoding in a document)
 	\tparam Allocator   Allocator type for allocating memory of object, array and string.
 */
 template <typename Encoding, typename Allocator = MemoryPoolAllocator<> >
@@ -787,15 +787,15 @@ class GenericValue
 public:
 	//! Name-value pair in an object.
 	typedef GenericMember<Encoding, Allocator> Member;
-	typedef Encoding EncodingType;                  //!< Encoding type from template parameter.
-	typedef Allocator AllocatorType;                //!< Allocator type from template parameter.
-	typedef typename Encoding::Ch Ch;               //!< Character type derived from Encoding.
-	typedef GenericStringRef<Ch> StringRefType;     //!< Reference to a constant string
+	typedef Encoding EncodingType;				  //!< Encoding type from template parameter.
+	typedef Allocator AllocatorType;				//!< Allocator type from template parameter.
+	typedef typename Encoding::Ch Ch;			   //!< Character type derived from Encoding.
+	typedef GenericStringRef<Ch> StringRefType;	 //!< Reference to a constant string
 	typedef typename GenericMemberIterator<false, Encoding, Allocator>::Iterator MemberIterator;  //!< Member iterator for iterating in object.
 	typedef typename GenericMemberIterator<true, Encoding, Allocator>::Iterator ConstMemberIterator;  //!< Constant member iterator for iterating in object.
-	typedef GenericValue* ValueIterator;            //!< Value iterator for iterating in array.
+	typedef GenericValue* ValueIterator;			//!< Value iterator for iterating in array.
 	typedef const GenericValue* ConstValueIterator; //!< Constant value iterator for iterating in array.
-	typedef GenericValue<Encoding, Allocator> ValueType;    //!< Value type of itself.
+	typedef GenericValue<Encoding, Allocator> ValueType;	//!< Value type of itself.
 	typedef GenericArray<false, ValueType> Array;
 	typedef GenericArray<true, ValueType> ConstArray;
 	typedef GenericObject<false, ValueType> Object;
@@ -1174,9 +1174,9 @@ public:
 			case kNumberType:
 				if (IsDouble() || rhs.IsDouble())
 				{
-					double a = GetDouble();     // May convert from integer to double.
+					double a = GetDouble();	 // May convert from integer to double.
 					double b = rhs.GetDouble(); // Ditto
-					return a >= b && a <= b;    // Prevent -Wfloat-equal
+					return a >= b && a <= b;	// Prevent -Wfloat-equal
 				}
 				else
 					return data_.n.u64 == rhs.data_.n.u64;
@@ -1285,7 +1285,7 @@ public:
 	{
 		return (data_.f.flags & kNumberFlag) != 0;
 	}
-	bool IsInt()    const
+	bool IsInt()	const
 	{
 		return (data_.f.flags & kIntFlag) != 0;
 	}
@@ -1350,7 +1350,7 @@ public:
 			|| a > static_cast<double>(std::numeric_limits<float>::max()))
 			return false;
 		double b = static_cast<double>(static_cast<float>(a));
-		return a >= b && a <= b;    // Prevent -Wfloat-equal
+		return a >= b && a <= b;	// Prevent -Wfloat-equal
 	}
 
 	//@}
@@ -1441,7 +1441,7 @@ public:
 			return member->value;
 		else
 		{
-			RAPIDJSON_ASSERT(false);    // see above note
+			RAPIDJSON_ASSERT(false);	// see above note
 
 			// This will generate -Wexit-time-destructors in clang
 			// static GenericValue NullValue;
@@ -1611,7 +1611,7 @@ public:
 	//! Add a member (name-value pair) to the object.
 	/*! \param name A string value as name of member.
 		\param value Value of any type.
-		\param allocator    Allocator for reallocating memory. It must be the same one as used before. Commonly use GenericDocument::GetAllocator().
+		\param allocator	Allocator for reallocating memory. It must be the same one as used before. Commonly use GenericDocument::GetAllocator().
 		\return The value itself for fluent API.
 		\note The ownership of \c name and \c value will be transferred to this object on success.
 		\pre  IsObject() && name.IsString()
@@ -1648,7 +1648,7 @@ public:
 	//! Add a constant string value as member (name-value pair) to the object.
 	/*! \param name A string value as name of member.
 		\param value constant string reference as value of member.
-		\param allocator    Allocator for reallocating memory. It must be the same one as used before. Commonly use GenericDocument::GetAllocator().
+		\param allocator	Allocator for reallocating memory. It must be the same one as used before. Commonly use GenericDocument::GetAllocator().
 		\return The value itself for fluent API.
 		\pre  IsObject()
 		\note This overload is needed to avoid clashes with the generic primitive type AddMember(GenericValue&,T,Allocator&) overload below.
@@ -1664,7 +1664,7 @@ public:
 	//! Add a string object as member (name-value pair) to the object.
 	/*! \param name A string value as name of member.
 		\param value constant string reference as value of member.
-		\param allocator    Allocator for reallocating memory. It must be the same one as used before. Commonly use GenericDocument::GetAllocator().
+		\param allocator	Allocator for reallocating memory. It must be the same one as used before. Commonly use GenericDocument::GetAllocator().
 		\return The value itself for fluent API.
 		\pre  IsObject()
 		\note This overload is needed to avoid clashes with the generic primitive type AddMember(GenericValue&,T,Allocator&) overload below.
@@ -1726,7 +1726,7 @@ public:
 	//! Add a member (name-value pair) to the object.
 	/*! \param name A constant string reference as name of member.
 		\param value Value of any type.
-		\param allocator    Allocator for reallocating memory. It must be the same one as used before. Commonly use GenericDocument::GetAllocator().
+		\param allocator	Allocator for reallocating memory. It must be the same one as used before. Commonly use GenericDocument::GetAllocator().
 		\return The value itself for fluent API.
 		\note The ownership of \c value will be transferred to this object on success.
 		\pre  IsObject()
@@ -1742,7 +1742,7 @@ public:
 	//! Add a constant string value as member (name-value pair) to the object.
 	/*! \param name A constant string reference as name of member.
 		\param value constant string reference as value of member.
-		\param allocator    Allocator for reallocating memory. It must be the same one as used before. Commonly use GenericDocument::GetAllocator().
+		\param allocator	Allocator for reallocating memory. It must be the same one as used before. Commonly use GenericDocument::GetAllocator().
 		\return The value itself for fluent API.
 		\pre  IsObject()
 		\note This overload is needed to avoid clashes with the generic primitive type AddMember(StringRefType,T,Allocator&) overload below.
@@ -2015,7 +2015,7 @@ public:
 
 //! Request the array to have enough capacity to store elements.
 /*! \param newCapacity  The capacity that the array at least need to have.
-	\param allocator    Allocator for reallocating memory. It must be the same one as used before. Commonly use GenericDocument::GetAllocator().
+	\param allocator	Allocator for reallocating memory. It must be the same one as used before. Commonly use GenericDocument::GetAllocator().
 	\return The value itself for fluent API.
 	\note Linear time complexity.
 */
@@ -2031,8 +2031,8 @@ public:
 	}
 
 	//! Append a GenericValue at the end of the array.
-	/*! \param value        Value to be appended.
-		\param allocator    Allocator for reallocating memory. It must be the same one as used before. Commonly use GenericDocument::GetAllocator().
+	/*! \param value		Value to be appended.
+		\param allocator	Allocator for reallocating memory. It must be the same one as used before. Commonly use GenericDocument::GetAllocator().
 		\pre IsArray() == true
 		\post value.IsNull() == true
 		\return The value itself for fluent API.
@@ -2057,8 +2057,8 @@ public:
 #endif // RAPIDJSON_HAS_CXX11_RVALUE_REFS
 
 	//! Append a constant string reference at the end of the array.
-	/*! \param value        Constant string reference to be appended.
-		\param allocator    Allocator for reallocating memory. It must be the same one used previously. Commonly use GenericDocument::GetAllocator().
+	/*! \param value		Constant string reference to be appended.
+		\param allocator	Allocator for reallocating memory. It must be the same one used previously. Commonly use GenericDocument::GetAllocator().
 		\pre IsArray() == true
 		\return The value itself for fluent API.
 		\note If the number of elements to be appended is known, calls Reserve() once first may be more efficient.
@@ -2073,7 +2073,7 @@ public:
 	//! Append a primitive value at the end of the array.
 	/*! \tparam T Either \ref Type, \c int, \c unsigned, \c int64_t, \c uint64_t
 		\param value Value of primitive type T to be appended.
-		\param allocator    Allocator for reallocating memory. It must be the same one as used before. Commonly use GenericDocument::GetAllocator().
+		\param allocator	Allocator for reallocating memory. It must be the same one as used before. Commonly use GenericDocument::GetAllocator().
 		\pre IsArray() == true
 		\return The value itself for fluent API.
 		\note If the number of elements to be appended is known, calls Reserve() once first may be more efficient.
@@ -2180,10 +2180,10 @@ public:
 	double GetDouble() const
 	{
 		RAPIDJSON_ASSERT(IsNumber());
-		if ((data_.f.flags & kDoubleFlag) != 0)                return data_.n.d;   // exact type, no conversion.
-		if ((data_.f.flags & kIntFlag) != 0)                   return data_.n.i.i; // int -> double
-		if ((data_.f.flags & kUintFlag) != 0)                  return data_.n.u.u; // unsigned -> double
-		if ((data_.f.flags & kInt64Flag) != 0)                 return static_cast<double>(data_.n.i64); // int64_t -> double (may lose precision)
+		if ((data_.f.flags & kDoubleFlag) != 0)				return data_.n.d;   // exact type, no conversion.
+		if ((data_.f.flags & kIntFlag) != 0)				   return data_.n.i.i; // int -> double
+		if ((data_.f.flags & kUintFlag) != 0)				  return data_.n.u.u; // unsigned -> double
+		if ((data_.f.flags & kInt64Flag) != 0)				 return static_cast<double>(data_.n.i64); // int64_t -> double (may lose precision)
 		RAPIDJSON_ASSERT((data_.f.flags & kUint64Flag) != 0);  return static_cast<double>(data_.n.u64); // uint64_t -> double (may lose precision)
 	}
 
@@ -2197,11 +2197,11 @@ public:
 
 	GenericValue& SetInt(int i)
 	{
-		this->~GenericValue(); new (this) GenericValue(i);    return *this;
+		this->~GenericValue(); new (this) GenericValue(i);	return *this;
 	}
 	GenericValue& SetUint(unsigned u)
 	{
-		this->~GenericValue(); new (this) GenericValue(u);    return *this;
+		this->~GenericValue(); new (this) GenericValue(u);	return *this;
 	}
 	GenericValue& SetInt64(int64_t i64)
 	{
@@ -2213,11 +2213,11 @@ public:
 	}
 	GenericValue& SetDouble(double d)
 	{
-		this->~GenericValue(); new (this) GenericValue(d);    return *this;
+		this->~GenericValue(); new (this) GenericValue(d);	return *this;
 	}
 	GenericValue& SetFloat(float f)
 	{
-		this->~GenericValue(); new (this) GenericValue(f);    return *this;
+		this->~GenericValue(); new (this) GenericValue(f);	return *this;
 	}
 
 //@}
@@ -2352,9 +2352,9 @@ public:
 	{
 		switch (GetType())
 		{
-			case kNullType:     return handler.Null();
-			case kFalseType:    return handler.Bool(false);
-			case kTrueType:     return handler.Bool(true);
+			case kNullType:	 return handler.Null();
+			case kFalseType:	return handler.Bool(false);
+			case kTrueType:	 return handler.Bool(true);
 
 			case kObjectType:
 				if (RAPIDJSON_UNLIKELY(!handler.StartObject()))
@@ -2382,11 +2382,11 @@ public:
 
 			default:
 				RAPIDJSON_ASSERT(GetType() == kNumberType);
-				if (IsDouble())         return handler.Double(data_.n.d);
-				else if (IsInt())       return handler.Int(data_.n.i.i);
-				else if (IsUint())      return handler.Uint(data_.n.u.u);
-				else if (IsInt64())     return handler.Int64(data_.n.i64);
-				else                    return handler.Uint64(data_.n.u64);
+				if (IsDouble())		 return handler.Double(data_.n.d);
+				else if (IsInt())	   return handler.Int(data_.n.i.i);
+				else if (IsUint())	  return handler.Uint(data_.n.u.u);
+				else if (IsInt64())	 return handler.Int64(data_.n.i64);
+				else					return handler.Uint64(data_.n.u64);
 		}
 	}
 
@@ -2432,7 +2432,7 @@ private:
 	struct Flag
 	{
 #if RAPIDJSON_48BITPOINTER_OPTIMIZATION
-		char payload[sizeof(SizeType) * 2 + 6];     // 2 x SizeType + lower 48-bit pointer
+		char payload[sizeof(SizeType) * 2 + 6];	 // 2 x SizeType + lower 48-bit pointer
 #elif RAPIDJSON_64BIT
 		char payload[sizeof(SizeType) * 2 + sizeof(void*) + 6]; // 6 padding bytes
 #else
@@ -2466,9 +2466,9 @@ private:
 
 		inline static bool Usable(SizeType len)
 		{
-			return                       (MaxSize >= len);
+			return					   (MaxSize >= len);
 		}
-		inline void     SetLength(SizeType len)
+		inline void	 SetLength(SizeType len)
 		{
 			str[LenPos] = static_cast<Ch>(MaxSize - len);
 		}
@@ -2669,15 +2669,15 @@ template <typename Encoding, typename Allocator = MemoryPoolAllocator<>, typenam
 class GenericDocument : public GenericValue<Encoding, Allocator>
 {
 public:
-	typedef typename Encoding::Ch Ch;                       //!< Character type derived from Encoding.
-	typedef GenericValue<Encoding, Allocator> ValueType;    //!< Value type of the document.
-	typedef Allocator AllocatorType;                        //!< Allocator type from template parameter.
+	typedef typename Encoding::Ch Ch;					   //!< Character type derived from Encoding.
+	typedef GenericValue<Encoding, Allocator> ValueType;	//!< Value type of the document.
+	typedef Allocator AllocatorType;						//!< Allocator type from template parameter.
 
 	//! Constructor
 	/*! Creates an empty document of specified type.
-		\param type             Mandatory type of object to create.
-		\param allocator        Optional allocator for allocating memory.
-		\param stackCapacity    Optional initial capacity of stack in bytes.
+		\param type			 Mandatory type of object to create.
+		\param allocator		Optional allocator for allocating memory.
+		\param stackCapacity	Optional initial capacity of stack in bytes.
 		\param stackAllocator   Optional allocator for allocating memory for stack.
 	*/
 	explicit GenericDocument(Type type, Allocator* allocator = 0, size_t stackCapacity = kDefaultStackCapacity, StackAllocator* stackAllocator = 0) :
@@ -2689,8 +2689,8 @@ public:
 
 	//! Constructor
 	/*! Creates an empty document which type is Null.
-		\param allocator        Optional allocator for allocating memory.
-		\param stackCapacity    Optional initial capacity of stack in bytes.
+		\param allocator		Optional allocator for allocating memory.
+		\param stackCapacity	Optional initial capacity of stack in bytes.
 		\param stackAllocator   Optional allocator for allocating memory for stack.
 	*/
 	GenericDocument(Allocator* allocator = 0, size_t stackCapacity = kDefaultStackCapacity, StackAllocator* stackAllocator = 0) :
@@ -2941,7 +2941,7 @@ public:
 	{
 		return Parse<kParseDefaultFlags>(str);
 	}
-#endif // RAPIDJSON_HAS_STDSTRING    
+#endif // RAPIDJSON_HAS_STDSTRING	
 
 	//!@}
 
@@ -3104,7 +3104,7 @@ private:
 	void ClearStack()
 	{
 		if (Allocator::kNeedFree)
-			while (stack_.GetSize() > 0)    // Here assumes all elements in stack array are GenericValue (Member is actually 2 GenericValue objects)
+			while (stack_.GetSize() > 0)	// Here assumes all elements in stack array are GenericValue (Member is actually 2 GenericValue objects)
 				(stack_.template Pop<ValueType>(1))->~ValueType();
 		else
 			stack_.Clear();
