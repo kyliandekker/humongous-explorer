@@ -2,6 +2,7 @@
 
 namespace humongousexplorer::archive
 {
+	//---------------------------------------------------------------------
 	ArchiveType GetArchiveTypeFromExtension(const std::string& a_sExtension)
 	{
 		std::string ext = a_sExtension;

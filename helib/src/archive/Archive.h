@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "archive/ArchiveType.h"
 #include "file/FILEPCH.h"
 
 namespace humongousexplorer::parsing
@@ -15,8 +16,6 @@ namespace humongousexplorer::core
 }
 namespace humongousexplorer::archive
 {
-	enum class ArchiveType;
-
 	//---------------------------------------------------------------------
 	// Archive
 	//---------------------------------------------------------------------
@@ -57,7 +56,7 @@ namespace humongousexplorer::archive
 		/// <returns>The ArchiveType of this archive.</returns>
 		ArchiveType GetType() const;
 	private:
-		ArchiveType m_eType;
+		ArchiveType m_eType = ArchiveType::Unknown;
 		std::unique_ptr<parsing::Chunk> m_pRoot;
 	};
 }

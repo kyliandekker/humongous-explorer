@@ -21,10 +21,13 @@ namespace humongousexplorer::archive
 		std::string extension = a_Path.extension().string().substr(1);
 
 		// Unknown or Folder.
-		if (archive::GetArchiveTypeFromExtension(extension) < archive::ArchiveType::HE0)
+		ArchiveType archiveType = archive::GetArchiveTypeFromExtension(extension);
+		if (archiveType < archive::ArchiveType::HE0)
 		{
 			return false;
 		}
+
+		m_eType = archiveType;
 
 		core::Data data;
 		if (!file::LoadFile(a_Path, data))
