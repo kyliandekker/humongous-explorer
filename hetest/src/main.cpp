@@ -1,51 +1,20 @@
-#include <cassert>
+#include "core/Log.h"
+#include "archive/ArchiveSet.h"
 
-#include "core/Data.h"
-#include "core/DataStream.h"
-
-#include "script/OPCodesHE.h"
-#include "script/ScrInstruction.h"
-#include "script/ScrArgumentType.h"
-#include "script/ScrResource.h"
-
-#include "file/file.h"
-
-using namespace humongousexplorer::script;
 using namespace humongousexplorer;
 
 int main()
 {
-	std::string testDataPath = "./testdata/test.data";
+	core::InitializeLog();
 
-	core::Data data;
-	if (!file::LoadFile(testDataPath, data))
+	archive::ArchiveSet set;
+	bool loaded = set.LoadArchives("C:/Program Files (x86)/Steam/steamapps/common/Spy Fox 3/SPYOZON.HE2");
+
+	core::DestroyLog();
+
+	if (!loaded)
 	{
-		printf("Could not find file: \"%s\".", testDataPath.c_str());
-		return 0;
-	}
-
-	OPCodeMap map;
-	GetOPCodeTable(map, 6, 98);
-
-	ScrResource script;
-	if (!script.Parse(data, map))
-	{
-		printf("Could not parse script data: \"%s\".", testDataPath.c_str());
-		return 0;
-	}
-
-	core::DataStream newData;
-	if (!script.Build(newData, map))
-	{
-		printf("Could not build script data.");
-		return 0;
-	}
-
-	std::string saveTestDataPath = "./testdata/test.test";
-	if (!file::SaveFile(saveTestDataPath, newData))
-	{
-		printf("Could not save file: \"%s\".", saveTestDataPath.c_str());
-		return 0;
+		return 1;
 	}
 
 	return 0;

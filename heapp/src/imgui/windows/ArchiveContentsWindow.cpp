@@ -278,9 +278,6 @@ namespace humongousexplorer::imgui
 							}
 							case FileEntryInteractionType::RightClicked:
 							{
-								core::DataStream data;
-								fileEntry->m_pChunk->GetRoot()->Build(data);
-								file::SaveFile("C:/ekkes/aah.txt", data);
 								break;
 							}
 							case FileEntryInteractionType::DoubleClicked:

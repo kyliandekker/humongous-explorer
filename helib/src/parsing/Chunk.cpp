@@ -42,7 +42,7 @@ namespace humongousexplorer::parsing
 	//---------------------------------------------------------------------
 	size_t Chunk::WholeChunkSize() const
 	{
-		return ChunkSize() + HEADER_SIZE;
+		return ChunkSize() + CHUNK_HEADER_SIZE;
 	}
 
 	//---------------------------------------------------------------------
@@ -74,12 +74,12 @@ namespace humongousexplorer::parsing
 			return nullptr;
 		}
 
-		if (a_iTarget < a_iBase + HEADER_SIZE)
+		if (a_iTarget < a_iBase + CHUNK_HEADER_SIZE)
 		{
 			return this;
 		}
 
-		size_t childPos = a_iBase + HEADER_SIZE;
+		size_t childPos = a_iBase + CHUNK_HEADER_SIZE;
 		for (const std::unique_ptr<Chunk>& child : m_aChildren)
 		{
 			const size_t childTotal = child->WholeChunkSize();
@@ -113,7 +113,7 @@ namespace humongousexplorer::parsing
 			return 0;
 		}
 
-		size_t offset = HEADER_SIZE;
+		size_t offset = CHUNK_HEADER_SIZE;
 		for (const std::unique_ptr<Chunk>& sibling : m_pParent->m_aChildren)
 		{
 			if (sibling.get() == this)

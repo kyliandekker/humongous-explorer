@@ -15,7 +15,7 @@ namespace humongousexplorer::parsing
 {
 	//---------------------------------------------------------------------
 	constexpr uint32_t CHUNK_ID_SIZE = 4;
-	constexpr auto HEADER_SIZE = CHUNK_ID_SIZE + sizeof(uint32_t);
+	constexpr size_t CHUNK_HEADER_SIZE = CHUNK_ID_SIZE + sizeof(uint32_t);
 
 	//---------------------------------------------------------------------
 	// Chunk

@@ -11,10 +11,6 @@
 namespace humongousexplorer::parsing
 {
 	//---------------------------------------------------------------------
-	// Header is CHUNK_ID + uint32_t size.
-	constexpr size_t CHUNK_HEADER_SIZE = CHUNK_ID_SIZE + sizeof(uint32_t);
-
-	//---------------------------------------------------------------------
 	bool ParseChunk(Chunk& a_Out, const core::Data& a_Buf, size_t a_iPos /* = 0 */)
 	{
 		const unsigned char* data = a_Buf.dataAs<unsigned char>();

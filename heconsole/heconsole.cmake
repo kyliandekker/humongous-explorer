@@ -2,8 +2,10 @@
 file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_LIST_DIR}/src/*.h)
 file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.cpp)
 
+file(GLOB_RECURSE TINY_XML_SOURCES ${CMAKE_SOURCE_DIR}/external/tinyxml/*.cpp)
+
 # heconsole executable
-add_executable(heconsole ${HEADERS} ${SOURCES})
+add_executable(heconsole ${HEADERS} ${SOURCES} ${TINY_XML_SOURCES})
 
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR}/src PREFIX "" FILES ${HEADERS} ${SOURCES})
 

@@ -2,6 +2,7 @@
 
 #include "archive/ArchiveType.h"
 #include "archive/Archive.h"
+#include "core/Log.h"
 
 #include "parsing/Chunk.h"
 
@@ -14,6 +15,11 @@ namespace humongousexplorer::archive
 	//---------------------------------------------------------------------
 	bool ArchiveSet::LoadArchives(const fs::path& a_Path)
 	{
+		m_aArchives.clear();
+		m_aResults.clear();
+
+		core::Log(core::LogLevel::Info, "Loading archives from: " + a_Path.filename().string() + ".");
+
 		std::vector<fs::path> paths;
 
 		fs::path folder = a_Path.parent_path();
@@ -42,16 +48,49 @@ namespace humongousexplorer::archive
 			paths.push_back(filePath);
 		}
 
+		if (paths.empty())
+		{
+			core::Log(core::LogLevel::Warning, "No archive files found for: " + a_Path.stem().string() + ".");
+			return false;
+		}
+
+		core::Log(core::LogLevel::Info, "Found " + std::to_string(paths.size()) + " archive(s)" + ".");
+
 		for (const fs::path& filePath : paths)
 		{
 			std::unique_ptr<Archive> ptr = std::make_unique<Archive>();
-			ptr->Load(filePath);
+			core::LoadResult result = ptr->Load(filePath);
+
+			ArchiveLoadInfo info;
+			info.path = filePath;
+			info.result = result;
+			m_aResults.push_back(info);
+
+			std::string filename = filePath.filename().string();
+
+			if (result.status == core::LoadStatus::Success)
+			{
+				core::Log(core::LogLevel::Success, "Loaded " + filename + ".");
+				m_aArchives.push_back(std::move(ptr));
+			}
+			else
+			{
+				core::Log(core::LogLevel::Error, "Failed to load " + filename + ": " + result.errorMessage + ".");
+			}
 		}
 
 		m_iScriptVersion = 6;
 		DetermineHEVersion();
 
+		core::Log(core::LogLevel::Info, "HE version: " + std::to_string(m_iHEVersion) + ", Script version: " + std::to_string(m_iScriptVersion) + ".");
+
 		return !m_aArchives.empty();
+	}
+
+	//---------------------------------------------------------------------
+	const std::vector<ArchiveLoadInfo>& ArchiveSet::GetResults() const
+	{
+		return m_aResults;
 	}
 
 	//---------------------------------------------------------------------

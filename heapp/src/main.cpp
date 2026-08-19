@@ -1,6 +1,7 @@
 #include "imgui/imgui.h"
 #include "imgui/implot.h"
 
+#include "core/Log.h"
 #include "logger/Logger.h"
 
 #include "win32/Window.h"
@@ -14,9 +15,25 @@
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+static void HelibLogCallback(humongousexplorer::core::LogLevel a_Level, const std::string& a_sMessage)
+{
+	humongousexplorer::LogSeverity severity;
+	switch (a_Level)
+	{
+		case humongousexplorer::core::LogLevel::Success: severity = humongousexplorer::LOGSEVERITY_SUCCESS; break;
+		case humongousexplorer::core::LogLevel::Error:   severity = humongousexplorer::LOGSEVERITY_ERROR; break;
+		case humongousexplorer::core::LogLevel::Warning: severity = humongousexplorer::LOGSEVERITY_WARNING; break;
+		case humongousexplorer::core::LogLevel::Info:    severity = humongousexplorer::LOGSEVERITY_INFO; break;
+		default: severity = humongousexplorer::LOGSEVERITY_INFO; break;
+	}
+	humongousexplorer::GetLogger().Log(severity, a_sMessage, __FILE__, __LINE__);
+}
+
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lpCmdLine, _In_ int nShowCmd)
 {
+	humongousexplorer::core::InitializeLog();
 	humongousexplorer::GetLogger().Initialize(true);
+	humongousexplorer::core::SetLogCallback(HelibLogCallback);
 
 	ImGui_ImplWin32_EnableDpiAwareness();
 	float mainScale = ImGui_ImplWin32_GetDpiScaleForMonitor(::MonitorFromPoint(POINT{ 0, 0 }, MONITOR_DEFAULTTOPRIMARY));
@@ -110,6 +127,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
 	window.Destroy();
 
 	humongousexplorer::GetLogger().Destroy();
+	humongousexplorer::core::DestroyLog();
 
 	return 0;
 }

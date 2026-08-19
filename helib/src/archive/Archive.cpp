@@ -16,7 +16,7 @@ namespace humongousexplorer::archive
 	//---------------------------------------------------------------------
 	// Archive
 	//---------------------------------------------------------------------
-	bool Archive::Load(const fs::path& a_Path)
+	core::LoadResult Archive::Load(const fs::path& a_Path)
 	{
 		std::string extension = a_Path.extension().string().substr(1);
 
@@ -24,7 +24,7 @@ namespace humongousexplorer::archive
 		ArchiveType archiveType = archive::GetArchiveTypeFromExtension(extension);
 		if (archiveType < archive::ArchiveType::HE0)
 		{
-			return false;
+			return { core::LoadStatus::Failure, "Unsupported archive type" };
 		}
 
 		m_eType = archiveType;
@@ -32,12 +32,12 @@ namespace humongousexplorer::archive
 		core::Data data;
 		if (!file::LoadFile(a_Path, data))
 		{
-			return false;
+			return { core::LoadStatus::Failure, "Could not read file" };
 		}
 
 		if (data.empty())
 		{
-			return false;
+			return { core::LoadStatus::Failure, "Archive file is empty" };
 		}
 
 		m_pRoot = std::make_unique<parsing::Chunk>();
@@ -52,10 +52,10 @@ namespace humongousexplorer::archive
 			core::xorShift(xorredData, xorredDataContainer.size(), m_pRoot->GetEncryptionKey());
 			if (!parsing::ParseArchive(*m_pRoot, xorredDataContainer))
 			{
-				return false; // Failed to parse file completely.
+				return { core::LoadStatus::Failure, "Failed to parse archive data" };
 			}
 		}
-		return true;
+		return { core::LoadStatus::Success, "" };
 	}
 
 	//---------------------------------------------------------------------

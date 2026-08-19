@@ -3,12 +3,9 @@
 #include <memory>
 
 #include "archive/ArchiveType.h"
+#include "core/LoadResult.h"
 #include "file/FILEPCH.h"
-
-namespace humongousexplorer::parsing
-{
-	class Chunk;
-}
+#include "parsing/Chunk.h"
 
 namespace humongousexplorer::core
 {
@@ -29,8 +26,8 @@ namespace humongousexplorer::archive
 		/// Loads an archive file from disk and parses its chunk hierarchy.
 		/// </summary>
 		/// <param name="a_Path">The file path of the archive to load.</param>
-		/// <returns>True if the archive was loaded and parsed successfully, otherwise false.</returns>
-		bool Load(const fs::path& a_Path);
+		/// <returns>A LoadResult indicating success or failure with an error message.</returns>
+		core::LoadResult Load(const fs::path& a_Path);
 
 		/// <summary>
 		/// Rebuilds the archive into a DataStream, re-serializing the chunk hierarchy.

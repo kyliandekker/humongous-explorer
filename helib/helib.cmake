@@ -10,6 +10,7 @@ source_group(TREE ${CMAKE_CURRENT_LIST_DIR}/src PREFIX "" FILES ${HEADERS} ${SOU
 # Include directories
 target_include_directories(helib PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/src
+    ${CMAKE_SOURCE_DIR}/external
 )
 
 # C++ standard
