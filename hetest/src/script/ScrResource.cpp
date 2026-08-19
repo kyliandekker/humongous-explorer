@@ -55,11 +55,11 @@ namespace humongousexplorer::script
 		for (const std::unique_ptr<ScrInstruction>& instruction : m_aInstructions)
 		{
 			bool valid = CheckJumpValidity(*instruction, a_mScrCodes, pos);
+			assert(valid);
 			if (!valid)
 			{
 				return false;
 			}
-			assert(valid);
 
 			pos += instruction->GetSize();
 		}
@@ -104,7 +104,7 @@ namespace humongousexplorer::script
 	//---------------------------------------------------------------------
 	ScrInstruction* ScrResource::GetInstructionAtOffset(size_t a_iOffset)
 	{
-		int64_t pos = -1;
+		int64_t pos = 0;
 		for (const std::unique_ptr<ScrInstruction>& instruction : m_aInstructions)
 		{
 			if (a_iOffset == pos)

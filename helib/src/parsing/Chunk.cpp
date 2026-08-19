@@ -11,18 +11,6 @@ namespace humongousexplorer::parsing
 	//---------------------------------------------------------------------
 	// Chunk
 	//---------------------------------------------------------------------
-	void Chunk::Build(core::DataStream& a_Data) const
-	{
-		a_Data = core::DataStream(WholeChunkSize());
-		BuildInner(a_Data);
-		if (m_bIsEncrypted)
-		{
-			unsigned char* data = a_Data.dataAs<unsigned char>();
-			core::xorShift(data, a_Data.size(), m_cEncryptionKey);
-		}
-	}
-
-	//---------------------------------------------------------------------
 	std::string Chunk::GetTag() const
 	{
 		return std::string(m_sTag, CHUNK_ID_SIZE);
@@ -211,7 +199,7 @@ namespace humongousexplorer::parsing
 	}
 
 	//---------------------------------------------------------------------
-	void Chunk::BuildInner(core::DataStream& a_Data) const
+	void Chunk::ToData(core::DataStream& a_Data) const
 	{
 		a_Data.Write(m_sTag, sizeof(m_sTag));
 
@@ -231,7 +219,7 @@ namespace humongousexplorer::parsing
 		{
 			for (const std::unique_ptr<Chunk>& child : m_aChildren)
 			{
-				child->BuildInner(a_Data);
+				child->ToData(a_Data);
 			}
 		}
 	}

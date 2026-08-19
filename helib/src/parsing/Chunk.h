@@ -20,8 +20,6 @@ namespace humongousexplorer::parsing
 	class Chunk
 	{
 	public:
-		void Build(core::DataStream& a_Data) const;
-
 		std::string GetTag() const;
 		void SetTag(const void* a_sTag);
 
@@ -51,6 +49,8 @@ namespace humongousexplorer::parsing
 		unsigned char GetEncryptionKey() const;
 		void SetEncryptionKey(unsigned char a_cEncryptionKey);
 
+		void ToData(core::DataStream& a_Data) const;
+
 		char m_sTag[CHUNK_ID_SIZE] = {};
 	private:
 		core::Data m_Data;		   // leaf: Owns its data.
@@ -59,7 +59,5 @@ namespace humongousexplorer::parsing
 
 		bool m_bIsEncrypted = false;
 		unsigned char m_cEncryptionKey = 0x69;
-
-		void BuildInner(core::DataStream& a_Data) const;
 	};
 }

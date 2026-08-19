@@ -30,7 +30,7 @@ int main()
 	ScrResource script;
 	if (!script.Parse(data, map))
 	{
-		printf("Could not parse script data\"%s\".", testDataPath.c_str());
+		printf("Could not parse script data: \"%s\".", testDataPath.c_str());
 		return 0;
 	}
 
