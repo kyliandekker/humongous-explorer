@@ -68,4 +68,21 @@ namespace humongousexplorer::archive
 		}
 	}
 
+	//---------------------------------------------------------------------
+	const parsing::Chunk& Archive::GetRoot() const
+	{
+		return *m_pRoot.get();
+	}
+
+	//---------------------------------------------------------------------
+	parsing::Chunk& Archive::GetRoot()
+	{
+		return *m_pRoot.get();
+	}
+
+	//---------------------------------------------------------------------
+	ArchiveType Archive::GetType() const
+	{
+		return m_eType;
+	}
 }

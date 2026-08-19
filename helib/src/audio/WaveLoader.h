@@ -10,6 +10,9 @@ namespace humongousexplorer::core
 
 namespace humongousexplorer::audio
 {
+	//---------------------------------------------------------------------
+	// WaveLoader
+	//---------------------------------------------------------------------
 	/// <summary>
 	/// Loads and saves wave files. Always works with mono 8-bit audio.
 	/// </summary>

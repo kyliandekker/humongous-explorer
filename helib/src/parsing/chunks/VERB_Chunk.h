@@ -3,7 +3,9 @@
 namespace humongousexplorer::parsing
 {
 #pragma pack(push, 1)
-	// Verb script apparently.
+	/// <summary>
+	/// This is a verb script chunk.
+	/// </summary>
 	class VERB_Chunk
 	{
 	public:

@@ -2,17 +2,25 @@
 
 // external
 #include <cstdint>
-#include <cstdio>
-#include <cstddef>
-#include <cstring>
+#include <string>
 
 namespace humongousexplorer::core
 {
+	/// <summary>
+	/// Converts a size value to kilobytes.
+	/// </summary>
+	/// <param name="a_Size">The number of kilobytes to convert.</param>
+	/// <returns>The equivalent size in bytes.</returns>
 	constexpr size_t KB(size_t a_Size)
 	{
 		return a_Size * 1024;
 	}
 
+	/// <summary>
+	/// Converts a size value to megabytes.
+	/// </summary>
+	/// <param name="a_Size">The number of megabytes to convert.</param>
+	/// <returns>The equivalent size in bytes.</returns>
 	constexpr size_t MB(size_t a_Size)
 	{
 		return a_Size * 1024 * 1024;
@@ -29,17 +37,12 @@ namespace humongousexplorer::core
 	constexpr size_t _128MB = MB(128);
 	constexpr size_t _256MB = MB(256);
 
-	//---------------------------------------------------------------------
-	inline std::string SizeToString(size_t a_Size)
-	{
-		if (a_Size >= _1MB)
-			return std::to_string(a_Size / _1MB) + "MB";
-
-		if (a_Size >= KB(1))
-			return std::to_string(a_Size / KB(1)) + "KB";
-
-		return std::to_string(a_Size) + "B";
-	}
+	/// <summary>
+	/// Converts a byte size to a human-readable string with B, KB, or MB suffix.
+	/// </summary>
+	/// <param name="a_Size">The size in bytes.</param>
+	/// <returns>A string representation of the size (e.g., "512KB", "2MB").</returns>
+	std::string SizeToString(size_t a_Size);
 
 	/// <summary>
 	/// Adds specific size to a pointer.
@@ -47,10 +50,7 @@ namespace humongousexplorer::core
 	/// <param name="a_pPtr">The pointer that will be offset.</param>
 	/// <param name="a_iSize">The amount that the pointer will be offset with.</param>
 	/// <returns>A pointer with the new offset.</returns>
-	inline void* add(void* a_pPtr, size_t a_iSize)
-	{
-		return static_cast<void*>(static_cast<unsigned char*>(a_pPtr) + a_iSize);
-	}
+	void* add(void* a_pPtr, size_t a_iSize);
 
 	/// <summary>
 	/// Adds specific size to a pointer.
@@ -58,10 +58,7 @@ namespace humongousexplorer::core
 	/// <param name="a_pPtr">The pointer that will be offset.</param>
 	/// <param name="a_iSize">The amount that the pointer will be offset with.</param>
 	/// <returns>A pointer with the new offset.</returns>
-	inline const void* add(const void* a_pPtr, size_t a_iSize)
-	{
-		return static_cast<const void*>(static_cast<const unsigned char*>(a_pPtr) + a_iSize);
-	}
+	const void* add(const void* a_pPtr, size_t a_iSize);
 
 	/// <summary>
 	/// Adds specific size to a pointer and casts it to a specified type.
@@ -76,53 +73,41 @@ namespace humongousexplorer::core
 		return reinterpret_cast<T*>(add(a_pPtr, a_iSize));
 	}
 
-	//---------------------------------------------------------------------
-	inline int chunkcmp(const std::string_view& a_ChunkID1, const std::string_view& a_ChunkID2, size_t a_iSize = 4)
-	{
-		return std::strncmp(a_ChunkID1.data(), a_ChunkID2.data(), a_iSize);
-	}
+	/// <summary>
+	/// Compares two chunk ID strings byte-by-byte.
+	/// </summary>
+	/// <param name="a_ChunkID1">The first chunk ID to compare.</param>
+	/// <param name="a_ChunkID2">The second chunk ID to compare.</param>
+	/// <param name="a_iSize">The number of bytes to compare (default 4).</param>
+	/// <returns>Zero if equal, negative if a_ChunkID1 is less, positive if greater.</returns>
+	int chunkcmp(const std::string_view& a_ChunkID1, const std::string_view& a_ChunkID2, size_t a_iSize = 4);
 
-	//---------------------------------------------------------------------
-	inline void reverseBytes(unsigned char* a_Start, size_t a_Size)
-	{
-		if (!a_Start || a_Size < 2)
-		{
-			return;
-		}
+	/// <summary>
+	/// Reverses the byte order of a memory region in place.
+	/// </summary>
+	/// <param name="a_Start">Pointer to the start of the byte array.</param>
+	/// <param name="a_Size">The number of bytes to reverse.</param>
+	void reverseBytes(unsigned char* a_Start, size_t a_Size);
 
-		unsigned char* lo = a_Start;
-		unsigned char* hi = a_Start + a_Size - 1;
+	/// <summary>
+	/// XORs each byte in the data buffer with the given key.
+	/// </summary>
+	/// <param name="a_sData">Reference to the pointer to the byte array to XOR.</param>
+	/// <param name="a_iSize">The number of bytes to process.</param>
+	/// <param name="a_cKey">The XOR key byte.</param>
+	void xorShift(unsigned char*& a_sData, size_t a_iSize, char a_cKey);
 
-		while (lo < hi)
-		{
-			unsigned char temp = *lo;
-			*lo++ = *hi;
-			*hi-- = temp;
-		}
-	}
+	/// <summary>
+	/// Reads a big-endian 32-bit unsigned integer from a byte array.
+	/// </summary>
+	/// <param name="a_pData">Pointer to the 4-byte big-endian value.</param>
+	/// <returns>The decoded 32-bit unsigned integer in native byte order.</returns>
+	uint32_t ReadBE32(const unsigned char* a_pData);
 
-	//---------------------------------------------------------------------
-	inline void xorShift(unsigned char*& a_sData, size_t a_iSize, char a_cKey)
-	{
-		for (size_t i = 0; i < a_iSize; i++)
-		{
-			a_sData[i] = a_sData[i] ^ a_cKey;
-		}
-	}
-
-	//---------------------------------------------------------------------
-	inline uint32_t ReadBE32(const unsigned char* a_pData)
-	{
-		return (uint32_t(a_pData[0]) << 24) | (uint32_t(a_pData[1]) << 16) |
-			(uint32_t(a_pData[2]) << 8) | uint32_t(a_pData[3]);
-	}
-
-	//---------------------------------------------------------------------
-	inline void WriteBE32(unsigned char* a_pData, uint32_t a_iValue)
-	{
-		a_pData[0] = static_cast<unsigned char>(a_iValue >> 24);
-		a_pData[1] = static_cast<unsigned char>(a_iValue >> 16);
-		a_pData[2] = static_cast<unsigned char>(a_iValue >> 8);
-		a_pData[3] = static_cast<unsigned char>(a_iValue);
-	}
+	/// <summary>
+	/// Writes a 32-bit unsigned integer as big-endian bytes into a byte array.
+	/// </summary>
+	/// <param name="a_pData">Pointer to the destination byte array (at least 4 bytes).</param>
+	/// <param name="a_iValue">The 32-bit value to encode in big-endian format.</param>
+	void WriteBE32(unsigned char* a_pData, uint32_t a_iValue);
 }
