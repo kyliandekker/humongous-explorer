@@ -21,6 +21,7 @@ namespace humongousexplorer::script
 		int32_t GetRefJump() const;
 		
 		void SetData(const core::Data& a_Data);
+
 		void SetByte(uint8_t a_iValue);
 		void SetInt16(int16_t a_iValue);
 		void SetInt32(int32_t a_iValue);

@@ -18,6 +18,12 @@ CALL "%SOURCE_DIR%\setup\generate-common-shader-and-hlsl\run.bat"
 :: Generate in build/
 cmake -G "Visual Studio 17 2022" -A x64 -Wno-dev -S "%SOURCE_DIR%" -B "%OUTPUT_DIR%"
 
+:: Copy everything from config/ into the solution/build folder
+IF EXIST "%SOURCE_DIR%\setup" (
+    ECHO Copying setup files to build folder...
+    xcopy "%SOURCE_DIR%\setup\*" "%OUTPUT_DIR%\" /E /I /Y /H
+)
+
 IF %ERRORLEVEL% NEQ 0 (
     PAUSE
 ) ELSE (
