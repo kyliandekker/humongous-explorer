@@ -18,13 +18,23 @@ namespace humongousexplorer::archive
 	//---------------------------------------------------------------------
 	core::LoadResult Archive::Load(const fs::path& a_Path)
 	{
+		if (!fs::exists(a_Path))
+		{
+			return { core::LoadStatus::Failure, "Path did not exist." };
+		}
+		
+		if (!fs::is_regular_file(a_Path))
+		{
+			return { core::LoadStatus::Failure, "Path was not a file." };
+		}
+
 		std::string extension = a_Path.extension().string().substr(1);
 
 		// Unknown or Folder.
 		ArchiveType archiveType = archive::GetArchiveTypeFromExtension(extension);
 		if (archiveType < archive::ArchiveType::HE0)
 		{
-			return { core::LoadStatus::Failure, "Unsupported archive type" };
+			return { core::LoadStatus::Failure, "Unsupported archive type." };
 		}
 
 		m_eType = archiveType;
@@ -32,12 +42,12 @@ namespace humongousexplorer::archive
 		core::Data data;
 		if (!file::LoadFile(a_Path, data))
 		{
-			return { core::LoadStatus::Failure, "Could not read file" };
+			return { core::LoadStatus::Failure, "Could not read file." };
 		}
 
 		if (data.empty())
 		{
-			return { core::LoadStatus::Failure, "Archive file is empty" };
+			return { core::LoadStatus::Failure, "Archive file is empty." };
 		}
 
 		m_pRoot = std::make_unique<parsing::Chunk>();
@@ -52,7 +62,7 @@ namespace humongousexplorer::archive
 			core::xorShift(xorredData, xorredDataContainer.size(), m_pRoot->GetEncryptionKey());
 			if (!parsing::ParseArchive(*m_pRoot, xorredDataContainer))
 			{
-				return { core::LoadStatus::Failure, "Failed to parse archive data" };
+				return { core::LoadStatus::Failure, "Failed to parse archive data." };
 			}
 		}
 		return { core::LoadStatus::Success, "" };

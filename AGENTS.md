@@ -1,5 +1,16 @@
 # Code Style Instructions
 
+# Response style
+
+Do not add meta sections such as:
+- Objective
+- Important Details
+- Summary
+- Key Points
+- Approach
+
+Answer directly. Keep responses concise and focused on the requested task. Only include explanations when they are useful or explicitly requested.
+
 ## Naming
 
 | Element | Convention | Example |

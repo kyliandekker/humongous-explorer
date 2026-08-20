@@ -1,0 +1,28 @@
+{
+  "FileVersion": 2,
+  "Id": "43678bab-6503-39c6-8359-2eed876b7d13",
+  "Items": [
+    {
+      "Id": "f3cb68ee-986d-4615-9d9b-7a16de918fd3",
+      "Command": "xml",
+      "Items": [
+        {
+          "Id": "5ef02ccd-e17c-4263-bfb0-9a01ea9ca56b",
+          "Command": "xml"
+        },
+        {
+          "Id": "47546128-1828-40f7-ab00-28bae5994885",
+          "Command": "\"C:\\Program Files\""
+        },
+        {
+          "Id": "c64444e9-eb46-4143-9897-ccc9eb41b1ba",
+          "Command": "--depth=\"1\""
+        }
+      ]
+    },
+    {
+      "Id": "930677a7-d3cd-4d1f-91eb-a74ad670d936",
+      "Command": "-outputPath=\"C:\\Users\\Kylian\\Downloads\\he\\build\\out\""
+    }
+  ]
+}

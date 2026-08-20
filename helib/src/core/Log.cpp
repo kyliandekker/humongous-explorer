@@ -10,7 +10,6 @@ namespace humongousexplorer::core
 		std::string message;
 	};
 
-	//---------------------------------------------------------------------
 	static LogCallback s_fnCallback = nullptr;
 	static std::queue<LogMessage> s_Messages;
 	static std::mutex s_Mutex;
@@ -21,7 +20,7 @@ namespace humongousexplorer::core
 	//---------------------------------------------------------------------
 	static void LogThread()
 	{
-		while (s_bRunning)
+		while (true)
 		{
 			std::unique_lock lock(s_Mutex);
 			s_CondVar.wait(lock, []
@@ -55,6 +54,13 @@ namespace humongousexplorer::core
 
 				lock.lock();
 			}
+
+			if (s_bRunning)
+			{
+				continue;
+			}
+
+			break;
 		}
 	}
 
@@ -72,11 +78,12 @@ namespace humongousexplorer::core
 			std::scoped_lock lock(s_Mutex);
 			s_bRunning = false;
 		}
-		s_CondVar.notify_one();
+		s_CondVar.notify_all();
 		if (s_Thread.joinable())
 		{
 			s_Thread.join();
 		}
+		fflush(stdout);
 	}
 
 	//---------------------------------------------------------------------
@@ -92,6 +99,6 @@ namespace humongousexplorer::core
 			std::scoped_lock lock(s_Mutex);
 			s_Messages.push({ a_Level, a_sMessage });
 		}
-		s_CondVar.notify_one();
+		s_CondVar.notify_all();
 	}
 }
