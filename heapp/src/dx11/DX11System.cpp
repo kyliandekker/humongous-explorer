@@ -2,19 +2,17 @@
 
 #include "logger/Logger.h"
 
-namespace humongousexplorer
-{
-	dx11::DX11System& GetDX11System()
-	{
-		static humongousexplorer::dx11::DX11System dx11;
-
-		return dx11;
-	}
-}
 namespace humongousexplorer::dx11
 {
 	//---------------------------------------------------------------------
 	// DX11System
+	//---------------------------------------------------------------------
+	dx11::DX11System& GetDX11System()
+	{
+		static humongousexplorer::dx11::DX11System dx11;
+		return dx11;
+	}
+
 	//---------------------------------------------------------------------
 	bool DX11System::Initialize(HWND a_HWnd)
 	{

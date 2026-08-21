@@ -3,7 +3,7 @@
 #include <cmath>
 #include <imgui/imgui.h>
 #include <imgui/implot.h>
-#include <imgui/icon.h>
+#include <imgui/font_icon.h>
 #include <imgui/Helpers.h>
 #include <algorithm>
 

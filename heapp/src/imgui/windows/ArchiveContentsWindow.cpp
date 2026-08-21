@@ -119,7 +119,7 @@ namespace humongousexplorer::imgui
 		std::vector<std::unique_ptr<FileEntryView>> views;
 		for (auto& node : a_Nodes)
 		{
-			std::string tag(node->m_pChunk->GetTag(), 4);
+			std::string tag = node->m_pChunk->GetTag();
 
 			a_mEntryCountMap[tag]++;
 

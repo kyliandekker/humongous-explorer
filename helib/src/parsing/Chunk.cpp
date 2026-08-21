@@ -67,30 +67,65 @@ namespace humongousexplorer::parsing
 	//---------------------------------------------------------------------
 	Chunk* Chunk::FindChunkAt(size_t a_iTarget, size_t a_iBase)
 	{
-		size_t totalSize = WholeChunkSize();
+		const size_t totalSize = m_bIsRoot
+			? ChunkSize()
+			: WholeChunkSize();
+
 		if (a_iTarget < a_iBase ||
 			a_iTarget - a_iBase >= totalSize)
 		{
 			return nullptr;
 		}
 
-		if (a_iTarget < a_iBase + CHUNK_HEADER_SIZE)
+		// The synthetic root has no serialized representation.
+		if (m_bIsRoot)
+		{
+			size_t childBase = a_iBase;
+
+			for (const std::unique_ptr<Chunk>& child : m_aChildren)
+			{
+				const size_t childSize = child->WholeChunkSize();
+
+				if (a_iTarget - childBase < childSize)
+				{
+					return child->FindChunkAt(a_iTarget, childBase);
+				}
+
+				childBase += childSize;
+			}
+
+			return this;
+		}
+
+		const size_t relative = a_iTarget - a_iBase;
+
+		// This chunk's header belongs to this chunk.
+		if (relative < CHUNK_HEADER_SIZE)
 		{
 			return this;
 		}
 
-		size_t childPos = a_iBase + CHUNK_HEADER_SIZE;
+		// Leaf: everything after the header is its own data.
+		if (m_aChildren.empty())
+		{
+			return this;
+		}
+
+		// Container: payload consists of child chunks.
+		size_t childBase = a_iBase + CHUNK_HEADER_SIZE;
+
 		for (const std::unique_ptr<Chunk>& child : m_aChildren)
 		{
-			const size_t childTotal = child->WholeChunkSize();
+			const size_t childSize = child->WholeChunkSize();
 
-			if (a_iTarget - childPos < childTotal)
+			if (a_iTarget - childBase < childSize)
 			{
-				return child->FindChunkAt(a_iTarget, childPos);
+				return child->FindChunkAt(a_iTarget, childBase);
 			}
 
-			childPos += childTotal;
+			childBase += childSize;
 		}
+
 		return this;
 	}
 
@@ -100,6 +135,14 @@ namespace humongousexplorer::parsing
 		Chunk* parent = this;
 		while (parent && parent->m_pParent)
 		{
+			Chunk* cparent = parent->m_pParent;
+
+			// If it is the root and it has only one child, return the actual root.
+			bool isRoot = cparent->m_bIsRoot;
+			bool oneChild = cparent->m_aChildren.size() == 1;
+
+			if (isRoot && oneChild)
+				break;
 			parent = parent->m_pParent;
 		}
 		return parent;
@@ -108,22 +151,34 @@ namespace humongousexplorer::parsing
 	//---------------------------------------------------------------------
 	size_t Chunk::GetOffsetFromRoot() const
 	{
-		if (!m_pParent)
-		{
-			return 0;
-		}
+		size_t offset = 0;
+		const Chunk* current = this;
 
-		size_t offset = CHUNK_HEADER_SIZE;
-		for (const std::unique_ptr<Chunk>& sibling : m_pParent->m_aChildren)
+		while (current->m_pParent)
 		{
-			if (sibling.get() == this)
+			const Chunk* parent = current->m_pParent;
+
+			// A real parent has a header before its children.
+			if (!parent->m_bIsRoot)
 			{
-				break;
+				offset += CHUNK_HEADER_SIZE;
 			}
-			offset += sibling->WholeChunkSize();
+
+			// Add the serialized size of all preceding siblings.
+			for (const std::unique_ptr<Chunk>& sibling : parent->m_aChildren)
+			{
+				if (sibling.get() == current)
+				{
+					break;
+				}
+
+				offset += sibling->WholeChunkSize();
+			}
+
+			current = parent;
 		}
 
-		return m_pParent->GetOffsetFromRoot() + offset;
+		return offset;
 	}
 
 	//---------------------------------------------------------------------
@@ -222,5 +277,11 @@ namespace humongousexplorer::parsing
 				child->ToData(a_Data);
 			}
 		}
+	}
+
+	//---------------------------------------------------------------------
+	void Chunk::SetAsRoot()
+	{
+		m_bIsRoot = true;
 	}
 }

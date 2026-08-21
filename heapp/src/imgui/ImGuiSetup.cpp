@@ -2,8 +2,9 @@
 
 #include <imgui/imgui_internal.h>
 #include <imgui/font_arial.h>
-#include <imgui/icon.h>
+#include <imgui/font_icon.h>
 #include <win32/WINPCH.h>
+#include <win32/Window.h>
 
 #include "imgui/Theme.h"
 #include "imgui/windows/EditorWindowDock.h"
@@ -92,6 +93,28 @@ namespace humongousexplorer::imgui
 
 	void UpdateMouseCursor()
 	{
+		// Let Win32 dictate cursor on thick resize borders - must work even though
+		// main.cpp uses a local Window instance, not GetWin32Window() singleton.
+		// Use viewport HWND / foreground window + same bw logic as Window::IsOnResizeBorder
+		{
+			HWND hwnd = nullptr;
+			if (ImGui::GetMainViewport())
+				hwnd = (HWND)ImGui::GetMainViewport()->PlatformHandleRaw;
+			if (!hwnd)
+				hwnd = ::GetForegroundWindow();
+			if (hwnd && !::IsZoomed(hwnd))
+			{
+				POINT p; ::GetCursorPos(&p);
+				RECT rc; ::GetWindowRect(hwnd, &rc);
+				const int bx = ::GetSystemMetrics(SM_CXFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER);
+				const int by = ::GetSystemMetrics(SM_CYFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER);
+				const int bw = max(max(bx, by) + 4, 12);
+				const bool onBorder = (p.x < rc.left + bw) || (p.x >= rc.right - bw) || (p.y < rc.top + bw) || (p.y >= rc.bottom - bw);
+				if (onBorder)
+					return;
+			}
+		}
+
 		if (ImGui::IsAnyItemHovered() && ImGui::GetMouseCursor() == ImGuiMouseCursor_Arrow)
 		{
 			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);

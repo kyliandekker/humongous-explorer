@@ -39,7 +39,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
 	float mainScale = ImGui_ImplWin32_GetDpiScaleForMonitor(::MonitorFromPoint(POINT{ 0, 0 }, MONITOR_DEFAULTTOPRIMARY));
 
 	humongousexplorer::win32::Window window;
-	if (!window.Initialize(hInstance, (int)(1280 * mainScale), (int)(800 * mainScale), L"Humongous Explorer"))
+	if (!window.Initialize(hInstance, (int)(1280 * mainScale), (int)(800 * mainScale), L"Humongous Explorer", true))
 	{
 		humongousexplorer::GetLogger().Destroy();
 		return 1;
@@ -47,9 +47,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
 	window.SetMessageHook(&ImGui_ImplWin32_WndProcHandler);
 	HWND hwnd = window.GetHandle();
 
-	if (!humongousexplorer::GetDX11System().Initialize(hwnd))
+	if (!humongousexplorer::dx11::GetDX11System().Initialize(hwnd))
 	{
-		humongousexplorer::GetDX11System().Destroy();
+		humongousexplorer::dx11::GetDX11System().Destroy();
 		window.Destroy();
 		humongousexplorer::GetLogger().Destroy();
 		return 1;
@@ -73,7 +73,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
 	style.FontScaleDpi = mainScale;
 
 	ImGui_ImplWin32_Init(hwnd);
-	ImGui_ImplDX11_Init(humongousexplorer::GetDX11System().GetDevice(), humongousexplorer::GetDX11System().GetDeviceContext());
+	ImGui_ImplDX11_Init(humongousexplorer::dx11::GetDX11System().GetDevice(), humongousexplorer::dx11::GetDX11System().GetDeviceContext());
 
 	ImColor clearColor = IM_COL32(21, 26, 36, 255);
 
@@ -91,7 +91,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
 		{
 			uint32_t width = 0, height = 0;
 			window.ConsumeResize(width, height);
-			humongousexplorer::GetDX11System().Resize(width, height);
+			humongousexplorer::dx11::GetDX11System().Resize(width, height);
 		}
 
 		if (window.HasDroppedFile())
@@ -111,10 +111,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
 
 		ImGui::Render();
 		const float clear_color_with_alpha[4] = { clearColor.Value.x * clearColor.Value.w, clearColor.Value.y * clearColor.Value.w, clearColor.Value.z * clearColor.Value.w, clearColor.Value.w };
-		humongousexplorer::GetDX11System().BeginFrame(clear_color_with_alpha);
+		humongousexplorer::dx11::GetDX11System().BeginFrame(clear_color_with_alpha);
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-		humongousexplorer::GetDX11System().EndFrame(1);
+		humongousexplorer::dx11::GetDX11System().EndFrame(1);
 	}
 
 	ImGui_ImplDX11_Shutdown();
@@ -123,7 +123,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
 	ImGui::DestroyContext();
 
 	humongousexplorer::dx11::SVGTextureCache::Shutdown();
-	humongousexplorer::GetDX11System().Destroy();
+	humongousexplorer::dx11::GetDX11System().Destroy();
 	window.Destroy();
 
 	humongousexplorer::GetLogger().Destroy();

@@ -1,12 +1,17 @@
 #pragma once
 
-#include "WINPCH.h"
-
+// external includes
 #include <cstdint>
 #include <string>
 
+// win32 includes
+#include "WINPCH.h"
+
 namespace humongousexplorer::win32
 {
+	class Window;
+	extern Window& GetWin32Window();
+
 	//---------------------------------------------------------------------
 	// Window
 	//---------------------------------------------------------------------
@@ -37,7 +42,7 @@ namespace humongousexplorer::win32
 		/// <param name="a_iHeight">The desired window height in pixels.</param>
 		/// <param name="a_sTitle">The window title.</param>
 		/// <returns>True if the window was created successfully, otherwise false.</returns>
-		bool Initialize(HINSTANCE a_HInstance, int a_iWidth, int a_iHeight, const wchar_t* a_sTitle);
+		bool Initialize(HINSTANCE a_HInstance, int a_iWidth, int a_iHeight, const wchar_t* a_sTitle, bool a_bFrameless = false);
 
 		/// <summary>
 		/// Destroys the window and unregisters the class.
@@ -67,6 +72,13 @@ namespace humongousexplorer::win32
 		/// </summary>
 		HWND GetHandle() const;
 
+		void StartDrag();
+		void Minimize();
+		void Maximize();
+		void Close();
+		bool IsMaximized() const;
+		bool IsOnResizeBorder() const;
+
 		/// <summary>
 		/// Checks whether a resize was queued and not yet consumed.
 		/// </summary>
@@ -80,7 +92,6 @@ namespace humongousexplorer::win32
 		bool HasDroppedFile() const { return !m_sDroppedFile.empty(); }
 		std::string ConsumeDroppedFile();
 		POINT GetDroppedFilePosition() const { return m_ptDropPoint; }
-
 	private:
 		/// <summary>
 		/// Static window procedure forwarding to the instance.
@@ -98,6 +109,10 @@ namespace humongousexplorer::win32
 		MessageHook m_MessageHook = nullptr; /// Optional external message hook.
 		uint32_t m_iResizeWidth = 0; /// Queued client area width, 0 if no resize.
 		uint32_t m_iResizeHeight = 0; /// Queued client area height, 0 if no resize.
+		bool m_bFrameless = false; /// Whether the window has no Win32 title bar.
+		bool m_bDragging = false; /// Whether the window is being dragged.
+		POINT m_iDragOffset = {}; /// Cursor offset from window origin when drag started.
+
 		std::string m_sDroppedFile; /// Last file dropped onto the window.
 		POINT m_ptDropPoint = {}; /// Client-area position of the last drop.
 	};

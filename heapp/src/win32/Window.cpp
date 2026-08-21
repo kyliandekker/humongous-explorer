@@ -1,9 +1,17 @@
 #include "Window.h"
 
-#include "logger/Logger.h"
+// external includes
+#include <format>
 
 namespace humongousexplorer::win32
 {
+	//---------------------------------------------------------------------
+	Window& GetWin32Window()
+	{
+		static Window window;
+		return window;
+	}
+
 	//---------------------------------------------------------------------
 	// Window
 	//---------------------------------------------------------------------
@@ -13,15 +21,20 @@ namespace humongousexplorer::win32
 	}
 
 	//---------------------------------------------------------------------
-	bool Window::Initialize(HINSTANCE a_HInstance, int a_iWidth, int a_iHeight, const wchar_t* a_sTitle)
+	bool Window::Initialize(HINSTANCE a_HInstance, int a_iWidth, int a_iHeight, const wchar_t* a_sTitle, bool a_bFrameless)
 	{
 		m_HInstance = a_HInstance;
+		m_bFrameless = a_bFrameless;
 
-		wchar_t className[64];
-		swprintf_s(className, L"HumongousExplorer_%08X", GetCurrentProcessId());
-		m_wsClassName = className;
+		m_wsClassName = std::format(L"{}_%08X", a_sTitle, GetCurrentProcessId());
 
-		WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, &Window::WndProc, 0L, 0L, a_HInstance, nullptr, nullptr, nullptr, nullptr, m_wsClassName.c_str(), nullptr };
+		// WS_THICKFRAME is required for resizability.
+		// WS_MAXIMIZEBOX / WS_MINIMIZEBOX are needed for Aero snap + maximize via taskbar / Win+Arrow.
+		DWORD style = a_bFrameless
+			? (WS_POPUP | WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_VISIBLE)
+			: WS_OVERLAPPEDWINDOW;
+
+		WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, &Window::WndProc, 0L, 0L, a_HInstance, nullptr, ::LoadCursorW(nullptr, reinterpret_cast<LPCWSTR>(IDC_ARROW)), nullptr, nullptr, m_wsClassName.c_str(), nullptr };
 
 		if (!::RegisterClassExW(&wc))
 		{
@@ -29,20 +42,16 @@ namespace humongousexplorer::win32
 			WNDCLASSEXW existing;
 			if (err != ERROR_CLASS_ALREADY_EXISTS || ::GetClassInfoExW(a_HInstance, m_wsClassName.c_str(), &existing) == 0)
 			{
-				LOGF(LOGSEVERITY_ERROR, "Failed registering window class %s, error 0x%08X", m_wsClassName.c_str(), err);
 				return false;
 			}
 		}
 
-		m_HWnd = ::CreateWindowW(m_wsClassName.c_str(), a_sTitle, WS_OVERLAPPEDWINDOW, 100, 100, a_iWidth, a_iHeight, nullptr, nullptr, a_HInstance, this);
+		m_HWnd = ::CreateWindowW(m_wsClassName.c_str(), a_sTitle, style, 100, 100, a_iWidth, a_iHeight, nullptr, nullptr, a_HInstance, this);
 		if (!m_HWnd)
 		{
-			LOGF(LOGSEVERITY_ERROR, "Failed creating window, error 0x%08X", ::GetLastError());
 			::UnregisterClassW(m_wsClassName.c_str(), a_HInstance);
 			return false;
 		}
-
-		LOG(LOGSEVERITY_SUCCESS, "Initialized window.");
 
 		::DragAcceptFiles(m_HWnd, TRUE);
 
@@ -72,9 +81,13 @@ namespace humongousexplorer::win32
 		{
 			::TranslateMessage(&msg);
 			::DispatchMessage(&msg);
-			if (msg.message == WM_QUIT)
+			switch (msg.message)
 			{
-				running = false;
+				case WM_QUIT:
+				{
+					running = false;
+					break;
+				}
 			}
 		}
 		return running;
@@ -104,6 +117,70 @@ namespace humongousexplorer::win32
 	}
 
 	//---------------------------------------------------------------------
+	void Window::StartDrag()
+	{
+		POINT cursor;
+		GetCursorPos(&cursor);
+		RECT rc;
+		GetWindowRect(m_HWnd, &rc);
+		m_iDragOffset.x = cursor.x - rc.left;
+		m_iDragOffset.y = cursor.y - rc.top;
+		m_bDragging = true;
+		SetCapture(m_HWnd);
+	}
+
+	//---------------------------------------------------------------------
+	void Window::Minimize()
+	{
+		ShowWindow(m_HWnd, SW_MINIMIZE);
+	}
+
+	//---------------------------------------------------------------------
+	void Window::Maximize()
+	{
+		ShowWindow(m_HWnd, IsZoomed(m_HWnd) ? SW_RESTORE : SW_MAXIMIZE);
+	}
+
+	//---------------------------------------------------------------------
+	void Window::Close()
+	{
+		PostMessage(m_HWnd, WM_CLOSE, 0, 0);
+	}
+
+	//---------------------------------------------------------------------
+	bool Window::IsMaximized() const
+	{
+		return ::IsZoomed(m_HWnd) != FALSE;
+	}
+
+	//---------------------------------------------------------------------
+	bool Window::IsOnResizeBorder() const
+	{
+		if (!m_bFrameless || !m_HWnd || ::IsZoomed(m_HWnd))
+			return false;
+
+		POINT cursor;
+		if (!::GetCursorPos(&cursor))
+			return false;
+
+		RECT rc;
+		if (!::GetWindowRect(m_HWnd, &rc))
+			return false;
+
+		const int borderX = ::GetSystemMetrics(SM_CXFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER);
+		const int borderY = ::GetSystemMetrics(SM_CYFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER);
+		const int systemBorder = max(borderX, borderY);
+		const int bw = max(systemBorder + 4, 12);
+
+		const bool left   = cursor.x < rc.left + bw;
+		const bool right  = cursor.x >= rc.right - bw;
+		const bool top    = cursor.y < rc.top + bw;
+		const bool bottom = cursor.y >= rc.bottom - bw;
+
+		return left || right || top || bottom;
+	}
+
+	//---------------------------------------------------------------------
 	bool Window::HasPendingResize() const
 	{
 		return m_iResizeWidth != 0 && m_iResizeHeight != 0;
@@ -130,6 +207,7 @@ namespace humongousexplorer::win32
 	LRESULT CALLBACK Window::WndProc(HWND a_HWnd, UINT a_iMsg, WPARAM a_WParam, LPARAM a_LParam)
 	{
 		Window* window = nullptr;
+
 		if (a_iMsg == WM_NCCREATE)
 		{
 			window = reinterpret_cast<Window*>(reinterpret_cast<CREATESTRUCTW*>(a_LParam)->lpCreateParams);
@@ -145,12 +223,141 @@ namespace humongousexplorer::win32
 			window->m_HWnd = a_HWnd;
 			return window->HandleMessage(a_iMsg, a_WParam, a_LParam);
 		}
+
 		return ::DefWindowProcW(a_HWnd, a_iMsg, a_WParam, a_LParam);
 	}
 
 	//---------------------------------------------------------------------
 	LRESULT Window::HandleMessage(UINT a_iMsg, WPARAM a_WParam, LPARAM a_LParam)
 	{
+		// --- Frameless handling MUST come before the ImGui hook, otherwise ImGui can swallow WM_NCHITTEST/WM_NCCALCSIZE ---
+		if (m_bFrameless)
+		{
+			if (a_iMsg == WM_NCCALCSIZE && a_WParam == TRUE)
+			{
+				// Remove standard frame (title bar/border) but keep the sizing border.
+				// When maximized we must not return 0 without insetting, otherwise the
+				// window covers the taskbar. Insetting is handled via WM_GETMINMAXINFO,
+				// but we also adjust here for multi-monitor correctness.
+				return 0;
+			}
+
+			if (a_iMsg == WM_NCHITTEST)
+			{
+				POINTS cursor = MAKEPOINTS(a_LParam);
+				RECT rc;
+				GetWindowRect(m_HWnd, &rc);
+
+				// Use system frame metrics so hit area matches the invisible sizing border
+				// Make it intentionally thicker than the default 8px so it's easier to grab on a borderless window
+				const int borderX = ::GetSystemMetrics(SM_CXFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER);
+				const int borderY = ::GetSystemMetrics(SM_CYFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER);
+				const int systemBorder = max(borderX, borderY); // typically 8px
+				const int bw = max(systemBorder + 4, 12); // 12px minimum, ~12-16px effective for easy resizing
+
+				const bool left   = cursor.x < rc.left + bw;
+				const bool right  = cursor.x >= rc.right - bw;
+				const bool top    = cursor.y < rc.top + bw;
+				const bool bottom = cursor.y >= rc.bottom - bw;
+
+				// Resize borders - disabled when maximized
+				if (!::IsZoomed(m_HWnd))
+				{
+					if (top)
+					{
+						if (left)  return HTTOPLEFT;
+						if (right) return HTTOPRIGHT;
+						return HTTOP;
+					}
+					if (bottom)
+					{
+						if (left)  return HTBOTTOMLEFT;
+						if (right) return HTBOTTOMRIGHT;
+						return HTBOTTOM;
+					}
+					if (left)  return HTLEFT;
+					if (right) return HTRIGHT;
+				}
+				else
+				{
+					// When maximized, no resize - but still allow drag via caption below
+				}
+
+				// --- Dragging: treat top bar as title bar ---
+				// 50px toolbar height, exclude right 400px where window buttons live
+				// Return HTCAPTION so OS handles move, snap, double-click maximize, and Aero.
+				const int toolbarHeight = 50;
+				const int buttonAreaWidth = 400;
+				if (cursor.y < rc.top + toolbarHeight && cursor.x < rc.right - buttonAreaWidth)
+				{
+					return HTCAPTION;
+				}
+
+				return HTCLIENT;
+			}
+
+			if (a_iMsg == WM_GETMINMAXINFO)
+			{
+				// Enforce a minimum track size and fix auto-maximize covering the taskbar
+				MINMAXINFO* mmi = reinterpret_cast<MINMAXINFO*>(a_LParam);
+				mmi->ptMinTrackSize.x = 640;
+				mmi->ptMinTrackSize.y = 400;
+
+				HMONITOR hMon = ::MonitorFromWindow(m_HWnd, MONITOR_DEFAULTTONEAREST);
+				MONITORINFO mi = { sizeof(mi) };
+				if (::GetMonitorInfoW(hMon, &mi))
+				{
+					mmi->ptMaxPosition.x = mi.rcWork.left - mi.rcMonitor.left;
+					mmi->ptMaxPosition.y = mi.rcWork.top - mi.rcMonitor.top;
+					mmi->ptMaxSize.x = mi.rcWork.right - mi.rcWork.left;
+					mmi->ptMaxSize.y = mi.rcWork.bottom - mi.rcWork.top;
+				}
+				return 0;
+			}
+		}
+
+		// Programmatic drag via Window::StartDrag() - kept for ImGui explicit calls
+		if (m_bDragging)
+		{
+			switch (a_iMsg)
+			{
+				case WM_MOUSEMOVE:
+				{
+					POINT cursor;
+					GetCursorPos(&cursor);
+					SetWindowPos(m_HWnd, nullptr, cursor.x - m_iDragOffset.x, cursor.y - m_iDragOffset.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+					return 0;
+				}
+				case WM_LBUTTONUP:
+				{
+					m_bDragging = false;
+					ReleaseCapture();
+					return 0;
+				}
+			}
+		}
+
+		if (a_iMsg == WM_GETMINMAXINFO)
+		{
+			// Enforce a minimum track size and fix auto-maximize covering the taskbar
+			MINMAXINFO* mmi = reinterpret_cast<MINMAXINFO*>(a_LParam);
+			mmi->ptMinTrackSize.x = 640;
+			mmi->ptMinTrackSize.y = 400;
+
+			// When frameless, the default maximized size would cover the taskbar.
+			// Clamp to the monitor work area.
+			HMONITOR hMon = ::MonitorFromWindow(m_HWnd, MONITOR_DEFAULTTONEAREST);
+			MONITORINFO mi = { sizeof(mi) };
+			if (::GetMonitorInfoW(hMon, &mi))
+			{
+				mmi->ptMaxPosition.x = mi.rcWork.left - mi.rcMonitor.left;
+				mmi->ptMaxPosition.y = mi.rcWork.top - mi.rcMonitor.top;
+				mmi->ptMaxSize.x = mi.rcWork.right - mi.rcWork.left;
+				mmi->ptMaxSize.y = mi.rcWork.bottom - mi.rcWork.top;
+			}
+			return 0;
+		}
+
 		if (m_MessageHook && m_MessageHook(m_HWnd, a_iMsg, a_WParam, a_LParam))
 		{
 			return 0;
@@ -159,6 +366,7 @@ namespace humongousexplorer::win32
 		switch (a_iMsg)
 		{
 			case WM_SIZE:
+			{
 				if (a_WParam == SIZE_MINIMIZED)
 				{
 					return 0;
@@ -166,30 +374,36 @@ namespace humongousexplorer::win32
 				m_iResizeWidth = static_cast<uint32_t>(LOWORD(a_LParam));
 				m_iResizeHeight = static_cast<uint32_t>(HIWORD(a_LParam));
 				return 0;
+			}
 			case WM_SYSCOMMAND:
+			{
 				if ((a_WParam & 0xfff0) == SC_KEYMENU)
 				{
 					return 0;
 				}
 				break;
-		case WM_DROPFILES:
-		{
-			HDROP hDrop = reinterpret_cast<HDROP>(a_WParam);
-			wchar_t path[MAX_PATH];
-			if (::DragQueryFileW(hDrop, 0, path, MAX_PATH))
-			{
-				char utf8[MAX_PATH * 3];
-				int len = ::WideCharToMultiByte(CP_UTF8, 0, path, -1, utf8, sizeof(utf8), nullptr, nullptr);
-				if (len > 0) m_sDroppedFile = utf8;
 			}
-			::DragQueryPoint(hDrop, &m_ptDropPoint);
-			::DragFinish(hDrop);
-			return 0;
-		}
 			case WM_DESTROY:
+			{
 				::PostQuitMessage(0);
 				return 0;
+			}
+			case WM_DROPFILES:
+			{
+				HDROP hDrop = reinterpret_cast<HDROP>(a_WParam);
+				wchar_t path[MAX_PATH];
+				if (::DragQueryFileW(hDrop, 0, path, MAX_PATH))
+				{
+					char utf8[MAX_PATH * 3];
+					int len = ::WideCharToMultiByte(CP_UTF8, 0, path, -1, utf8, sizeof(utf8), nullptr, nullptr);
+					if (len > 0) m_sDroppedFile = utf8;
+				}
+				::DragQueryPoint(hDrop, &m_ptDropPoint);
+				::DragFinish(hDrop);
+				return 0;
+			}
 		}
 		return ::DefWindowProcW(m_HWnd, a_iMsg, a_WParam, a_LParam);
 	}
 }
+

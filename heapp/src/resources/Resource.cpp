@@ -298,7 +298,7 @@ namespace humongousexplorer::resources
 			return m_pSRV;
 		}
 
-		m_pSRV = GetDX11System().CreateTexture(
+		m_pSRV = dx11::GetDX11System().CreateTexture(
 			m_ImageData.data(),
 			m_iWidth,
 			m_iHeight

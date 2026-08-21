@@ -30,7 +30,7 @@ namespace humongousexplorer::dx11
 			return nullptr;
 		}
 
-		ID3D11ShaderResourceView* srv = humongousexplorer::GetDX11System().CreateTexture(
+		ID3D11ShaderResourceView* srv = dx11::GetDX11System().CreateTexture(
 			pixels.dataAs<unsigned char>(), texW, texH);
 
 		if (!srv)

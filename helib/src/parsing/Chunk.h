@@ -155,8 +155,12 @@ namespace humongousexplorer::parsing
 		/// <param name="a_Data">The output DataStream to write the serialized chunk into.</param>
 		void ToData(core::DataStream& a_Data) const;
 
+		void SetAsRoot();
+
 		char m_sTag[CHUNK_ID_SIZE] = {};
 	private:
+		bool m_bIsRoot = false;
+
 		core::Data m_Data;		   // leaf: Owns its data.
 		std::vector<std::unique_ptr<Chunk>> m_aChildren; // container: Owns its children.
 		Chunk* m_pParent = nullptr;

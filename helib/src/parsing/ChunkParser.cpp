@@ -109,6 +109,7 @@ namespace humongousexplorer::parsing
 			currentPos += chunkSize; 
 		} 
 		
+		a_Out.SetAsRoot();
 		return true;
 	}
 }

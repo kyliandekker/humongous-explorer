@@ -5,17 +5,11 @@
 
 #include <d3d11.h>
 
-namespace humongousexplorer
-{
-	namespace dx11
-	{
-		class DX11System;
-	}
-
-	extern dx11::DX11System& GetDX11System();
-}
 namespace humongousexplorer::dx11
 {
+	class DX11System;
+	extern DX11System& GetDX11System();
+
 	//---------------------------------------------------------------------
 	// DX11System
 	//---------------------------------------------------------------------
