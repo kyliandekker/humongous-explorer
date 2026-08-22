@@ -2,6 +2,7 @@
 
 #include <imgui/imgui.h>
 #include <string>
+#include <vector>
 
 #include "dx11/SVGTextureCache.h"
 #include "win32/winfile.h"
@@ -366,14 +367,91 @@ namespace humongousexplorer::imgui
 			curY += iconH + 8.0f;
 		}
 
-		const char* subtitle = "(.A, .HE0, .HE2, .HE3, .HE4)";
-		ImVec2 subSize = ImGui::CalcTextSize(subtitle);
-		drawList->AddText(ImVec2(centerX - subSize.x * 0.5f, curY), IM_COL32(140, 140, 160, 255), subtitle);
-		curY += subSize.y + 4.0f;
+		const float horizontalPadding = 16.0f;
+		float availableWidth = zoneW - horizontalPadding * 2.0f;
+		if (availableWidth < 20.0f)
+		{
+			availableWidth = zoneW - 8.0f;
+		}
 
-		const char* hint = "You can also drop a file from Windows Explorer";
-		ImVec2 hintSize = ImGui::CalcTextSize(hint);
-		drawList->AddText(ImVec2(centerX - hintSize.x * 0.5f, curY), IM_COL32(110, 110, 130, 255), hint);
+		auto drawCenteredWrappedText = [&](const char* text, ImU32 col)
+		{
+			std::string textStr(text);
+			std::vector<std::string> words;
+			std::string currentWord;
+			for (char c : textStr)
+			{
+				if (c == ' ')
+				{
+					if (!currentWord.empty())
+					{
+						words.push_back(currentWord);
+						currentWord.clear();
+					}
+				}
+				else
+				{
+					currentWord += c;
+				}
+			}
+			if (!currentWord.empty())
+			{
+				words.push_back(currentWord);
+			}
+
+			std::vector<std::string> lines;
+			std::string currentLine;
+			for (const std::string& word : words)
+			{
+				std::string test = currentLine.empty() ? word : currentLine + " " + word;
+				if (ImGui::CalcTextSize(test.c_str()).x <= availableWidth)
+				{
+					currentLine = test;
+				}
+				else
+				{
+					if (!currentLine.empty())
+					{
+						lines.push_back(currentLine);
+					}
+					currentLine = word;
+					if (ImGui::CalcTextSize(currentLine.c_str()).x > availableWidth)
+					{
+						lines.push_back(currentLine);
+						currentLine.clear();
+					}
+				}
+			}
+			if (!currentLine.empty())
+			{
+				lines.push_back(currentLine);
+			}
+			if (lines.empty())
+			{
+				lines.push_back(textStr);
+			}
+
+			for (const std::string& line : lines)
+			{
+				ImVec2 lineSize = ImGui::CalcTextSize(line.c_str());
+				float lineX = centerX - lineSize.x * 0.5f;
+				if (lineX < zoneMin.x + horizontalPadding)
+				{
+					lineX = zoneMin.x + horizontalPadding;
+				}
+				if (lineX + lineSize.x > zoneMax.x - horizontalPadding)
+				{
+					lineX = zoneMax.x - horizontalPadding - lineSize.x;
+				}
+				drawList->AddText(ImVec2(lineX, curY), col, line.c_str());
+				curY += lineSize.y;
+			}
+		};
+
+		drawCenteredWrappedText("(.A, .HE0, .HE2, .HE3, .HE4)", IM_COL32(140, 140, 160, 255));
+		curY += 4.0f;
+
+		drawCenteredWrappedText("You can also drop a file from Windows Explorer", IM_COL32(110, 110, 130, 255));
 
 		drawList->PopClipRect();
 	}
