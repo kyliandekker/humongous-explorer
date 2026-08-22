@@ -1,6 +1,8 @@
 #include "ArchiveContentsWindow.h"
 
 #include <imgui/imgui.h>
+#include <imgui/font_icon.h>
+#include <imgui/Helpers.h>
 #include <string>
 #include <vector>
 
@@ -21,7 +23,6 @@
 #include "imgui/views/FileEntryView.h"
 #include "imgui/views/ResourceFileEntryView.h"
 #include "imgui/views/SearchBar.h"
-#include "imgui/Helpers.h"
 
 #include "utils/string_extensions.h"
 
@@ -306,7 +307,43 @@ namespace humongousexplorer::imgui
 		ID3D11ShaderResourceView* pTex = dx11::SVGTextureCache::Get(sIconPath);
 
 		float zoneW = ImGui::GetContentRegionAvail().x;
-		float zoneH = 220.0f;
+		const float horizontalPadding = 16.0f;
+		float availableWidth = zoneW - horizontalPadding * 2.0f;
+		if (availableWidth < 20.0f)
+		{
+			availableWidth = zoneW - 8.0f;
+		}
+
+		// Estimate content height so zone fully contains icon + wrapped text + button (fixes half cut off)
+		const char* subtitleEstimate = "(.A, .HE0, .HE2, .HE3, .HE4)";
+		const char* hintEstimate = "You can also drop a file from Windows Explorer";
+		float iconHEstimate = 0.0f;
+		if (pTex)
+		{
+			float texW = static_cast<float>(dx11::SVGTextureCache::GetWidth(sIconPath));
+			float texH = static_cast<float>(dx11::SVGTextureCache::GetHeight(sIconPath));
+			if (texW > 0.0f)
+			{
+				iconHEstimate = 64.0f * (texH / texW);
+			}
+			else
+			{
+				iconHEstimate = 64.0f;
+			}
+		}
+		float subtitleHEstimate = ImGui::CalcTextSize(subtitleEstimate, nullptr, false, availableWidth).y;
+		float hintHEstimate = ImGui::CalcTextSize(hintEstimate, nullptr, false, availableWidth).y;
+		float buttonHNeeded = ImGui::CalcTextSize("Browse Files").y + ImGui::GetStyle().FramePadding.y * 2.0f + 6.0f;
+		float neededH = 14.0f + (pTex ? iconHEstimate + 8.0f : 0.0f) + subtitleHEstimate + 4.0f + hintHEstimate + 12.0f + buttonHNeeded + 16.0f;
+		float zoneH = neededH;
+		if (zoneH < 200.0f)
+		{
+			zoneH = 200.0f;
+		}
+		if (zoneH > 320.0f)
+		{
+			zoneH = 320.0f;
+		}
 
 		ImVec2 cursor = ImGui::GetCursorScreenPos();
 		ImVec2 zoneMin(cursor.x, cursor.y);
@@ -324,33 +361,16 @@ namespace humongousexplorer::imgui
 			}
 		}
 
-		bool hovered = false;
-		if (ImGui::InvisibleButton(FormatId("", BUTTON_ID, "DROP_ZONE_ARCHIVES").c_str(), ImVec2(zoneW, zoneH)))
-		{
-			fs::path selected;
-			std::vector<COMDLG_FILTERSPEC> filters = {
-				{ L"HE Archive", L"*.(A);*.HE0;*.HE1;*.HE2;*.HE3;*.HE4;*.HE7;*.HE8" },
-				{ L"All Files", L"*.*" }
-			};
-			if (file::PickFile(selected, filters))
-			{
-				if (GetWorkspace().GetArchiveSet().LoadArchives(selected.string()))
-				{
-					GetWorkspace().GetArchivesChanged().invoke();
-				}
-			}
-		}
-		hovered = ImGui::IsItemHovered();
-
+		ImGui::Dummy(ImVec2(zoneW, zoneH));
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 
 		drawList->PushClipRect(zoneMin, zoneMax, true);
 
-		ImU32 bgColor = hovered ? IM_COL32(70, 70, 90, 180) : IM_COL32(45, 45, 55, 100);
-		ImU32 borderColor = hovered ? IM_COL32(150, 150, 200, 255) : IM_COL32(100, 100, 120, 200);
+		ImU32 bgColor = IM_COL32(45, 45, 55, 100);
+		ImU32 borderColor = IM_COL32(100, 100, 120, 200);
 
 		drawList->AddRectFilled(zoneMin, zoneMax, bgColor, 8.0f);
-		drawList->AddRect(zoneMin, zoneMax, borderColor, 8.0f, ImDrawFlags_RoundCornersAll, hovered ? 2.0f : 1.0f);
+		drawList->AddRect(zoneMin, zoneMax, borderColor, 8.0f, ImDrawFlags_RoundCornersAll, 1.0f);
 
 		float centerX = cursor.x + zoneW * 0.5f;
 		float curY = cursor.y + 14.0f;
@@ -365,13 +385,6 @@ namespace humongousexplorer::imgui
 			float iconX = centerX - iconW * 0.5f;
 			drawList->AddImage((ImTextureID)pTex, ImVec2(iconX, curY), ImVec2(iconX + iconW, curY + iconH));
 			curY += iconH + 8.0f;
-		}
-
-		const float horizontalPadding = 16.0f;
-		float availableWidth = zoneW - horizontalPadding * 2.0f;
-		if (availableWidth < 20.0f)
-		{
-			availableWidth = zoneW - 8.0f;
 		}
 
 		auto drawCenteredWrappedText = [&](const char* text, ImU32 col)
@@ -452,7 +465,63 @@ namespace humongousexplorer::imgui
 		curY += 4.0f;
 
 		drawCenteredWrappedText("You can also drop a file from Windows Explorer", IM_COL32(110, 110, 130, 255));
+		curY += 12.0f;
 
 		drawList->PopClipRect();
+
+		std::string buttonText = std::string(icon::ICON_OPEN) + " Open Archive File";
+
+		// Browse button - height auto so text never half cut, centered, adapt to DPI
+		float buttonLabelW = ImGui::CalcTextSize(buttonText.c_str()).x;
+		float buttonW = ImGui::GetContentRegionAvail().x - (ImGui::GetStyle().FramePadding.x * 2);
+		const ImVec2 buttonSize(buttonW, 0);
+		float actualButtonH = ImGui::CalcTextSize(buttonText.c_str()).y + ImGui::GetStyle().FramePadding.y * 2.0f + 6.0f;
+		if (curY + actualButtonH <= zoneMax.y - 12.0f)
+		{
+			ImVec2 buttonPos(centerX - buttonSize.x * 0.5f, curY);
+			ImVec2 backupCursorPos = ImGui::GetCursorScreenPos();
+			ImGui::SetCursorScreenPos(buttonPos);
+
+			ImGui::PushStyleColor(
+				ImGuiCol_Button,
+				ImGui::ColorConvertFloat4ToU32(
+					imgui::ExtraColors[
+						imgui::ImGuiExtraCol_Accent]));
+
+			ImGui::PushStyleColor(
+				ImGuiCol_ButtonHovered,
+				ImGui::ColorConvertFloat4ToU32(
+					imgui::ExtraColors[
+						imgui::ImGuiExtraCol_AccentHovered]));
+
+			ImGui::PushStyleColor(
+				ImGuiCol_ButtonActive,
+				ImGui::ColorConvertFloat4ToU32(
+					imgui::ExtraColors[
+						imgui::ImGuiExtraCol_AccentActive]));
+
+			if (ImGui::Button(buttonText.c_str(), buttonSize))
+			{
+				fs::path selected;
+				std::vector<COMDLG_FILTERSPEC> filters =
+				{
+					{ L"HE Archive", L"*.(A);*.HE0;*.HE1;*.HE2;*.HE3;*.HE4;*.HE7;*.HE8" },
+					{ L"All Files", L"*.*" }
+				};
+				if (file::PickFile(selected, filters))
+				{
+					if (GetWorkspace().GetArchiveSet().LoadArchives(selected.string()))
+					{
+						GetWorkspace().GetArchivesChanged().invoke();
+					}
+				}
+			}
+
+			ImGui::PopStyleColor();
+			ImGui::PopStyleColor();
+			ImGui::PopStyleColor();
+
+			ImGui::SetCursorScreenPos(backupCursorPos);
+		}
 	}
 }

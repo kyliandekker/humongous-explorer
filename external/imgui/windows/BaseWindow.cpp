@@ -32,7 +32,6 @@ namespace humongousexplorer::imgui
 	bool BaseWindow::WindowBegin()
 	{
 		m_bEnabled = true;
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetFontSize(), ImGui::GetFontSize()));
 		if (m_bHideCloseButton)
 		{
 			bool open = ImGui::Begin(FormatId(m_sName, WINDOW_ID, m_sWindowID).c_str(), nullptr, m_Flags);
@@ -56,7 +55,6 @@ namespace humongousexplorer::imgui
 		};
 
 		ImGui::End();
-		ImGui::PopStyleVar();
 	}
 
 	//---------------------------------------------------------------------

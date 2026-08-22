@@ -18,7 +18,7 @@ namespace humongousexplorer::imgui
 		float textOffset = iconSize + iconPadding * 2;
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(textOffset, 6.0f));
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(textOffset, 12.0f));
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1);
 
 		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
