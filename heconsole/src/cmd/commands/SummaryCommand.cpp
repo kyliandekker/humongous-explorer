@@ -1,4 +1,4 @@
-#include "./SummaryCommand.h"
+#include "SummaryCommand.h"
 
 #include <cstdio>
 #include <string>

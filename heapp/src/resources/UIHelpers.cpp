@@ -1,4 +1,4 @@
-#include "./UIHelpers.h"
+#include "UIHelpers.h"
 
 #include "archive/ArchiveType.h"
 
@@ -53,7 +53,7 @@ namespace humongousexplorer::resources
 		}
 		return "";
 	}
-	
+
 	//---------------------------------------------------------------------
 	static const std::unordered_map<std::string_view, DisplayableChunk> s_Empty =
 	{

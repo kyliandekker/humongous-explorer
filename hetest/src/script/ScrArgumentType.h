@@ -3,8 +3,8 @@
 namespace humongousexplorer::script
 {
 	//---------------------------------------------------------------------
-	enum class ScrArgumentType 
-	{ 
+	enum class ScrArgumentType
+	{
 		Byte, // Unsigned.
 		Int16, // Signed.
 		Int32, // Signed.

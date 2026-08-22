@@ -1,4 +1,4 @@
-#include "./ArchiveType.h"
+#include "ArchiveType.h"
 
 namespace humongousexplorer::archive
 {
@@ -6,7 +6,10 @@ namespace humongousexplorer::archive
 	ArchiveType GetArchiveTypeFromExtension(const std::string& a_sExtension)
 	{
 		std::string ext = a_sExtension;
-		for (auto& c : ext) c = static_cast<char>(::toupper(c));
+		for (auto& c : ext)
+		{
+			c = static_cast<char>(::toupper(c));
+		}
 
 		if (ext == "HE0")
 		{

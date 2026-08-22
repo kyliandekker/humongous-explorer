@@ -23,9 +23,9 @@ namespace humongousexplorer::imgui
 		ImVec2 topToolbarStart = ImGui::GetWindowPos();
 		ImVec2 topToolbarEnd = { topToolbarStart.x + ImGui::GetWindowWidth(), topToolbarStart.y + TOP_TOOLBAR_HEIGHT };
 		drawlist->AddRectFilled(
-			ImGui::GetWindowPos(), 
-			ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), 
-				ImGui::GetWindowPos().y + TOP_TOOLBAR_HEIGHT), 
+			ImGui::GetWindowPos(),
+			ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(),
+				ImGui::GetWindowPos().y + TOP_TOOLBAR_HEIGHT),
 			IM_COL32(21, 26, 36, 255)
 		);
 

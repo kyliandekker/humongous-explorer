@@ -8,8 +8,8 @@
 #include <vector>
 
 namespace humongousexplorer::dx11
-{ 
-	class DX11System; 
+{
+	class DX11System;
 }
 namespace humongousexplorer::imgui
 {

@@ -1,4 +1,4 @@
-#include "./Resource.h"
+#include "Resource.h"
 
 #include "parsing/ChunkParser.h"
 
@@ -37,7 +37,7 @@ namespace humongousexplorer::resources
 	{
 		return m_pDataChunk->GetData();
 	}
-	
+
 	//---------------------------------------------------------------------
 	void SoundResource::SetDataChunk(parsing::Chunk* a_pChunk)
 	{
@@ -407,7 +407,7 @@ namespace humongousexplorer::resources
 		parsing::BMAP_Chunk* bmapData = bmap->GetData().dataAs<parsing::BMAP_Chunk>();
 
 		const int palen = bmapData->encoding % 10;
-		
+
 		// Determine which version.
 		const bool he = bmapData->encoding >= 0x86 && bmapData->encoding <= 0x8A;
 		const bool he_transparent = bmapData->encoding >= 0x90 && bmapData->encoding <= 0x94;

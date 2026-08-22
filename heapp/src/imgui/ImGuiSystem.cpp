@@ -215,9 +215,13 @@ namespace humongousexplorer::imgui
 		{
 			HWND hwnd = nullptr;
 			if (ImGui::GetMainViewport())
+			{
 				hwnd = (HWND)ImGui::GetMainViewport()->PlatformHandleRaw;
+			}
 			if (!hwnd)
+			{
 				hwnd = ::GetForegroundWindow();
+			}
 			if (hwnd && !::IsZoomed(hwnd))
 			{
 				POINT p; ::GetCursorPos(&p);
@@ -227,7 +231,9 @@ namespace humongousexplorer::imgui
 				const int bw = max(max(bx, by) + 4, 12);
 				const bool onBorder = (p.x < rc.left + bw) || (p.x >= rc.right - bw) || (p.y < rc.top + bw) || (p.y >= rc.bottom - bw);
 				if (onBorder)
+				{
 					return;
+				}
 			}
 		}
 
@@ -242,7 +248,7 @@ namespace humongousexplorer::imgui
 			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
 		}
 
-		LPTSTR win32_cursor = IDC_ARROW; 
+		LPTSTR win32_cursor = IDC_ARROW;
 		ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
 		switch (imgui_cursor)
 		{

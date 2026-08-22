@@ -44,7 +44,7 @@ namespace humongousexplorer::string_extensions
 
 		return tempStr;
 	}
-	
+
 	//---------------------------------------------------------------------
 	std::string LowerCamelCasify(std::string a_sStrToConvert)
 	{

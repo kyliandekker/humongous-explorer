@@ -1,4 +1,4 @@
-#include "./ScrArgument.h"
+#include "ScrArgument.h"
 
 #include <cassert>
 

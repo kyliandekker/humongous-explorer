@@ -7,7 +7,7 @@
 namespace humongousexplorer::script
 {
 	enum class ScrArgumentType;
-	
+
 	class ScrArgument
 	{
 	public:
@@ -16,10 +16,10 @@ namespace humongousexplorer::script
 
 		ScrArgumentType GetArgumentType() const;
 		const core::Data& GetData() const;
-		
+
 		const std::string GetString() const;
 		int32_t GetRefJump() const;
-		
+
 		void SetData(const core::Data& a_Data);
 
 		void SetByte(uint8_t a_iValue);

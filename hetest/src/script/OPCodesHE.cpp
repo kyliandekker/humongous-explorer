@@ -1,4 +1,4 @@
-#include "./OPCodesHE.h"
+#include "OPCodesHE.h"
 
 #include "script/ScrArgumentType.h"
 
@@ -104,7 +104,9 @@ namespace humongousexplorer::script
 		if (cmd == 75 || cmd == 194)
 		{
 			while (a_pData[pos] != 0)
+			{
 				pos++;
+			}
 
 			pos++;
 
@@ -166,7 +168,9 @@ namespace humongousexplorer::script
 		if (cmd == 35 || cmd == 79)
 		{
 			while (a_pData[pos] != 0)
+			{
 				pos++;
+			}
 
 			pos++;
 
@@ -187,7 +191,9 @@ namespace humongousexplorer::script
 		size_t pos = 0;
 
 		while (a_pData[pos] != 0)
+		{
 			pos++;
+		}
 
 		pos++;
 
@@ -237,7 +243,9 @@ namespace humongousexplorer::script
 		if (cmd == 0x58)
 		{
 			while (a_pData[pos] != 0)
+			{
 				pos++;
+			}
 
 			pos++;
 
@@ -299,7 +307,9 @@ namespace humongousexplorer::script
 		if (cmd == 225)
 		{
 			while (a_pData[pos] != 0)
+			{
 				pos++;
+			}
 
 			pos++;
 
@@ -326,7 +336,9 @@ namespace humongousexplorer::script
 		if (cmd == 0x7D)
 		{
 			while (a_pData[pos] != 0)
+			{
 				pos++;
+			}
 
 			pos++;
 
@@ -393,7 +405,9 @@ namespace humongousexplorer::script
 		if (cmd == 205)
 		{
 			while (a_pData[pos] != 0)
+			{
 				pos++;
+			}
 
 			pos++;
 
@@ -601,7 +615,9 @@ namespace humongousexplorer::script
 		if (cmd == 221)
 		{
 			while (a_pData[pos] != 0)
+			{
 				pos++;
+			}
 
 			pos++;
 
@@ -622,7 +638,9 @@ namespace humongousexplorer::script
 		size_t pos = 0;
 
 		while (a_pData[pos] != 0)
+		{
 			pos++;
+		}
 
 		pos++;
 
@@ -634,7 +652,9 @@ namespace humongousexplorer::script
 		size_t start = pos;
 
 		while (a_pData[pos] != 0)
+		{
 			pos++;
+		}
 
 		pos++;
 
@@ -654,7 +674,9 @@ namespace humongousexplorer::script
 		size_t pos = 1;
 
 		while (a_pData[pos] != 0)
+		{
 			pos++;
+		}
 
 		pos++;
 
@@ -677,7 +699,9 @@ namespace humongousexplorer::script
 		if (type == 1)
 		{
 			while (a_pData[pos] != 0)
+			{
 				pos++;
+			}
 
 			pos++;
 
@@ -689,7 +713,9 @@ namespace humongousexplorer::script
 		else if (type == 2)
 		{
 			while (a_pData[pos] != 0)
+			{
 				pos++;
+			}
 
 			pos++;
 
@@ -701,7 +727,9 @@ namespace humongousexplorer::script
 			size_t start = pos;
 
 			while (a_pData[pos] != 0)
+			{
 				pos++;
+			}
 
 			pos++;
 

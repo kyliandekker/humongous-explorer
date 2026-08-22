@@ -1,4 +1,4 @@
-#include "./Memory.h"
+#include "Memory.h"
 
 // external
 #include <cstdint>
@@ -12,10 +12,14 @@ namespace humongousexplorer::core
 	std::string SizeToString(size_t a_Size)
 	{
 		if (a_Size >= _1MB)
+		{
 			return std::to_string(a_Size / _1MB) + "MB";
+		}
 
 		if (a_Size >= KB(1))
+		{
 			return std::to_string(a_Size / KB(1)) + "KB";
+		}
 
 		return std::to_string(a_Size) + "B";
 	}

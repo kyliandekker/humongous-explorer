@@ -1,4 +1,4 @@
-#include "./SearchBar.h"
+#include "SearchBar.h"
 
 #include <imgui.h>
 

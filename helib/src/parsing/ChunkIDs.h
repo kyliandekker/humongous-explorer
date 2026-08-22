@@ -5,7 +5,7 @@
 namespace humongousexplorer::parsing
 {
 	using chunkid = std::string_view;
-	
+
 	// TALK .HE2
 	constexpr chunkid TLKB_CHUNK_ID = "TLKB";
 	constexpr chunkid TALK_CHUNK_ID = "TALK";

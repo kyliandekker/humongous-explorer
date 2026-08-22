@@ -1,4 +1,4 @@
-#include "./RoomContentWindow.h"
+#include "RoomContentWindow.h"
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
@@ -142,9 +142,16 @@ namespace humongousexplorer::imgui
 	}
 
 	//---------------------------------------------------------------------
-	int CompareSize(size_t a, size_t b) {
-		if (a < b) return -1;
-		if (a > b) return 1;
+	int CompareSize(size_t a, size_t b)
+	{
+		if (a < b)
+		{
+			return -1;
+		}
+		if (a > b)
+		{
+			return 1;
+		}
 		return 0;
 	}
 

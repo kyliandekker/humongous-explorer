@@ -1,4 +1,4 @@
-#include "./ArchiveContentsWindow.h"
+#include "ArchiveContentsWindow.h"
 
 #include <imgui/imgui.h>
 #include <string>
@@ -100,7 +100,9 @@ namespace humongousexplorer::imgui
 			}
 
 			if (pos < rnamEnd)
+			{
 				++pos; // skip '\0'
+			}
 
 			roomNames.push_back(roomName);
 		}

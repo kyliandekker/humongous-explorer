@@ -10,7 +10,7 @@ namespace humongousexplorer::archive
 namespace humongousexplorer::resources
 {
 	enum class ResourceType;
-	
+
 	//---------------------------------------------------------------------
 	// DisplayableChunk
 	//---------------------------------------------------------------------
@@ -19,10 +19,10 @@ namespace humongousexplorer::resources
 		resources::ResourceType m_eResourceType;
 		bool m_bVisible = true;
 	};
-	
+
 	//---------------------------------------------------------------------
 	std::string GetIconFromArchiveType(archive::ArchiveType a_ArchiveType);
-	
+
 	//---------------------------------------------------------------------
 	const std::unordered_map<std::string_view, DisplayableChunk>& GetDisplayableChunks(archive::ArchiveType a_ArchiveType);
 }

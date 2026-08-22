@@ -132,7 +132,7 @@ namespace humongousexplorer::imgui
 		}
 		ImGui::SameLine();
 
-		// Zoom combo — shows current zoom as percentage
+		// Zoom combo â€” shows current zoom as percentage
 		char zoomLabel[16];
 		snprintf(zoomLabel, sizeof(zoomLabel), "%.0f%%", m_fZoom * 100.0f);
 		ImGui::PushItemWidth(90.0f);
@@ -142,9 +142,13 @@ namespace humongousexplorer::imgui
 			{
 				bool isSelected = (fabsf(m_fZoom - s_aPresets[i]) < 0.001f);
 				if (ImGui::Selectable(s_aPresetLabels[i], isSelected))
+				{
 					m_fZoom = s_aPresets[i];
+				}
 				if (isSelected)
+				{
 					ImGui::SetItemDefaultFocus();
+				}
 			}
 			ImGui::EndCombo();
 		}
@@ -180,7 +184,9 @@ namespace humongousexplorer::imgui
 
 		bool prevCheckerboard = m_bShowCheckerboard;
 		if (m_bShowCheckerboard)
+		{
 			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+		}
 
 		ImGui::NewLine();
 
@@ -191,7 +197,9 @@ namespace humongousexplorer::imgui
 			m_bShowCheckerboard = !m_bShowCheckerboard;
 		}
 		if (prevCheckerboard)
+		{
 			ImGui::PopStyleColor();
+		}
 
 		ImGui::PopStyleVar();
 	}
@@ -204,7 +212,9 @@ namespace humongousexplorer::imgui
 		ImVec2 previewArea(avail.x, avail.y - controlsBarHeight);
 
 		if (previewArea.x <= 0 || previewArea.y <= 0)
+		{
 			return;
+		}
 
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 		ImVec2 areaMin = ImGui::GetCursorScreenPos();
@@ -227,8 +237,14 @@ namespace humongousexplorer::imgui
 			if (wheel != 0.0f)
 			{
 				m_fZoom += wheel * 0.1f;
-				if (m_fZoom < 0.05f) m_fZoom = 0.05f;
-				if (m_fZoom > 16.0f) m_fZoom = 16.0f;
+				if (m_fZoom < 0.05f)
+				{
+					m_fZoom = 0.05f;
+				}
+				if (m_fZoom > 16.0f)
+				{
+					m_fZoom = 16.0f;
+				}
 			}
 		}
 

@@ -1,4 +1,4 @@
-#include "./CommandParser.h"
+#include "CommandParser.h"
 
 #include <cstdio>
 

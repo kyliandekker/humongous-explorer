@@ -1,4 +1,4 @@
-#include "./AppLogger.h"
+#include "AppLogger.h"
 
 namespace humongousexplorer::logger
 {

@@ -1,4 +1,4 @@
-#include "./InfoPanelWindow.h"
+#include "InfoPanelWindow.h"
 
 #include <imgui/imgui.h>
 
@@ -114,7 +114,9 @@ namespace humongousexplorer::imgui
 				for (size_t i = 0; i < colors.size(); ++i)
 				{
 					if (i > 0 && (i % swatchesPerRow) != 0)
+					{
 						ImGui::SameLine();
+					}
 
 					ImDrawList* drawList = ImGui::GetWindowDrawList();
 					ImVec2 pos = ImGui::GetCursorScreenPos();

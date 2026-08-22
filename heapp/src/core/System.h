@@ -13,7 +13,7 @@ namespace humongousexplorer::core
 	// System
 	//---------------------------------------------------------------------
 	/// <summary>
-	/// Base class for all systems within the engine, providing a common interface 
+	/// Base class for all systems within the engine, providing a common interface
 	/// for initialization, destruction, and readiness checking.
 	/// </summary>
 	class System
@@ -45,7 +45,7 @@ namespace humongousexplorer::core
 	// ThreadedSystem
 	//---------------------------------------------------------------------
 	/// <summary>
-	/// Base class for all threaded systems within the engine, providing a common interface 
+	/// Base class for all threaded systems within the engine, providing a common interface
 	/// for initialization, destruction, and readiness checking.
 	/// </summary>
 	class ThreadedSystem : public System

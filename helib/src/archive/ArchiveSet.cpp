@@ -1,4 +1,4 @@
-#include "./ArchiveSet.h"
+#include "ArchiveSet.h"
 
 #include "archive/ArchiveType.h"
 #include "archive/Archive.h"

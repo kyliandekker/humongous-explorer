@@ -56,7 +56,9 @@ namespace humongousexplorer::win32
 		::DragAcceptFiles(m_HWnd, TRUE);
 
 		if (m_bFrameless)
+		{
 			ApplyRoundedCorners();
+		}
 
 		return true;
 	}
@@ -160,15 +162,21 @@ namespace humongousexplorer::win32
 	bool Window::IsOnResizeBorder() const
 	{
 		if (!m_bFrameless || !m_HWnd || ::IsZoomed(m_HWnd))
+		{
 			return false;
+		}
 
 		POINT cursor;
 		if (!::GetCursorPos(&cursor))
+		{
 			return false;
+		}
 
 		RECT rc;
 		if (!::GetWindowRect(m_HWnd, &rc))
+		{
 			return false;
+		}
 
 		const int borderX = ::GetSystemMetrics(SM_CXFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER);
 		const int borderY = ::GetSystemMetrics(SM_CYFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER);
@@ -187,14 +195,19 @@ namespace humongousexplorer::win32
 	void Window::ApplyRoundedCorners()
 	{
 		if (!m_bFrameless || !m_HWnd)
+		{
 			return;
+		}
 		// Win11 native rounding - DWMWA_WINDOW_CORNER_PREFERENCE = 33, DWMWCP_ROUND = 2
 		// Dynamic load so Win10 / old SDKs still run. No SetWindowRgn / DwmExtendFrame -
 		// those clip the 12px hit-test borders and break resizing.
 		constexpr DWORD kDwmwaWindowCornerPreference = 33;
 		constexpr DWORD kDwmwcpRound = 2;
 		HMODULE hDwm = ::LoadLibraryW(L"dwmapi.dll");
-		if (!hDwm) return;
+		if (!hDwm)
+		{
+			return;
+		}
 		using PFN_DwmSetWindowAttribute = HRESULT(WINAPI*)(HWND, DWORD, LPCVOID, DWORD);
 		auto pfn = reinterpret_cast<PFN_DwmSetWindowAttribute>(::GetProcAddress(hDwm, "DwmSetWindowAttribute"));
 		if (pfn)
@@ -290,18 +303,36 @@ namespace humongousexplorer::win32
 				{
 					if (top)
 					{
-						if (left)  return HTTOPLEFT;
-						if (right) return HTTOPRIGHT;
+						if (left)
+						{
+							return HTTOPLEFT;
+						}
+						if (right)
+						{
+							return HTTOPRIGHT;
+						}
 						return HTTOP;
 					}
 					if (bottom)
 					{
-						if (left)  return HTBOTTOMLEFT;
-						if (right) return HTBOTTOMRIGHT;
+						if (left)
+						{
+							return HTBOTTOMLEFT;
+						}
+						if (right)
+						{
+							return HTBOTTOMRIGHT;
+						}
 						return HTBOTTOM;
 					}
-					if (left)  return HTLEFT;
-					if (right) return HTRIGHT;
+					if (left)
+					{
+						return HTLEFT;
+					}
+					if (right)
+					{
+						return HTRIGHT;
+					}
 				}
 				else
 				{
@@ -393,7 +424,9 @@ namespace humongousexplorer::win32
 				return ::DefWindowProcW(m_HWnd, a_iMsg, a_WParam, a_LParam);
 			}
 			if (IsOnResizeBorder())
+			{
 				return ::DefWindowProcW(m_HWnd, a_iMsg, a_WParam, a_LParam);
+			}
 		}
 
 		if (m_MessageHook && m_MessageHook(m_HWnd, a_iMsg, a_WParam, a_LParam))
@@ -416,7 +449,9 @@ namespace humongousexplorer::win32
 			case WM_DWMCOMPOSITIONCHANGED:
 			{
 				if (m_bFrameless)
+				{
 					ApplyRoundedCorners();
+				}
 				break;
 			}
 			case WM_SYSCOMMAND:
@@ -440,7 +475,10 @@ namespace humongousexplorer::win32
 				{
 					char utf8[MAX_PATH * 3];
 					int len = ::WideCharToMultiByte(CP_UTF8, 0, path, -1, utf8, sizeof(utf8), nullptr, nullptr);
-					if (len > 0) m_sDroppedFile = utf8;
+					if (len > 0)
+					{
+						m_sDroppedFile = utf8;
+					}
 				}
 				::DragQueryPoint(hDrop, &m_ptDropPoint);
 				::DragFinish(hDrop);
@@ -450,4 +488,3 @@ namespace humongousexplorer::win32
 		return ::DefWindowProcW(m_HWnd, a_iMsg, a_WParam, a_LParam);
 	}
 }
-

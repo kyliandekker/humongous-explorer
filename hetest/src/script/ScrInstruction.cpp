@@ -1,4 +1,4 @@
-#include "./ScrInstruction.h"
+#include "ScrInstruction.h"
 
 #include "script/ScrArgument.h"
 
@@ -10,7 +10,7 @@ namespace humongousexplorer::script
 	ScrInstruction::ScrInstruction(uint8_t a_iByteCode) :
 		m_iByteCode(a_iByteCode)
 	{ }
-	
+
 	//---------------------------------------------------------------------
 	size_t ScrInstruction::GetArgumentsSize() const
 	{
@@ -21,7 +21,7 @@ namespace humongousexplorer::script
 		}
 		return size;
 	}
-	
+
 	//---------------------------------------------------------------------
 	size_t ScrInstruction::GetSize() const
 	{

@@ -1,4 +1,4 @@
-#include "./XmlCommand.h"
+#include "XmlCommand.h"
 
 #include <filesystem>
 #include <string>

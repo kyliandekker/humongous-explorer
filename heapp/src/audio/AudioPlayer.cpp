@@ -1,4 +1,4 @@
-#include "./AudioPlayer.h"
+#include "AudioPlayer.h"
 
 #include <algorithm>
 #include <cstring>

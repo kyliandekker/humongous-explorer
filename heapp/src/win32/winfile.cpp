@@ -1,4 +1,4 @@
-#include "./winfile.h"
+#include "winfile.h"
 
 // external
 #include <ShlObj_core.h>
@@ -16,11 +16,15 @@ namespace humongousexplorer::file
 		IFileDialog* pfd;
 		HRESULT hr = CoCreateInstance(a_Rclsid, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd));
 		if (FAILED(hr))
+		{
 			return false;
+		}
 
 		// Set file type filters
 		if (!a_aFilters.empty())
+		{
 			pfd->SetFileTypes(static_cast<UINT>(a_aFilters.size()), a_aFilters.data());
+		}
 
 		// Set options
 		DWORD dwOptions;
@@ -53,7 +57,7 @@ namespace humongousexplorer::file
 				std::wstring wide(pszPath);
 				fs::path resultPath(wide);
 
-				// If user didn�t specify extension, apply default one from filter
+				// If user didnÃ¯Â¿Â½t specify extension, apply default one from filter
 				if (resultPath.extension().empty() && !a_aFilters.empty())
 				{
 					UINT fileTypeIndex = 0;
@@ -63,9 +67,13 @@ namespace humongousexplorer::file
 						// pszSpec can be "*.ext1;*.ext2", take the first one and strip "*."
 						auto semi = defExt.find(L';');
 						if (semi != std::wstring::npos)
+						{
 							defExt = defExt.substr(0, semi);
+						}
 						if (defExt.size() > 1 && defExt[0] == L'*')
+						{
 							defExt = defExt.substr(1); // remove '*', keeps '.'
+						}
 
 						resultPath += defExt;
 					}

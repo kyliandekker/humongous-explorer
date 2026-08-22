@@ -1,4 +1,4 @@
-#include "./FileEntryView.h"
+#include "FileEntryView.h"
 
 #include <imgui.h>
 

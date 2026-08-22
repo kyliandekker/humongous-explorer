@@ -1,4 +1,4 @@
-#include "./Archive.h"
+#include "Archive.h"
 
 #include "core/Data.h"
 #include "core/DataStream.h"
@@ -22,7 +22,7 @@ namespace humongousexplorer::archive
 		{
 			return { core::LoadStatus::Failure, "Path did not exist." };
 		}
-		
+
 		if (!fs::is_regular_file(a_Path))
 		{
 			return { core::LoadStatus::Failure, "Path was not a file." };

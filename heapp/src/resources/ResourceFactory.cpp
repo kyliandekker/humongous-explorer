@@ -1,4 +1,4 @@
-#include "./ResourceFactory.h"
+#include "ResourceFactory.h"
 
 #include "core/Memory.h"
 

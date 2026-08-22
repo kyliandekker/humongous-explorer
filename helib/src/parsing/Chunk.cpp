@@ -1,4 +1,4 @@
-#include "./Chunk.h"
+#include "Chunk.h"
 
 #include <cassert>
 #include <limits>
@@ -142,7 +142,9 @@ namespace humongousexplorer::parsing
 			bool oneChild = cparent->m_aChildren.size() == 1;
 
 			if (isRoot && oneChild)
+			{
 				break;
+			}
 			parent = parent->m_pParent;
 		}
 		return parent;

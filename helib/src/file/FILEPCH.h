@@ -1,3 +1,5 @@
+#pragma once
+
 // external
 #include <filesystem>
 
