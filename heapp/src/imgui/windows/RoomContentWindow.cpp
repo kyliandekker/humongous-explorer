@@ -7,7 +7,7 @@
 #include <algorithm>
 
 #include "core/Memory.h"
-#include "imgui/ImGuiSetup.h"
+#include "imgui/ImGuiSystem.h"
 #include "imgui/views/SearchBar.h"
 #include "resources/ResourceType.h"
 #include "dx11/SVGTextureCache.h"

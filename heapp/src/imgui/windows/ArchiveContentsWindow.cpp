@@ -16,7 +16,7 @@
 #include "core/Memory.h"
 
 #include "core/DataStream.h"
-#include "imgui/ImGuiSetup.h"
+#include "imgui/ImGuiSystem.h"
 #include "imgui/views/FileEntryView.h"
 #include "imgui/views/ResourceFileEntryView.h"
 #include "imgui/views/SearchBar.h"
@@ -309,8 +309,8 @@ namespace humongousexplorer::imgui
 		ImVec2 zoneMin(cursor.x, cursor.y);
 		ImVec2 zoneMax(cursor.x + zoneW, cursor.y + zoneH);
 
-		ImVec2 dropPos = imgui::GetDroppedFilePosition();
-		std::string dropped = imgui::ConsumeDroppedFile();
+		ImVec2 dropPos = GetImGuiSystem().GetDroppedFilePosition();
+		std::string dropped = GetImGuiSystem().ConsumeDroppedFile();
 		if (!dropped.empty() &&
 			dropPos.x >= zoneMin.x && dropPos.x <= zoneMax.x &&
 			dropPos.y >= zoneMin.y && dropPos.y <= zoneMax.y)

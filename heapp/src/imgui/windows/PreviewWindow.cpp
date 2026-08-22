@@ -9,7 +9,7 @@
 
 #include "dx11/SVGTextureCache.h"
 
-#include "imgui/ImGuiSetup.h"
+#include "imgui/ImGuiSystem.h"
 #include "editor/Workspace.h"
 #include "resources/Resource.h"
 #include "core/Data.h"

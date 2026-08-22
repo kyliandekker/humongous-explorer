@@ -55,6 +55,9 @@ namespace humongousexplorer::win32
 
 		::DragAcceptFiles(m_HWnd, TRUE);
 
+		if (m_bFrameless)
+			ApplyRoundedCorners();
+
 		return true;
 	}
 
@@ -178,6 +181,28 @@ namespace humongousexplorer::win32
 		const bool bottom = cursor.y >= rc.bottom - bw;
 
 		return left || right || top || bottom;
+	}
+
+	//---------------------------------------------------------------------
+	void Window::ApplyRoundedCorners()
+	{
+		if (!m_bFrameless || !m_HWnd)
+			return;
+		// Win11 native rounding - DWMWA_WINDOW_CORNER_PREFERENCE = 33, DWMWCP_ROUND = 2
+		// Dynamic load so Win10 / old SDKs still run. No SetWindowRgn / DwmExtendFrame -
+		// those clip the 12px hit-test borders and break resizing.
+		constexpr DWORD kDwmwaWindowCornerPreference = 33;
+		constexpr DWORD kDwmwcpRound = 2;
+		HMODULE hDwm = ::LoadLibraryW(L"dwmapi.dll");
+		if (!hDwm) return;
+		using PFN_DwmSetWindowAttribute = HRESULT(WINAPI*)(HWND, DWORD, LPCVOID, DWORD);
+		auto pfn = reinterpret_cast<PFN_DwmSetWindowAttribute>(::GetProcAddress(hDwm, "DwmSetWindowAttribute"));
+		if (pfn)
+		{
+			DWORD pref = kDwmwcpRound;
+			pfn(m_HWnd, kDwmwaWindowCornerPreference, &pref, sizeof(pref));
+		}
+		::FreeLibrary(hDwm);
 	}
 
 	//---------------------------------------------------------------------
@@ -358,6 +383,19 @@ namespace humongousexplorer::win32
 			return 0;
 		}
 
+		// Let Win32 dictate cursor on resize borders - before ImGui hook or ImGui stomps sizing cursors
+		if (a_iMsg == WM_SETCURSOR && m_bFrameless && !::IsZoomed(m_HWnd))
+		{
+			WORD hit = LOWORD(a_LParam);
+			if (hit == HTLEFT || hit == HTRIGHT || hit == HTTOP || hit == HTBOTTOM ||
+				hit == HTTOPLEFT || hit == HTTOPRIGHT || hit == HTBOTTOMLEFT || hit == HTBOTTOMRIGHT)
+			{
+				return ::DefWindowProcW(m_HWnd, a_iMsg, a_WParam, a_LParam);
+			}
+			if (IsOnResizeBorder())
+				return ::DefWindowProcW(m_HWnd, a_iMsg, a_WParam, a_LParam);
+		}
+
 		if (m_MessageHook && m_MessageHook(m_HWnd, a_iMsg, a_WParam, a_LParam))
 		{
 			return 0;
@@ -374,6 +412,12 @@ namespace humongousexplorer::win32
 				m_iResizeWidth = static_cast<uint32_t>(LOWORD(a_LParam));
 				m_iResizeHeight = static_cast<uint32_t>(HIWORD(a_LParam));
 				return 0;
+			}
+			case WM_DWMCOMPOSITIONCHANGED:
+			{
+				if (m_bFrameless)
+					ApplyRoundedCorners();
+				break;
 			}
 			case WM_SYSCOMMAND:
 			{

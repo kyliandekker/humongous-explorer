@@ -2,14 +2,14 @@
 
 #include <imgui.h>
 
-#include "imgui/ImGuiSetup.h"
+#include "imgui/ImGuiSystem.h"
 
 namespace humongousexplorer::imgui
 {
 	//---------------------------------------------------------------------
 	void HEBaseWindow::Render()
 	{
-		ImGui::PushFont(GetDefaultFont());
+		ImGui::PushFont(GetImGuiSystem().GetDefaultFont());
 		BaseWindow::Render();
 		ImGui::PopFont();
 	}

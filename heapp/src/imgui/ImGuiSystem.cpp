@@ -7,6 +7,7 @@
 #include <imgui/font_arial.h>
 #include <imgui/font_icon.h>
 #include <imgui/windows/BaseWindow.h>
+#include <implot.h>
 
 // graphics
 #include "dx11/DX11System.h"
@@ -14,6 +15,13 @@
 #include "win32/Window.h"
 
 #include "imgui/Theme.h"
+#include "imgui/windows/ArchiveContentsWindow.h"
+#include "imgui/windows/EditorWindowDock.h"
+#include "imgui/windows/RoomContentWindow.h"
+#include "imgui/windows/PreviewWindow.h"
+#include "imgui/windows/InfoPanelWindow.h"
+#include "imgui/windows/TopToolbarWindow.h"
+#include "imgui/windows/BottomToolbarWindow.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -45,6 +53,7 @@ namespace humongousexplorer::imgui
 		{
 			return false;
 		}
+		ImPlot::CreateContext();
 
 		CreateImGui();
 
@@ -53,6 +62,13 @@ namespace humongousexplorer::imgui
 		GetClientRect(window.GetHandle(), &rc);
 		Resize(rc.right - rc.left, rc.bottom - rc.top);
 
+		m_aWindows.emplace_back(std::make_unique<EditorWindowDock>());
+		m_aWindows.emplace_back(std::make_unique<TopToolbarWindow>());
+		m_aWindows.emplace_back(std::make_unique<BottomToolbarWindow>());
+		m_aWindows.emplace_back(std::make_unique<ArchiveContentsWindow>());
+		m_aWindows.emplace_back(std::make_unique<RoomContentWindow>());
+		m_aWindows.emplace_back(std::make_unique<PreviewWindow>());
+		m_aWindows.emplace_back(std::make_unique<InfoPanelWindow>());
 		InitializeWindows();
 
 		return true;
@@ -114,14 +130,11 @@ namespace humongousexplorer::imgui
 		(void) io;
 
 		win32::Window& window = win32::GetWin32Window();
-		
-		m_fFontSize = 16.0f;
 
-		// On Windows 8.1+:
-		UINT dpi = GetDpiForWindow(window.GetHandle()); // returns DPI, e.g., 96, 120, 144
-		float dp = dpi / 96.0f; // 96 is the default DPI (100%)
+		ImGui_ImplWin32_EnableDpiAwareness();
+		float mainScale = ImGui_ImplWin32_GetDpiScaleForMonitor(::MonitorFromPoint(POINT{ 0, 0 }, MONITOR_DEFAULTTOPRIMARY));
 
-		m_fFontSize *= dp;
+		m_fFontSize = 15.0f;
 
 		// setup Dear ImGui style
 		ImGui::StyleColorsDark();
@@ -144,6 +157,10 @@ namespace humongousexplorer::imgui
 		io.Fonts->Build();
 
 		ApplyTheme();
+
+		ImGuiStyle& style = ImGui::GetStyle();
+		style.ScaleAllSizes(mainScale);
+		style.FontScaleDpi = mainScale;
 	}
 
 	//---------------------------------------------------------------------
@@ -284,6 +301,29 @@ namespace humongousexplorer::imgui
 	void ImGuiSystem::SetIniPath(const std::string& a_sPath)
 	{
 		m_sIniPath = a_sPath + "/imgui.ini";
+	}
+
+	//---------------------------------------------------------------------
+	void ImGuiSystem::SetDroppedFile(const std::string& a_sPath, ImVec2 a_vDropPos)
+	{
+		s_sDroppedFile = a_sPath;
+		s_vDroppedFilePos = a_vDropPos;
+	}
+
+	//---------------------------------------------------------------------
+	std::string ImGuiSystem::ConsumeDroppedFile()
+	{
+		std::string path = std::move(s_sDroppedFile);
+		s_sDroppedFile.clear();
+		return path;
+	}
+
+	//---------------------------------------------------------------------
+	ImVec2 ImGuiSystem::GetDroppedFilePosition()
+	{
+		ImVec2 pos = s_vDroppedFilePos;
+		s_vDroppedFilePos = {};
+		return pos;
 	}
 
 	//---------------------------------------------------------------------

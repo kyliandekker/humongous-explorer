@@ -2,7 +2,7 @@
 
 #include <imgui/imgui.h>
 
-#include "imgui/ImGuiSetup.h"
+#include "imgui/ImGuiSystem.h"
 #include "imgui/Helpers.h"
 
 #include "core/Memory.h"
@@ -43,7 +43,7 @@ namespace humongousexplorer::imgui
 			// Sound Information child
 			if (ImGui::BeginChild("SoundInfo", ImVec2(0, 0), ImGuiChildFlags_Borders))
 			{
-				ImGui::PushFont(GetBoldFont());
+				ImGui::PushFont(GetImGuiSystem().GetBoldFont());
 				ImGui::Text("SOUND INFORMATION");
 				ImGui::PopFont();
 				ImGui::Separator();
@@ -83,7 +83,7 @@ namespace humongousexplorer::imgui
 			if (ImGui::BeginChild("Palette", ImVec2(0, 0), ImGuiChildFlags_Borders))
 			{
 				// Header row: title on left, count + buttons on right
-				ImGui::PushFont(GetBoldFont());
+				ImGui::PushFont(GetImGuiSystem().GetBoldFont());
 				ImGui::Text("PALETTE");
 				ImGui::PopFont();
 

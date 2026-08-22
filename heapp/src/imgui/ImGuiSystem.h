@@ -18,15 +18,16 @@ namespace humongousexplorer::imgui
 
 	enum ImGuiExtraCol_
 	{
-		ImGuiExtraCol_Modified,
-		ImGuiExtraCol_Added,
-		ImGuiExtraCol_Deleted,
-		ImGuiExtraCol_Untracked,
+		ImGuiExtraCol_Accent,
+		ImGuiExtraCol_AccentHovered,
+		ImGuiExtraCol_AccentActive,
+		ImGuiExtraCol_TabInactive,
 		ImGuiExtraCol_COUNT
 	};
 	inline ImVec4 ExtraColors[ImGuiExtraCol_COUNT];
 
 	class BaseWindow;
+	class BottomToolbar;
 
 	//---------------------------------------------------------------------
 	// ImGuiSystem
@@ -103,8 +104,13 @@ namespace humongousexplorer::imgui
 		ImFont* GetDefaultFont();
 
 		void SetIniPath(const std::string& a_sPath);
+
+		void SetDroppedFile(const std::string& a_sPath, ImVec2 a_vDropPos);
+		std::string ConsumeDroppedFile();
+		ImVec2 GetDroppedFilePosition();
 	private:
-		size_t m_iSrvIndex = 0;
+		std::string s_sDroppedFile;
+		ImVec2 s_vDroppedFilePos = {};
 
 		ImFont* m_pDefaultFont = nullptr;
 		ImFont* m_pBoldFont = nullptr;

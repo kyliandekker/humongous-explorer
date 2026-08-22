@@ -7,8 +7,10 @@
 #include "win32/Window.h"
 #include "dx11/DX11System.h"
 #include "dx11/SVGTextureCache.h"
-#include "imgui/ImGuiSetup.h"
+#include "imgui/ImGuiSystem.h"
 #include "editor/Workspace.h"
+
+#include "win32/winfile.h"
 
 #include "imgui/backends/imgui_impl_win32.h"
 #include "imgui/backends/imgui_impl_dx11.h"
@@ -38,7 +40,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
 	ImGui_ImplWin32_EnableDpiAwareness();
 	float mainScale = ImGui_ImplWin32_GetDpiScaleForMonitor(::MonitorFromPoint(POINT{ 0, 0 }, MONITOR_DEFAULTTOPRIMARY));
 
-	humongousexplorer::win32::Window window;
+	humongousexplorer::win32::Window& window = humongousexplorer::win32::GetWin32Window();
 	if (!window.Initialize(hInstance, (int)(1280 * mainScale), (int)(800 * mainScale), L"Humongous Explorer", true))
 	{
 		humongousexplorer::GetLogger().Destroy();
@@ -57,28 +59,15 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
 
 	window.Show(SW_SHOWDEFAULT);
 
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImPlot::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void) io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;	 // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;	  // Enable Gamepad Controls
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;		 // Enable Docking
-	io.IniFilename = nullptr;								 // Disable imgui.ini (use DockBuilder layout)
-
-	ImGui::StyleColorsDark();
-
-	ImGuiStyle& style = ImGui::GetStyle();
-	style.ScaleAllSizes(mainScale);
-	style.FontScaleDpi = mainScale;
-
-	ImGui_ImplWin32_Init(hwnd);
-	ImGui_ImplDX11_Init(humongousexplorer::dx11::GetDX11System().GetDevice(), humongousexplorer::dx11::GetDX11System().GetDeviceContext());
-
 	ImColor clearColor = IM_COL32(21, 26, 36, 255);
 
 	humongousexplorer::GetWorkspace().Initialize();
-	humongousexplorer::imgui::Initialize();
+
+	fs::path appDataPath = humongousexplorer::file::GetAppDataPath().string() + "/humongousexplorer";
+	humongousexplorer::file::CreateDirectory(appDataPath);
+
+	humongousexplorer::imgui::GetImGuiSystem().SetIniPath(appDataPath.string());
+	humongousexplorer::imgui::GetImGuiSystem().Initialize();
 
 	bool running = true;
 	while (running)
@@ -98,29 +87,19 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
 		{
 			std::string path = window.ConsumeDroppedFile();
 			POINT pt = window.GetDroppedFilePosition();
-			humongousexplorer::imgui::SetDroppedFile(path, ImVec2(static_cast<float>(pt.x), static_cast<float>(pt.y)));
+			humongousexplorer::imgui::GetImGuiSystem().SetDroppedFile(path, ImVec2(static_cast<float>(pt.x), static_cast<float>(pt.y)));
 		}
-
-		ImGui_ImplDX11_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
-
-		humongousexplorer::imgui::Render();
-
-		humongousexplorer::imgui::UpdateMouseCursor();
-
-		ImGui::Render();
 		const float clear_color_with_alpha[4] = { clearColor.Value.x * clearColor.Value.w, clearColor.Value.y * clearColor.Value.w, clearColor.Value.z * clearColor.Value.w, clearColor.Value.w };
 		humongousexplorer::dx11::GetDX11System().BeginFrame(clear_color_with_alpha);
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+		humongousexplorer::imgui::GetImGuiSystem().Render();
+
+		humongousexplorer::imgui::GetImGuiSystem().UpdateMouseCursor();
 
 		humongousexplorer::dx11::GetDX11System().EndFrame(1);
 	}
 
-	ImGui_ImplDX11_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImPlot::DestroyContext();
-	ImGui::DestroyContext();
+	humongousexplorer::imgui::GetImGuiSystem().Destroy();
 
 	humongousexplorer::dx11::SVGTextureCache::Shutdown();
 	humongousexplorer::dx11::GetDX11System().Destroy();

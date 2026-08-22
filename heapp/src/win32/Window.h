@@ -78,6 +78,7 @@ namespace humongousexplorer::win32
 		void Close();
 		bool IsMaximized() const;
 		bool IsOnResizeBorder() const;
+		void ApplyRoundedCorners();
 
 		/// <summary>
 		/// Checks whether a resize was queued and not yet consumed.

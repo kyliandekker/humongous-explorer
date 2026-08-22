@@ -3,50 +3,33 @@
 #include <imgui.h>
 #include <imgui/Helpers.h>
 
-#include "file/file.h"
-#include "editor/Workspace.h"
-#include "win32/winfile.h"
+#include "imgui/windows/TopToolbarWindow.h"
+#include "imgui/windows/BottomToolbarWindow.h"
 
 namespace humongousexplorer::imgui
 {
 	//---------------------------------------------------------------------
+	// EditorWindowDock
+	//---------------------------------------------------------------------
+	void EditorWindowDock::Render()
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(ImVec2(viewport->WorkPos.x, viewport->WorkPos.y + TOP_TOOLBAR_HEIGHT));
+		ImGui::SetNextWindowSize(ImVec2(viewport->WorkSize.x, viewport->WorkSize.y - TOP_TOOLBAR_HEIGHT - BOTTOM_TOOLBAR_HEIGHT));
+		MainWindowDock::Render();
+		ImGui::PopStyleVar();
+	}
+
+	//---------------------------------------------------------------------
+	bool EditorWindowDock::OnInitialized()
+	{
+		return true;
+	}
+
+	//---------------------------------------------------------------------
 	void EditorWindowDock::Update()
 	{
-		ImGui::BeginMainMenuBar();
-		if (ImGui::BeginMenu(FormatId(std::string(" File"), MENU_ID, "FILE", "DOCK").c_str()))
-		{
-			if (ImGui::MenuItem(FormatId(" Open Archive", BUTTON_ID, "OPEN_ARCHIVE").c_str()))
-			{
-				fs::path selected;
-				std::vector<COMDLG_FILTERSPEC> filters = {
-					{ L"HE Archive", L"*.(A);*.HE0;*.HE1;*.HE2;*.HE3;*.HE4;*.HE7;*.HE8" },
-					{ L"All Files", L"*.*" }
-				};
-				if (file::PickFile(selected, filters))
-				{
-					GetWorkspace().LoadArchives(selected.string());
-				}
-			}
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu(FormatId(std::string(" Edit"), MENU_ID, "EDIT", "DOCK").c_str()))
-		{
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu(FormatId(std::string(" View"), MENU_ID, "VIEW", "DOCK").c_str()))
-		{
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu(FormatId(std::string(" Tools"), MENU_ID, "TOOLS", "DOCK").c_str()))
-		{
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu(FormatId(std::string(" Help"), MENU_ID, "HELP", "DOCK").c_str()))
-		{
-			ImGui::EndMenu();
-		}
-		ImGui::EndMainMenuBar();
-
 		MainWindowDock::Update();
 	}
 }

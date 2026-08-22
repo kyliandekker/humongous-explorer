@@ -6,12 +6,10 @@ namespace humongousexplorer::imgui
 {
 	class EditorWindowDock : public MainWindowDock
 	{
+	public:
+		void Render() override;
 	private:
 		void Update() override;
-
-		bool OnInitialized() override
-		{
-			return true;
-		}
+		bool OnInitialized() override;
 	};
 }

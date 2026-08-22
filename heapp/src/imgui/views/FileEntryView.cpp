@@ -6,7 +6,7 @@
 
 #include "utils/string_extensions.h"
 
-#include "imgui/ImGuiSetup.h"
+#include "imgui/ImGuiSystem.h"
 
 namespace humongousexplorer::imgui
 {
