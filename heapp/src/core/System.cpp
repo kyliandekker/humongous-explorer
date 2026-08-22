@@ -1,5 +1,4 @@
 #include "System.h"
-#include <cassert>
 
 namespace humongousexplorer::core
 {

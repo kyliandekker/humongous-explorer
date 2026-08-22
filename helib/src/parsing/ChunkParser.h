@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 #include "core/Data.h"
 
 namespace humongousexplorer::core

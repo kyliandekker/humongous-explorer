@@ -1,0 +1,217 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\audio\AudioPlayer.cpp">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\core\System.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\dx11\DX11System.cpp">
+      <Filter>dx11</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\dx11\SVGTextureCache.cpp">
+      <Filter>dx11</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\editor\Workspace.cpp">
+      <Filter>editor</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\ImGuiSystem.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\Theme.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\views\FileEntryView.cpp">
+      <Filter>imgui\views</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\views\ResourceFileEntryView.cpp">
+      <Filter>imgui\views</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\views\SearchBar.cpp">
+      <Filter>imgui\views</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\windows\ArchiveContentsWindow.cpp">
+      <Filter>imgui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\windows\BottomToolbarWindow.cpp">
+      <Filter>imgui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\windows\EditorWindowDock.cpp">
+      <Filter>imgui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\windows\HEBaseWindow.cpp">
+      <Filter>imgui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\windows\InfoPanelWindow.cpp">
+      <Filter>imgui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\windows\PreviewWindow.cpp">
+      <Filter>imgui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\windows\RoomContentWindow.cpp">
+      <Filter>imgui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\windows\TopToolbarWindow.cpp">
+      <Filter>imgui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\main.cpp" />
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\resources\Resource.cpp">
+      <Filter>resources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\resources\ResourceFactory.cpp">
+      <Filter>resources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\resources\ResourceType.cpp">
+      <Filter>resources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\resources\UIHelpers.cpp">
+      <Filter>resources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\ui\AppLogger.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\ui\SVGParser.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\utils\string_extensions.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\win32\Window.cpp">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\win32\winfile.cpp">
+      <Filter>win32</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\audio\AudioPlayer.h">
+      <Filter>audio</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\core\Event.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\core\Observable.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\core\System.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\dx11\DX11System.h">
+      <Filter>dx11</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\dx11\SVGTextureCache.h">
+      <Filter>dx11</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\editor\Workspace.h">
+      <Filter>editor</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\ImGuiSystem.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\Theme.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\views\FileEntryView.h">
+      <Filter>imgui\views</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\views\ResourceFileEntryView.h">
+      <Filter>imgui\views</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\views\SearchBar.h">
+      <Filter>imgui\views</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\windows\ArchiveContentsWindow.h">
+      <Filter>imgui\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\windows\BottomToolbarWindow.h">
+      <Filter>imgui\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\windows\EditorWindowDock.h">
+      <Filter>imgui\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\windows\HEBaseWindow.h">
+      <Filter>imgui\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\windows\InfoPanelWindow.h">
+      <Filter>imgui\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\windows\PreviewWindow.h">
+      <Filter>imgui\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\windows\RoomContentWindow.h">
+      <Filter>imgui\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\imgui\windows\TopToolbarWindow.h">
+      <Filter>imgui\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\resources\Resource.h">
+      <Filter>resources</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\resources\ResourceFactory.h">
+      <Filter>resources</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\resources\ResourceType.h">
+      <Filter>resources</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\resources\UIHelpers.h">
+      <Filter>resources</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\ui\AppLogger.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\ui\SVGParser.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\utils\string_extensions.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\win32\WINPCH.h">
+      <Filter>win32</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\win32\Window.h">
+      <Filter>win32</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\heapp\src\win32\winfile.h">
+      <Filter>win32</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Kylian\Downloads\HumongousExplorer\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="audio">
+      <UniqueIdentifier>{C8BA19C1-02C8-3DEE-B652-82D8C506C30E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{2FAE9AB3-6034-3423-A6C0-1085B7E48876}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dx11">
+      <UniqueIdentifier>{CA6AAD29-6AD6-3D13-AA10-2E6FA16E217D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="editor">
+      <UniqueIdentifier>{C8E2E643-9830-363E-BE62-C2FABDAAED2D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{E09DEC14-DE7A-3431-8956-A5A5379DEAD3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui\views">
+      <UniqueIdentifier>{5E7C8A09-EA30-3E5A-A6E0-9938EBE24456}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui\windows">
+      <UniqueIdentifier>{C785A11F-C996-3525-94B7-8EA98C4D4FF5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources">
+      <UniqueIdentifier>{94FF896F-C134-32D9-819F-4AD4C3E8D84D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{F8C37FE8-86F2-3A94-A2AE-5A1F83C3E32E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{5DA49537-31E8-33E7-94AB-5B1AA4DDABA9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="win32">
+      <UniqueIdentifier>{47FEACEC-732E-38B4-BE43-DA3BA137DD62}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

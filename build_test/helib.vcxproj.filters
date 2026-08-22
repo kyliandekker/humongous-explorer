@@ -1,0 +1,207 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\archive\Archive.cpp">
+      <Filter>archive</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\archive\ArchiveSet.cpp">
+      <Filter>archive</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\archive\ArchiveType.cpp">
+      <Filter>archive</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\audio\WaveLoader.cpp">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\core\Data.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\core\DataStream.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\core\Log.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\core\Memory.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\file\file.cpp">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\Chunk.cpp">
+      <Filter>parsing</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\ChunkParser.cpp">
+      <Filter>parsing</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\xml\XMLCreator.cpp">
+      <Filter>xml</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\archive\Archive.h">
+      <Filter>archive</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\archive\ArchiveSet.h">
+      <Filter>archive</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\archive\ArchiveType.h">
+      <Filter>archive</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\audio\WaveLoader.h">
+      <Filter>audio</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\core\Data.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\core\DataStream.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\core\LoadResult.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\core\Log.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\core\Memory.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\file\FILEPCH.h">
+      <Filter>file</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\file\file.h">
+      <Filter>file</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\Chunk.h">
+      <Filter>parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\ChunkIDs.h">
+      <Filter>parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\ChunkParser.h">
+      <Filter>parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\SCHEMA.h">
+      <Filter>parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\DISK_Chunk.h">
+      <Filter>parsing\chunks</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\ENCD_Chunk.h">
+      <Filter>parsing\chunks</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\EXCD_Chunk.h">
+      <Filter>parsing\chunks</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\LECF_Chunk.h">
+      <Filter>parsing\chunks</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\LFLF_Chunk.h">
+      <Filter>parsing\chunks</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\LSC2_Chunk.h">
+      <Filter>parsing\chunks</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\LSCR_Chunk.h">
+      <Filter>parsing\chunks</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\RNAM_Chunk.h">
+      <Filter>parsing\chunks</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\SCRP_Chunk.h">
+      <Filter>parsing\chunks</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\VERB_Chunk.h">
+      <Filter>parsing\chunks</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\image\APAL_Chunk.h">
+      <Filter>parsing\chunks\image</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\image\BMAP_Chunk.h">
+      <Filter>parsing\chunks\image</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\image\IMHD_Chunk.h">
+      <Filter>parsing\chunks\image</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\image\OBIM_Chunk.h">
+      <Filter>parsing\chunks\image</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\image\RMHD_Chunk.h">
+      <Filter>parsing\chunks\image</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\image\RMIM_Chunk.h">
+      <Filter>parsing\chunks\image</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\image\SMAP_Chunk.h">
+      <Filter>parsing\chunks\image</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\image\TRNS_Chunk.h">
+      <Filter>parsing\chunks\image</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\sound\DIGI_Chunk.h">
+      <Filter>parsing\chunks\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\sound\HSHD_Chunk.h">
+      <Filter>parsing\chunks\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\sound\SBNG_Chunk.h">
+      <Filter>parsing\chunks\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\sound\SDAT_Chunk.h">
+      <Filter>parsing\chunks\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\sound\SGEN_Chunk.h">
+      <Filter>parsing\chunks\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\sound\SGHD_Chunk.h">
+      <Filter>parsing\chunks\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\sound\SONG_Chunk.h">
+      <Filter>parsing\chunks\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\sound\TALK_Chunk.h">
+      <Filter>parsing\chunks\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\parsing\chunks\sound\TLKB_Chunk.h">
+      <Filter>parsing\chunks\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\xml\XMLCreator.h">
+      <Filter>xml</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\xml\XMLStruct.h">
+      <Filter>xml</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Kylian\Downloads\HumongousExplorer\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="archive">
+      <UniqueIdentifier>{E8E34B7B-D9F7-35BB-AAA1-D9D7EA9D43F4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="audio">
+      <UniqueIdentifier>{C8BA19C1-02C8-3DEE-B652-82D8C506C30E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{2FAE9AB3-6034-3423-A6C0-1085B7E48876}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="file">
+      <UniqueIdentifier>{9E220E8C-782B-35CD-B68B-291FF1A2C967}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="parsing">
+      <UniqueIdentifier>{BC3A5187-C328-3A59-8A63-1A98E62079E4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="parsing\chunks">
+      <UniqueIdentifier>{5DFCDFC4-C28F-3DC4-9B67-A229FEB7C242}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="parsing\chunks\image">
+      <UniqueIdentifier>{97793F4F-5BDB-37B1-9923-A1CAEF5ACB25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="parsing\chunks\sound">
+      <UniqueIdentifier>{F2B37A3A-BAB4-3D8C-BAD4-D2AB219BED4C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="xml">
+      <UniqueIdentifier>{6839729A-6107-3A18-8252-2683491BEC6B}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

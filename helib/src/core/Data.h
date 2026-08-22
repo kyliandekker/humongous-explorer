@@ -1,8 +1,7 @@
 #pragma once
 
 // external
-#include <cstdint>
-#include <string>
+#include <cstddef>
 
 namespace humongousexplorer::core
 {

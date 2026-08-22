@@ -2,8 +2,6 @@
 
 // external
 #include <cstdint>
-#include <cstdio>
-#include <cstddef>
 #include <cstring>
 
 namespace humongousexplorer::core

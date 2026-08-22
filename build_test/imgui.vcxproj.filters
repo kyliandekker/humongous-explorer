@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\external\imgui\Helpers.cpp" />
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\external\imgui\backends\imgui_impl_dx11.cpp">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\external\imgui\backends\imgui_impl_win32.cpp">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\external\imgui\font_arial.cpp" />
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\external\imgui\font_icon.cpp" />
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\external\imgui\imgui.cpp" />
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\external\imgui\imgui_draw.cpp" />
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\external\imgui\imgui_tables.cpp" />
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\external\imgui\implot.cpp" />
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\external\imgui\implot_items.cpp" />
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\external\imgui\windows\BaseWindow.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Kylian\Downloads\HumongousExplorer\external\imgui\windows\MainWindowDock.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Kylian\Downloads\HumongousExplorer\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="backends">
+      <UniqueIdentifier>{3B39EC7A-A948-3196-8B8C-E9C94A475CBC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows">
+      <UniqueIdentifier>{772E7869-DA76-3113-B17A-DD3531DDA5E2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

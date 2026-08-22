@@ -1,10 +1,10 @@
 #include "ArchiveContentsWindow.h"
 
+#include <string>
+#include <vector>
 #include <imgui/imgui.h>
 #include <imgui/font_icon.h>
 #include <imgui/Helpers.h>
-#include <string>
-#include <vector>
 
 #include "dx11/SVGTextureCache.h"
 #include "win32/winfile.h"
@@ -22,8 +22,6 @@
 #include "imgui/ImGuiSystem.h"
 #include "imgui/views/FileEntryView.h"
 #include "imgui/views/ResourceFileEntryView.h"
-#include "imgui/views/SearchBar.h"
-
 #include "utils/string_extensions.h"
 
 namespace humongousexplorer::imgui
