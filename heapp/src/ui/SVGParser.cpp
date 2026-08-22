@@ -5,8 +5,6 @@
 #define NANOSVGRAST_IMPLEMENTATION
 #include <nanosvg/nanosvgrast.h>
 
-#include "logger/Logger.h"
-
 namespace humongousexplorer::file
 {
 	//---------------------------------------------------------------------
@@ -15,7 +13,6 @@ namespace humongousexplorer::file
 		NSVGimage* svgImage = nsvgParseFromFile(a_sPath.c_str(), "px", 96.0f);
 		if (!svgImage)
 		{
-			LOGF(LOGSEVERITY_ERROR, "Failed to parse SVG: %s", a_sPath.c_str());
 			return false;
 		}
 
@@ -25,7 +22,6 @@ namespace humongousexplorer::file
 		NSVGrasterizer* rasterizer = nsvgCreateRasterizer();
 		if (!rasterizer)
 		{
-			LOG(LOGSEVERITY_ERROR, "Failed to create NanoSVG rasterizer.");
 			nsvgDelete(svgImage);
 			return false;
 		}

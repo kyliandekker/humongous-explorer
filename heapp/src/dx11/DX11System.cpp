@@ -1,7 +1,5 @@
 #include "DX11System.h"
 
-#include "logger/Logger.h"
-
 namespace humongousexplorer::dx11
 {
 	//---------------------------------------------------------------------
@@ -53,8 +51,6 @@ namespace humongousexplorer::dx11
 		}
 
 		CreateRenderTarget();
-
-		LOG(LOGSEVERITY_SUCCESS, "Initialized dx11 system.");
 
 		return System::Initialize();
 	}

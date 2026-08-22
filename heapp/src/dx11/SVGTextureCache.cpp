@@ -3,7 +3,6 @@
 #include "core/Data.h"
 #include "dx11/DX11System.h"
 #include "ui/SVGParser.h"
-#include "logger/Logger.h"
 
 namespace humongousexplorer::dx11
 {
@@ -35,7 +34,6 @@ namespace humongousexplorer::dx11
 
 		if (!srv)
 		{
-			LOG(LOGSEVERITY_ERROR, "Failed to create cached SVG texture.");
 			return nullptr;
 		}
 

@@ -2,7 +2,6 @@
 #include "imgui/implot.h"
 
 #include "core/Log.h"
-#include "logger/Logger.h"
 
 #include "win32/Window.h"
 #include "dx11/DX11System.h"
@@ -22,12 +21,21 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 static void HelibLogCallback(humongousexplorer::core::LogLevel a_Level, const std::string& a_sMessage)
 {
 	humongousexplorer::logger::GetLogEvent().invoke(a_Level, a_sMessage);
+
+	const char* prefix = "";
+	switch (a_Level)
+	{
+		case humongousexplorer::core::LogLevel::Success: prefix = "[OK]     "; break;
+		case humongousexplorer::core::LogLevel::Error:   prefix = "[FAIL]   "; break;
+		case humongousexplorer::core::LogLevel::Warning: prefix = "[WARN]   "; break;
+		case humongousexplorer::core::LogLevel::Info:    prefix = "[INFO]   "; break;
+	}
+	printf("%s%s\n", prefix, a_sMessage.c_str());
 }
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lpCmdLine, _In_ int nShowCmd)
 {
 	humongousexplorer::core::InitializeLog();
-	humongousexplorer::GetLogger().Initialize(true);
 	humongousexplorer::core::SetLogCallback(HelibLogCallback);
 
 	ImGui_ImplWin32_EnableDpiAwareness();
@@ -36,7 +44,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
 	humongousexplorer::win32::Window& window = humongousexplorer::win32::GetWin32Window();
 	if (!window.Initialize(hInstance, (int)(1280 * mainScale), (int)(800 * mainScale), L"Humongous Explorer", true))
 	{
-		humongousexplorer::GetLogger().Destroy();
 		return 1;
 	}
 	window.SetMessageHook(&ImGui_ImplWin32_WndProcHandler);
@@ -46,7 +53,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
 	{
 		humongousexplorer::dx11::GetDX11System().Destroy();
 		window.Destroy();
-		humongousexplorer::GetLogger().Destroy();
 		return 1;
 	}
 
@@ -98,7 +104,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
 	humongousexplorer::dx11::GetDX11System().Destroy();
 	window.Destroy();
 
-	humongousexplorer::GetLogger().Destroy();
 	humongousexplorer::core::DestroyLog();
 
 	return 0;

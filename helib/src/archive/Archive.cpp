@@ -65,6 +65,8 @@ namespace humongousexplorer::archive
 				return { core::LoadStatus::Failure, "Failed to parse archive data." };
 			}
 		}
+
+		m_sName = a_Path.filename().string();
 		return { core::LoadStatus::Success, "" };
 	}
 

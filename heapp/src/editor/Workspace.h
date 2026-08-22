@@ -14,8 +14,9 @@
 
 #include "parsing/Chunk.h"
 
-#include "resources/ArchiveType.h"
 #include "resources/ResourceType.h"
+
+#include "archive/ArchiveSet.h"
 
 namespace humongousexplorer
 {
@@ -32,7 +33,6 @@ namespace humongousexplorer::imgui
 }
 namespace humongousexplorer::resources
 {
-	class ArchiveEntry;
 	class Resource;
 }
 namespace humongousexplorer::editor
@@ -47,11 +47,7 @@ namespace humongousexplorer::editor
 		void SetResourceTypeFilter(resources::ResourceType a_ResourceTypeFilter);
 		const std::string& GetAppDataPath() const;
 
-		void LoadArchives(const fs::path& a_sPath);
-		const std::vector<std::unique_ptr<resources::ArchiveEntry>>& GetArchives() const;
-
 		const core::Event<>& GetArchivesChanged() const;
-		const core::Event<bool, const std::string&>& GetStatusMessageUpdated() const;
 
 		void SetSelectedFileEntryView(imgui::TreeFileEntryView* a_pSelectedView);
 		imgui::TreeFileEntryView* GetSelectedView();
@@ -60,17 +56,16 @@ namespace humongousexplorer::editor
 		void SetSelectedResource(resources::Resource* a_pSelectedResource);
 		resources::Resource* GetSelectedResource();
 		const core::Observable<resources::Resource*>& GetSelectedResourceObs() const;
-	private:
-		void DetermineScriptAndHEVersion();
 
-		resources::ResourceType m_ResourceTypeFilter;
+		const archive::ArchiveSet& GetArchiveSet() const;
+		archive::ArchiveSet& GetArchiveSet();
+	private:
+		resources::ResourceType m_ResourceTypeFilter = resources::ResourceType::Unknown;
 		std::string m_sAppDataPath;
-		std::vector<std::unique_ptr<resources::ArchiveEntry>> m_aArchives;
-		size_t m_iScriptVersion = 0;
-		size_t m_iHEVersion = 0;
+
+		archive::ArchiveSet m_ArchiveSet;
 
 		core::Event<> m_onArchivesChanged;
-		core::Event<bool, const std::string&> m_onStatusMessageUpdated;
 
 		core::Observable<imgui::TreeFileEntryView*> m_pSelectedFileEntryView{nullptr};
 		core::Observable<resources::Resource*> m_pSelectedResource{nullptr};

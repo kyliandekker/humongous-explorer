@@ -7,12 +7,12 @@
 #include "win32/winfile.h"
 #include "file/file.h"
 #include "resources/ResourceType.h"
-#include "resources/ArchiveType.h"
 #include "resources/ResourceFactory.h"
 #include "resources/Resource.h"
+#include "resources/UIHelpers.h"
 #include "editor/Workspace.h"
 #include "parsing/ChunkParser.h"
-#include "resources/ArchiveEntry.h"
+#include "parsing/ChunkIDs.h"
 #include "core/Memory.h"
 
 #include "core/DataStream.h"
@@ -37,7 +37,7 @@ namespace humongousexplorer::imgui
 
 	//---------------------------------------------------------------------
 	static void CollectDisplayableChunks(
-		resources::ArchiveType a_ArchiveType,
+		archive::ArchiveType a_ArchiveType,
 		parsing::Chunk& a_Parent,
 		std::vector<std::unique_ptr<DisplayableChunkNode>>& a_Out
 	)
@@ -158,17 +158,17 @@ namespace humongousexplorer::imgui
 	{
 		m_aArchiveViews.clear();
 
-		const auto& archives = GetWorkspace().GetArchives();
+		const auto& archives = GetWorkspace().GetArchiveSet().GetArchives();
 
-		resources::ArchiveEntry* he0 = nullptr;
-		resources::ArchiveEntry* a = nullptr;
-		for (const std::unique_ptr<resources::ArchiveEntry>& archiveEntry : archives)
+		archive::Archive* he0 = nullptr;
+		archive::Archive* a = nullptr;
+		for (const std::unique_ptr<archive::Archive>& archiveEntry : archives)
 		{
-			if (archiveEntry->GetType() == resources::ArchiveType::A)
+			if (archiveEntry->GetType() == archive::ArchiveType::A)
 			{
 				a = archiveEntry.get();
 			}
-			else if (archiveEntry->GetType() == resources::ArchiveType::HE0)
+			else if (archiveEntry->GetType() == archive::ArchiveType::HE0)
 			{
 				he0 = archiveEntry.get();
 			}
@@ -190,11 +190,11 @@ namespace humongousexplorer::imgui
 		{
 			std::unordered_map<std::string, size_t> entryCountMap;
 
-			const resources::ArchiveEntry& archiveEntry = *archives[i];
-			std::string name = archiveEntry.GetPath().filename().string();
+			const archive::Archive& archive = *archives[i];
+			std::string name = archive.GetName();
 
 			std::vector<std::unique_ptr<DisplayableChunkNode>> displayableNodes;
-			CollectDisplayableChunks(archiveEntry.GetType(), const_cast<parsing::Chunk&>(archiveEntry.GetRoot()), displayableNodes);
+			CollectDisplayableChunks(archive.GetType(), const_cast<parsing::Chunk&>(archive.GetRoot()), displayableNodes);
 
 			std::vector<std::unique_ptr<FileEntryView>> children;
 			if (!displayableNodes.empty())
@@ -204,14 +204,14 @@ namespace humongousexplorer::imgui
 
 			auto archiveView = std::make_unique<TreeFileEntryView>(
 				MakeRows(
-					MakeIconRow(resources::GetIconFromArchiveType(archiveEntry.GetType())),
+					MakeIconRow(resources::GetIconFromArchiveType(archive.GetType())),
 					MakeNameRow(name),
 					MakeCountRow(std::to_string(displayableNodes.size()) + " entries")
 				),
 				std::move(children)
 			);
 			archiveView->m_sName = name;
-			archiveView->m_pChunk = const_cast<parsing::Chunk*>(&archiveEntry.GetRoot());
+			archiveView->m_pChunk = const_cast<parsing::Chunk*>(&archive.GetRoot());
 			archiveView->m_bExpanded = true;
 
 			m_aArchiveViews.push_back(std::move(archiveView));
@@ -315,7 +315,10 @@ namespace humongousexplorer::imgui
 			dropPos.x >= zoneMin.x && dropPos.x <= zoneMax.x &&
 			dropPos.y >= zoneMin.y && dropPos.y <= zoneMax.y)
 		{
-			GetWorkspace().LoadArchives(dropped);
+			if (GetWorkspace().GetArchiveSet().LoadArchives(dropped))
+			{
+				GetWorkspace().GetArchivesChanged().invoke();
+			}
 		}
 
 		bool hovered = false;
@@ -328,7 +331,10 @@ namespace humongousexplorer::imgui
 			};
 			if (file::PickFile(selected, filters))
 			{
-				GetWorkspace().LoadArchives(selected.string());
+				if (GetWorkspace().GetArchiveSet().LoadArchives(selected.string()))
+				{
+					GetWorkspace().GetArchivesChanged().invoke();
+				}
 			}
 		}
 		hovered = ImGui::IsItemHovered();

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 
 #include "archive/ArchiveType.h"
 #include "core/LoadResult.h"
@@ -52,8 +53,14 @@ namespace humongousexplorer::archive
 		/// </summary>
 		/// <returns>The ArchiveType of this archive.</returns>
 		ArchiveType GetType() const;
+
+		const std::string& GetName() const
+		{
+			return m_sName;
+		}
 	private:
 		ArchiveType m_eType = ArchiveType::Unknown;
 		std::unique_ptr<parsing::Chunk> m_pRoot;
+		std::string m_sName = "";
 	};
 }

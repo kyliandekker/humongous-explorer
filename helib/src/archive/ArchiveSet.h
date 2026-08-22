@@ -10,18 +10,6 @@
 namespace humongousexplorer::archive
 {
 	//---------------------------------------------------------------------
-	// ArchiveLoadInfo
-	//---------------------------------------------------------------------
-	/// <summary>
-	/// Captures the result of loading a single archive file, including its path and outcome.
-	/// </summary>
-	struct ArchiveLoadInfo
-	{
-		fs::path path;
-		core::LoadResult result;
-	};
-
-	//---------------------------------------------------------------------
 	// ArchiveSet
 	//---------------------------------------------------------------------
 	/// <summary>
@@ -36,12 +24,6 @@ namespace humongousexplorer::archive
 		/// <param name="a_Path">Any archive file belonging to the game to load.</param>
 		/// <returns>True if at least one archive loaded successfully, otherwise false.</returns>
 		bool LoadArchives(const fs::path& a_Path);
-
-		/// <summary>
-		/// Retrieves the per-archive load results from the last LoadArchives call.
-		/// </summary>
-		/// <returns>A const reference to the vector of per-archive load results.</returns>
-		const std::vector<ArchiveLoadInfo>& GetResults() const;
 
 		/// <summary>
 		/// Retrieves the detected Humongous Entertainment version.
@@ -59,12 +41,21 @@ namespace humongousexplorer::archive
 		{
 			return m_aArchives[a_iIndex].get();
 		}
+
+		std::vector<std::unique_ptr<Archive>>& GetArchives()
+		{
+			return m_aArchives;
+		}
+
+		const std::vector<std::unique_ptr<Archive>>& GetArchives() const
+		{
+			return m_aArchives;
+		}
 	private:
 		void DetermineHEVersion();
 
 		size_t m_iHEVersion = 0;
 		size_t m_iScriptVersion = 0;
 		std::vector<std::unique_ptr<Archive>> m_aArchives;
-		std::vector<ArchiveLoadInfo> m_aResults;
 	};
 }

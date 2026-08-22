@@ -17,6 +17,7 @@
 #include "file/file.h"
 #include "win32/winfile.h"
 #include "parsing/chunks/sound/SBNG_Chunk.h"
+#include "core/Log.h"
 
 #undef min
 #undef max
@@ -907,14 +908,7 @@ namespace humongousexplorer::imgui
 			};
 			if (file::SaveFile(savePath, filters))
 			{
-				if (audio::WaveLoader::Save(savePath.string(), soundResource->GetData(), soundResource->GetSampleRate()))
-				{
-					GetWorkspace().GetStatusMessageUpdated().invoke(true, "Successfully saved file.");
-				}
-				else
-				{
-					GetWorkspace().GetStatusMessageUpdated().invoke(false, "Failed to save file.");
-				}
+				core::Log(core::LogLevel::Success, "Failed to save file to \"" + savePath.string() + "\".");
 			}
 		}
 

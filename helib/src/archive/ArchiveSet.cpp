@@ -16,7 +16,6 @@ namespace humongousexplorer::archive
 	bool ArchiveSet::LoadArchives(const fs::path& a_Path)
 	{
 		m_aArchives.clear();
-		m_aResults.clear();
 
 		core::Log(core::LogLevel::Info, "Loading archives from: " + a_Path.filename().string() + ".");
 
@@ -61,11 +60,6 @@ namespace humongousexplorer::archive
 			std::unique_ptr<Archive> ptr = std::make_unique<Archive>();
 			core::LoadResult result = ptr->Load(filePath);
 
-			ArchiveLoadInfo info;
-			info.path = filePath;
-			info.result = result;
-			m_aResults.push_back(info);
-
 			std::string filename = filePath.filename().string();
 
 			if (result.status == core::LoadStatus::Success)
@@ -85,12 +79,6 @@ namespace humongousexplorer::archive
 		core::Log(core::LogLevel::Info, "HE version: " + std::to_string(m_iHEVersion) + ", Script version: " + std::to_string(m_iScriptVersion) + ".");
 
 		return !m_aArchives.empty();
-	}
-
-	//---------------------------------------------------------------------
-	const std::vector<ArchiveLoadInfo>& ArchiveSet::GetResults() const
-	{
-		return m_aResults;
 	}
 
 	//---------------------------------------------------------------------

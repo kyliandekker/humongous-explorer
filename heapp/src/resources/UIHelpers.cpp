@@ -1,131 +1,65 @@
-#pragma once
+#include "./UIHelpers.h"
 
-#include <string>
-#include <vector>
-#include <unordered_map>
+#include "archive/ArchiveType.h"
 
 #include "parsing/ChunkIDs.h"
+
 #include "resources/ResourceType.h"
 
 namespace humongousexplorer::resources
 {
 	//---------------------------------------------------------------------
-	enum class ArchiveType
-	{
-		Unknown,
-		Folder,
-
-		HE0,
-		HE1,
-		HE2,
-		HE3,
-		HE4,
-		HE7,
-		HE8,
-
-		A,
-	};
-
-	//---------------------------------------------------------------------
-	inline std::string GetIconFromArchiveType(ArchiveType a_ArchiveType)
+	std::string GetIconFromArchiveType(archive::ArchiveType a_ArchiveType)
 	{
 		std::string base = "../icons/";
 		switch (a_ArchiveType)
 		{
-			case ArchiveType::Unknown:
+			case archive::ArchiveType::Unknown:
 			{
 				return base + "icon_all_files.svg";
 			}
-			case ArchiveType::Folder:
-			{
-				return base + "icon_folder_open.svg";
-			}
-			case ArchiveType::HE0:
+			case archive::ArchiveType::HE0:
 			{
 				return base + "icon_he0.svg";
 			}
-			case ArchiveType::HE1:
+			case archive::ArchiveType::HE1:
 			{
 				return base + "icon_he1.svg";
 			}
-			case ArchiveType::HE2:
+			case archive::ArchiveType::HE2:
 			{
 				return base + "icon_he2.svg";
 			}
-			case ArchiveType::HE3:
+			case archive::ArchiveType::HE3:
 			{
 				return base + "icon_he3.svg";
 			}
-			case ArchiveType::HE4:
+			case archive::ArchiveType::HE4:
 			{
 				return base + "icon_he4.svg";
 			}
-			case ArchiveType::HE7:
+			case archive::ArchiveType::HE7:
 			{
 				return base + "icon_he7.svg";
 			}
-			case ArchiveType::HE8:
+			case archive::ArchiveType::HE8:
 			{
 				return base + "icon_he8.svg";
 			}
-			case ArchiveType::A:
+			case archive::ArchiveType::A:
 			{
 				return base + "icon_a.svg";
 			}
 		}
 		return "";
 	}
-
+	
 	//---------------------------------------------------------------------
-	inline ArchiveType GetArchiveTypeFromExtension(const std::string& a_sExtension)
-	{
-		std::string ext = a_sExtension;
-		for (auto& c : ext) c = static_cast<char>(::toupper(c));
-		if (ext == "HE0")
-		{
-			return ArchiveType::HE0;
-		}
-		if (ext == "HE1")
-		{
-			return ArchiveType::HE1;
-		}
-		if (ext == "HE2")
-		{
-			return ArchiveType::HE2;
-		}
-		if (ext == "HE3")
-		{
-			return ArchiveType::HE3;
-		}
-		if (ext == "HE4")
-		{
-			return ArchiveType::HE4;
-		}
-		if (ext == "HE7")
-		{
-			return ArchiveType::HE7;
-		}
-		if (ext == "HE8")
-		{
-			return ArchiveType::HE8;
-		}
-		if (ext == "(A)")
-		{
-			return ArchiveType::A;
-		}
-		return ArchiveType::Unknown;
-	}
-
-	struct DisplayableChunk
-	{
-		resources::ResourceType m_eResourceType;
-		bool m_bVisible = true;
-	};
-
 	static const std::unordered_map<std::string_view, DisplayableChunk> s_Empty =
 	{
 	};
 
+	//---------------------------------------------------------------------
 	static const std::unordered_map<std::string_view, DisplayableChunk> s_ADisplayableChunks =
 	{
 		{ parsing::LFLF_CHUNK_ID, { resources::ResourceType::Room, true } },
@@ -170,113 +104,66 @@ namespace humongousexplorer::resources
 		{ parsing::TALK_CHUNK_ID, { resources::ResourceType::Talkie, false } }
 	};
 
+	//---------------------------------------------------------------------
 	static const std::unordered_map<std::string_view, DisplayableChunk> s_HE0DisplayableChunks =
 	{
 		{ parsing::RNAM_CHUNK_ID, { resources::ResourceType::Room, false } }
 	};
 
+	//---------------------------------------------------------------------
 	static const std::unordered_map<std::string_view, DisplayableChunk> s_HE2DisplayableChunks =
 	{
 		{ parsing::TALK_CHUNK_ID, { resources::ResourceType::Talkie, false } }
 	};
 
+	//---------------------------------------------------------------------
 	static const std::unordered_map<std::string_view, DisplayableChunk> s_HE4DisplayableChunks =
 	{
 		{ parsing::SGEN_CHUNK_ID, { resources::ResourceType::Song, false } }
 	};
 
 	//---------------------------------------------------------------------
-	inline const std::unordered_map<std::string_view, DisplayableChunk>& GetDisplayableChunks(ArchiveType a_ArchiveType)
+	const std::unordered_map<std::string_view, DisplayableChunk>& GetDisplayableChunks(archive::ArchiveType a_ArchiveType)
 	{
 		switch (a_ArchiveType)
 		{
-			case ArchiveType::Unknown:
-			case ArchiveType::Folder:
+			case archive::ArchiveType::Unknown:
 			{
 				return s_Empty;
 			}
-			case ArchiveType::HE0:
+			case archive::ArchiveType::HE0:
 			{
 				return s_Empty;
 			}
-			case ArchiveType::HE1:
+			case archive::ArchiveType::HE1:
 			{
 				return s_Empty;
 			}
-			case ArchiveType::HE2:
+			case archive::ArchiveType::HE2:
 			{
 				return s_HE2DisplayableChunks;
 			}
-			case ArchiveType::HE3:
+			case archive::ArchiveType::HE3:
 			{
 				return s_Empty;
 			}
-			case ArchiveType::HE4:
+			case archive::ArchiveType::HE4:
 			{
 				return s_HE4DisplayableChunks;
 			}
-			case ArchiveType::HE7:
+			case archive::ArchiveType::HE7:
 			{
 				return s_Empty;
 			}
-			case ArchiveType::HE8:
+			case archive::ArchiveType::HE8:
 			{
 				return s_Empty;
 			}
-			case ArchiveType::A:
+			case archive::ArchiveType::A:
 			{
 				return s_ADisplayableChunks;
 			}
 		}
 		return s_Empty;
-	}
-
-	//---------------------------------------------------------------------
-	inline std::string GetNameFromArchiveType(ArchiveType a_ArchiveType)
-	{
-		switch (a_ArchiveType)
-		{
-			case ArchiveType::Unknown:
-			{
-				return "Unknown";
-			}
-			case ArchiveType::Folder:
-			{
-				return "Folder";
-			}
-			case ArchiveType::HE0:
-			{
-				return "HE0";
-			}
-			case ArchiveType::HE1:
-			{
-				return "HE1";
-			}
-			case ArchiveType::HE2:
-			{
-				return "HE2";
-			}
-			case ArchiveType::HE3:
-			{
-				return "HE3";
-			}
-			case ArchiveType::HE4:
-			{
-				return "HE4";
-			}
-			case ArchiveType::HE7:
-			{
-				return "HE7";
-			}
-			case ArchiveType::HE8:
-			{
-				return "HE8";
-			}
-			case ArchiveType::A:
-			{
-				return "(a)";
-			}
-		}
-		return "";
 	}
 }
