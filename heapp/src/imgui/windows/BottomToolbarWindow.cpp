@@ -3,6 +3,8 @@
 #include "imgui/imgui.h"
 #include "win32/Window.h"
 
+#include "ui/AppLogger.h"
+
 namespace humongousexplorer::imgui
 {
 	//---------------------------------------------------------------------
@@ -31,12 +33,19 @@ namespace humongousexplorer::imgui
 			bottomToolbarStart.y + (BOTTOM_TOOLBAR_HEIGHT - textSize.y) * 0.5f
 		};
 		ImGui::SetCursorScreenPos(textPos);
-		ImGui::Text("Test");
+		ImGui::Text("%s", m_sMessage.c_str());
 	}
 
 	//---------------------------------------------------------------------
 	bool BottomToolbarWindow::OnInitialized()
 	{
+		logger::GetLogEvent() += std::bind(&BottomToolbarWindow::OnLogEvent, this, std::placeholders::_1, std::placeholders::_2);
 		return true;
+	}
+
+	//---------------------------------------------------------------------
+	void BottomToolbarWindow::OnLogEvent(core::LogLevel a_Level, const std::string& a_sMessage)
+	{
+		m_sMessage = a_sMessage;
 	}
 }

@@ -19,10 +19,6 @@
           "Command": "--depth=\"1\""
         }
       ]
-    },
-    {
-      "Id": "930677a7-d3cd-4d1f-91eb-a74ad670d936",
-      "Command": "-outputPath=\"C:\\Users\\Kylian\\Downloads\\he\\build\\out\""
     }
   ]
 }

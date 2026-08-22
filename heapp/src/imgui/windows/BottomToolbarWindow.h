@@ -4,6 +4,10 @@
 
 #include <string>
 
+namespace humongousexplorer::core
+{
+	enum class LogLevel;
+}
 namespace humongousexplorer::imgui
 {
 	static constexpr float BOTTOM_TOOLBAR_HEIGHT = 75;
@@ -17,5 +21,8 @@ namespace humongousexplorer::imgui
 
 		// Inherited via HEBaseWindow
 		bool OnInitialized() override;
+
+		std::string m_sMessage = "";
+		void OnLogEvent(core::LogLevel a_Level, const std::string& a_sMessage);
 	};
 }

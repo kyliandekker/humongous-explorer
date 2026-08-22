@@ -11,8 +11,6 @@
 namespace humongousexplorer::imgui
 {
 	//---------------------------------------------------------------------
-	// TopToolbarWindow
-	//---------------------------------------------------------------------
 	TopToolbarWindow::TopToolbarWindow()
 		: HEBaseWindow(ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse, "", "TOOLBAR", true)
 	{
@@ -31,18 +29,16 @@ namespace humongousexplorer::imgui
 			IM_COL32(21, 26, 36, 255)
 		);
 
-		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
-		ImGui::PushFont(GetImGuiSystem().GetDefaultFont(), ImGui::GetFontSize() / 1.75f);
+		ImVec2 Size = ImGui::CalcTextSize(icon::ICON_MINUS);
+		Size.y += ImGui::GetStyle().FramePadding.y * 2.0f;
+		Size.x += ImGui::GetStyle().FramePadding.x * 2;
+		Size.x *= 3;
+		Size.x += ImGui::GetStyle().ItemSpacing.x * 2;
 
-		float Size = ImGui::CalcTextSize(icon::ICON_MINUS).x;
-		Size += ImGui::CalcTextSize(icon::ICON_MAXIMIZE).x;
-		Size += ImGui::CalcTextSize(icon::ICON_CLOSE).x;
-		Size += ImGui::GetStyle().FramePadding.x * 2.0f * 3;
-		Size += ImGui::GetStyle().ItemSpacing.x * 2.0f;
-		Size += ImGui::GetStyle().FramePadding.x;
+		Size.x += ImGui::GetStyle().WindowPadding.x;
 
 		float buttonHeight = ImGui::GetFrameHeight();
-		ImVec2 buttonPos = { topToolbarEnd.x - Size, topToolbarStart.y + (TOP_TOOLBAR_HEIGHT - buttonHeight) * 0.5f };
+		ImVec2 buttonPos = { topToolbarEnd.x - Size.x, topToolbarStart.y + (TOP_TOOLBAR_HEIGHT - Size.y) * 0.5f };
 		ImGui::SetCursorScreenPos(buttonPos);
 		if (ImGui::Button(FormatId(icon::ICON_MINUS, BUTTON_ID, "MINIMIZE").c_str()))
 		{
@@ -59,8 +55,7 @@ namespace humongousexplorer::imgui
 			win32::GetWin32Window().Close();
 		}
 
-		ImGui::PopFont();
-		ImGui::PopStyleVar();
+		TOP_TOOLBAR_HEIGHT = Size.y + (ImGui::GetStyle().WindowPadding.y * 2);
 	}
 
 	//---------------------------------------------------------------------

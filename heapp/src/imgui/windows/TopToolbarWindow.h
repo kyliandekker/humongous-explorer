@@ -6,7 +6,7 @@
 
 namespace humongousexplorer::imgui
 {
-	static constexpr float TOP_TOOLBAR_HEIGHT = 100;
+	inline float TOP_TOOLBAR_HEIGHT = 120;
 
 	class TopToolbarWindow : public HEBaseWindow
 	{

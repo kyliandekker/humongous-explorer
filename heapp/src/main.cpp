@@ -10,6 +10,8 @@
 #include "imgui/ImGuiSystem.h"
 #include "editor/Workspace.h"
 
+#include "ui/AppLogger.h"
+
 #include "win32/winfile.h"
 
 #include "imgui/backends/imgui_impl_win32.h"
@@ -19,16 +21,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 static void HelibLogCallback(humongousexplorer::core::LogLevel a_Level, const std::string& a_sMessage)
 {
-	humongousexplorer::LogSeverity severity;
-	switch (a_Level)
-	{
-		case humongousexplorer::core::LogLevel::Success: severity = humongousexplorer::LOGSEVERITY_SUCCESS; break;
-		case humongousexplorer::core::LogLevel::Error:   severity = humongousexplorer::LOGSEVERITY_ERROR; break;
-		case humongousexplorer::core::LogLevel::Warning: severity = humongousexplorer::LOGSEVERITY_WARNING; break;
-		case humongousexplorer::core::LogLevel::Info:    severity = humongousexplorer::LOGSEVERITY_INFO; break;
-		default: severity = humongousexplorer::LOGSEVERITY_INFO; break;
-	}
-	humongousexplorer::GetLogger().Log(severity, a_sMessage, __FILE__, __LINE__);
+	humongousexplorer::logger::GetLogEvent().invoke(a_Level, a_sMessage);
 }
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lpCmdLine, _In_ int nShowCmd)

@@ -17,7 +17,7 @@ namespace humongousexplorer::imgui
 		//----------------------------------------------------------
 
 		style.WindowPadding = ImVec2(10, 10);
-		style.FramePadding = ImVec2(8, 8);
+		style.FramePadding = ImVec2(10, 10);
 		style.CellPadding = ImVec2(8, 6);
 		style.ItemSpacing = ImVec2(8, 8);
 		style.ItemInnerSpacing = ImVec2(6, 4);

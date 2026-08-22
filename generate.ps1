@@ -22,11 +22,11 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-# Copy everything from config/ into the solution/build folder
-$ConfigDir = Join-Path $SourceDir "config"
+# Copy everything from setup/ into the solution/build folder
+$ConfigDir = Join-Path $SourceDir "setup"
 
 if (Test-Path $ConfigDir) {
-    Write-Host "Copying config files to build folder..."
+    Write-Host "Copying setup files to build folder..."
 
     Copy-Item `
         -Path "$ConfigDir\*" `
