@@ -3,6 +3,8 @@
 // external includes
 #include <format>
 
+#include "imgui/windows/TopToolbarWindow.h"
+
 namespace humongousexplorer::win32
 {
 	//---------------------------------------------------------------------
@@ -339,11 +341,8 @@ namespace humongousexplorer::win32
 					// When maximized, no resize - but still allow drag via caption below
 				}
 
-				// --- Dragging: treat top bar as title bar ---
-				// 50px toolbar height, exclude right 400px where window buttons live
-				// Return HTCAPTION so OS handles move, snap, double-click maximize, and Aero.
-				const int toolbarHeight = 50;
-				const int buttonAreaWidth = 400;
+				const int toolbarHeight = static_cast<int>(imgui::TOP_TOOLBAR_HEIGHT);
+				const int buttonAreaWidth = static_cast<int>(imgui::BUTTONS_TOOLBAR_WIDTH);
 				if (cursor.y < rc.top + toolbarHeight && cursor.x < rc.right - buttonAreaWidth)
 				{
 					return HTCAPTION;

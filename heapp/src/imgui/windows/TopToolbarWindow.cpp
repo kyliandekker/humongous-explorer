@@ -34,7 +34,6 @@ namespace humongousexplorer::imgui
 		Size.x += ImGui::GetStyle().FramePadding.x * 2;
 		Size.x *= 3;
 		Size.x += ImGui::GetStyle().ItemSpacing.x * 2;
-
 		Size.x += ImGui::GetStyle().WindowPadding.x;
 
 		float buttonHeight = ImGui::GetFrameHeight();
@@ -56,6 +55,7 @@ namespace humongousexplorer::imgui
 		}
 
 		TOP_TOOLBAR_HEIGHT = Size.y + (ImGui::GetStyle().WindowPadding.y * 2);
+		BUTTONS_TOOLBAR_WIDTH = Size.x;
 	}
 
 	//---------------------------------------------------------------------

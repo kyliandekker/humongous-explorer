@@ -7,6 +7,7 @@
 namespace humongousexplorer::imgui
 {
 	inline float TOP_TOOLBAR_HEIGHT = 120;
+	inline float BUTTONS_TOOLBAR_WIDTH = 120;
 
 	class TopToolbarWindow : public HEBaseWindow
 	{
