@@ -41,10 +41,44 @@ namespace humongousexplorer::imgui
 		ImVec2 padding = ImGui::GetStyle().WindowPadding;
 		std::string version = GetWorkspace().GetAppName() + " " + GetWorkspace().GetAppVersion();
 		ImVec2 versionTextSize = ImGui::CalcTextSize(version.c_str());
+
+		// icon_logo.svg in front of name + version
+		const float logoIconSize = ImGui::GetFontSize() + 14.0f;
+		ID3D11ShaderResourceView* logoTex = dx11::SVGTextureCache::Get("icon_logo.svg");
+		float logoDrawW = 0.0f;
+		float logoDrawH = 0.0f;
+		if (logoTex)
+		{
+			int nativeW = dx11::SVGTextureCache::GetWidth("icon_logo.svg");
+			int nativeH = dx11::SVGTextureCache::GetHeight("icon_logo.svg");
+			if (nativeW > 0 && nativeH > 0)
+			{
+				float scale = logoIconSize / static_cast<float>((nativeW > nativeH) ? nativeW : nativeH);
+				logoDrawW = nativeW * scale;
+				logoDrawH = nativeH * scale;
+			}
+			else
+			{
+				logoTex = nullptr;
+			}
+		}
+		float logoSpacing = logoTex ? 6.0f : 0.0f;
+		float totalVersionWidth = versionTextSize.x + logoDrawW + logoSpacing;
 		ImVec2 versionTextPos = {
-			bottomToolbarEnd.x - (padding.x + versionTextSize.x),
+			bottomToolbarEnd.x - (padding.x + totalVersionWidth) + logoDrawW + logoSpacing,
 			bottomToolbarStart.y + (BOTTOM_TOOLBAR_HEIGHT - versionTextSize.y) * 0.5f
 		};
+		ImVec2 logoPos = {
+			bottomToolbarEnd.x - (padding.x + totalVersionWidth),
+			bottomToolbarStart.y + (BOTTOM_TOOLBAR_HEIGHT - logoDrawH) * 0.5f
+		};
+		if (logoTex)
+		{
+			drawlist->AddImage(
+				static_cast<ImTextureID>(reinterpret_cast<intptr_t>(logoTex)),
+				logoPos,
+				ImVec2(logoPos.x + logoDrawW, logoPos.y + logoDrawH));
+		}
 		ImGui::SetCursorScreenPos(versionTextPos);
 		ImGui::Text("%s", version.c_str());
 

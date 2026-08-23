@@ -6,6 +6,9 @@
 
 #include "win32/Window.h"
 
+#include "dx11/SVGTextureCache.h"
+#include "editor/Workspace.h"
+
 #include "imgui/ImGuiSystem.h"
 
 namespace humongousexplorer::imgui
@@ -28,6 +31,56 @@ namespace humongousexplorer::imgui
 				ImGui::GetWindowPos().y + TOP_TOOLBAR_HEIGHT),
 			IM_COL32(21, 26, 36, 255)
 		);
+
+		// Logo + app name on left side of top toolbar
+		{
+			ImVec2 padding = ImGui::GetStyle().WindowPadding;
+			std::string appName = GetWorkspace().GetAppName();
+			ImVec2 textSize = ImGui::CalcTextSize(appName.c_str());
+
+			const float logoIconSize = 48.0f;
+			ID3D11ShaderResourceView* logoTex = dx11::SVGTextureCache::Get("icon_logo.svg");
+			float logoDrawW = 0.0f;
+			float logoDrawH = 0.0f;
+			if (logoTex)
+			{
+				int nativeW = dx11::SVGTextureCache::GetWidth("icon_logo.svg");
+				int nativeH = dx11::SVGTextureCache::GetHeight("icon_logo.svg");
+				if (nativeW > 0 && nativeH > 0)
+				{
+					float scale = logoIconSize / static_cast<float>((nativeW > nativeH) ? nativeW : nativeH);
+					logoDrawW = nativeW * scale;
+					logoDrawH = nativeH * scale;
+				}
+				else
+				{
+					logoTex = nullptr;
+				}
+			}
+
+			float logoSpacing = logoTex ? 8.0f : 0.0f;
+			ImVec2 logoPos = {
+				topToolbarStart.x + padding.x,
+				topToolbarStart.y + (TOP_TOOLBAR_HEIGHT - logoDrawH) * 0.5f
+			};
+			ImVec2 textPos = {
+				topToolbarStart.x + padding.x + logoDrawW + logoSpacing,
+				topToolbarStart.y + (TOP_TOOLBAR_HEIGHT - textSize.y) * 0.5f
+			};
+
+			if (logoTex)
+			{
+				drawlist->AddImage(
+					static_cast<ImTextureID>(reinterpret_cast<intptr_t>(logoTex)),
+					logoPos,
+					ImVec2(logoPos.x + logoDrawW, logoPos.y + logoDrawH));
+			}
+
+			ImGui::PushFont(GetImGuiSystem().GetBoldFont());
+			ImGui::SetCursorScreenPos(textPos);
+			ImGui::TextUnformatted(appName.c_str());
+			ImGui::PopFont();
+		}
 
 		ImVec2 Size = ImGui::CalcTextSize(icon::ICON_MINUS);
 		Size.y += ImGui::GetStyle().FramePadding.y * 2.0f;
