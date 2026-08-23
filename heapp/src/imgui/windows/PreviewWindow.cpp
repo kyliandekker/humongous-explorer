@@ -185,7 +185,11 @@ namespace humongousexplorer::imgui
 		bool prevCheckerboard = m_bShowCheckerboard;
 		if (m_bShowCheckerboard)
 		{
-			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+			ImGui::PushStyleColor(
+				ImGuiCol_Button,
+				ImGui::ColorConvertFloat4ToU32(
+					imgui::ExtraColors[
+						imgui::ImGuiExtraCol_Accent]));
 		}
 
 		ImGui::NewLine();
@@ -917,15 +921,26 @@ namespace humongousexplorer::imgui
 				smallBtnSize,
 				smallBtnSize)))
 		{
-			fs::path savePath;
-			const std::vector<COMDLG_FILTERSPEC> filters =
-			{
-				{L"WAVE files (*.wav)", L"*.wav;*.WAV"}
-			};
-			if (file::SaveFile(savePath, filters))
-			{
-				core::Log(core::LogLevel::Success, "Failed to save file to \"" + savePath.string() + "\".");
-			}
+			//fs::path savePath;
+			//const std::vector<COMDLG_FILTERSPEC> filters =
+			//{
+			//	{L"WAVE files (*.wav)", L"*.wav;*.WAV"}
+			//};
+			//if (file::SaveFile(savePath, filters))
+			//{
+			//	if (file::SaveFile(savePath, ))
+			//	{
+			//		core::Log(core::LogLevel::Success, "Saved file to \"" + savePath.string() + "\".");
+			//	}
+			//	else
+			//	{
+			//		core::Log(core::LogLevel::Error, "Failed to save file to \"" + savePath.string() + "\".");
+			//	}
+			//}
+			//else
+			//{
+			//	core::Log(core::LogLevel::Error, "Failed to save file to \"" + savePath.string() + "\".");
+			//}
 		}
 
 		ImGui::SameLine();

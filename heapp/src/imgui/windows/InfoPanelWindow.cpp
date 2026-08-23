@@ -5,6 +5,8 @@
 #include "imgui/ImGuiSystem.h"
 #include "imgui/Helpers.h"
 
+#include "dx11/SVGTextureCache.h"
+
 #include "core/Memory.h"
 #include "editor/Workspace.h"
 #include "resources/Resource.h"
@@ -82,7 +84,14 @@ namespace humongousexplorer::imgui
 			// Palette child
 			if (ImGui::BeginChild("Palette", ImVec2(0, 0), ImGuiChildFlags_Borders))
 			{
-				// Header row: title on left, count + buttons on right
+				// Header row: icon + title on left, count on right
+				float iconSize = ImGui::GetFontSize();
+				ID3D11ShaderResourceView* paletteIcon = dx11::SVGTextureCache::Get("icon_palette.svg");
+				if (paletteIcon)
+				{
+					ImGui::Image((ImTextureID)paletteIcon, ImVec2(iconSize, iconSize));
+					ImGui::SameLine();
+				}
 				ImGui::PushFont(GetImGuiSystem().GetBoldFont());
 				ImGui::Text("PALETTE");
 				ImGui::PopFont();
