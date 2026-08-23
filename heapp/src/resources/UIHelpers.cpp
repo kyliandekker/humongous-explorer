@@ -11,44 +11,43 @@ namespace humongousexplorer::resources
 	//---------------------------------------------------------------------
 	std::string GetIconFromArchiveType(archive::ArchiveType a_ArchiveType)
 	{
-		std::string base = "../icons/";
 		switch (a_ArchiveType)
 		{
 			case archive::ArchiveType::Unknown:
 			{
-				return base + "icon_all_files.svg";
+				return "icon_all_files.svg";
 			}
 			case archive::ArchiveType::HE0:
 			{
-				return base + "icon_he0.svg";
+				return "icon_he0.svg";
 			}
 			case archive::ArchiveType::HE1:
 			{
-				return base + "icon_he1.svg";
+				return "icon_he1.svg";
 			}
 			case archive::ArchiveType::HE2:
 			{
-				return base + "icon_he2.svg";
+				return "icon_he2.svg";
 			}
 			case archive::ArchiveType::HE3:
 			{
-				return base + "icon_he3.svg";
+				return "icon_he3.svg";
 			}
 			case archive::ArchiveType::HE4:
 			{
-				return base + "icon_he4.svg";
+				return "icon_he4.svg";
 			}
 			case archive::ArchiveType::HE7:
 			{
-				return base + "icon_he7.svg";
+				return "icon_he7.svg";
 			}
 			case archive::ArchiveType::HE8:
 			{
-				return base + "icon_he8.svg";
+				return "icon_he8.svg";
 			}
 			case archive::ArchiveType::A:
 			{
-				return base + "icon_a.svg";
+				return "icon_a.svg";
 			}
 		}
 		return "";

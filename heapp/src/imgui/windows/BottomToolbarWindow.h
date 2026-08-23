@@ -3,6 +3,7 @@
 #include "imgui/windows/HEBaseWindow.h"
 
 #include <string>
+#include <vector>
 
 namespace humongousexplorer::core
 {
@@ -11,6 +12,7 @@ namespace humongousexplorer::core
 namespace humongousexplorer::imgui
 {
 	static constexpr float BOTTOM_TOOLBAR_HEIGHT = 75;
+	static constexpr size_t LOG_MAX_HISTORY = 100;
 
 	class BottomToolbarWindow : public HEBaseWindow
 	{
@@ -22,7 +24,17 @@ namespace humongousexplorer::imgui
 		// Inherited via HEBaseWindow
 		bool OnInitialized() override;
 
-		std::string m_sMessage = "";
 		void OnLogEvent(core::LogLevel a_Level, const std::string& a_sMessage);
+
+		bool m_bLogWindowOpened = false;
+
+		struct LogEntry
+		{
+			core::LogLevel level;
+			std::string icon;
+			std::string message;
+		};
+		std::vector<LogEntry> m_aLogHistory;
+		static bool s_bPanelOpen;
 	};
 }

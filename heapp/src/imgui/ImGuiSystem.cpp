@@ -64,11 +64,11 @@ namespace humongousexplorer::imgui
 
 		m_aWindows.emplace_back(std::make_unique<EditorWindowDock>());
 		m_aWindows.emplace_back(std::make_unique<TopToolbarWindow>());
-		m_aWindows.emplace_back(std::make_unique<BottomToolbarWindow>());
 		m_aWindows.emplace_back(std::make_unique<ArchiveContentsWindow>());
 		m_aWindows.emplace_back(std::make_unique<RoomContentWindow>());
 		m_aWindows.emplace_back(std::make_unique<PreviewWindow>());
 		m_aWindows.emplace_back(std::make_unique<InfoPanelWindow>());
+		m_aWindows.emplace_back(std::make_unique<BottomToolbarWindow>());
 		InitializeWindows();
 
 		return true;

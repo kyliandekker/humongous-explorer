@@ -9,14 +9,15 @@ namespace humongousexplorer::dx11
 	std::unordered_map<std::string, SVGTextureCache::CachedTexture> SVGTextureCache::s_Cache;
 
 	//---------------------------------------------------------------------
-	ID3D11ShaderResourceView* SVGTextureCache::Get(const std::string& a_sPath)
+	ID3D11ShaderResourceView* SVGTextureCache::Get(const std::string& a_sName)
 	{
-		if (a_sPath.empty())
+		std::string path = "../icons/" + a_sName;
+		if (a_sName.empty())
 		{
 			return nullptr;
 		}
 
-		auto it = s_Cache.find(a_sPath);
+		auto it = s_Cache.find(a_sName);
 		if (it != s_Cache.end())
 		{
 			return it->second.pTexture;
@@ -24,7 +25,7 @@ namespace humongousexplorer::dx11
 
 		core::Data pixels;
 		int texW = 0, texH = 0;
-		if (!file::SVGParser::Load(a_sPath, pixels, texW, texH))
+		if (!file::SVGParser::Load(path, pixels, texW, texH))
 		{
 			return nullptr;
 		}
@@ -42,22 +43,22 @@ namespace humongousexplorer::dx11
 		cached.iWidth = texW;
 		cached.iHeight = texH;
 
-		s_Cache[a_sPath] = cached;
+		s_Cache[a_sName] = cached;
 
 		return srv;
 	}
 
 	//---------------------------------------------------------------------
-	int SVGTextureCache::GetWidth(const std::string& a_sPath)
+	int SVGTextureCache::GetWidth(const std::string& a_sName)
 	{
-		auto it = s_Cache.find(a_sPath);
+		auto it = s_Cache.find(a_sName);
 		return (it != s_Cache.end()) ? it->second.iWidth : 0;
 	}
 
 	//---------------------------------------------------------------------
-	int SVGTextureCache::GetHeight(const std::string& a_sPath)
+	int SVGTextureCache::GetHeight(const std::string& a_sName)
 	{
-		auto it = s_Cache.find(a_sPath);
+		auto it = s_Cache.find(a_sName);
 		return (it != s_Cache.end()) ? it->second.iHeight : 0;
 	}
 

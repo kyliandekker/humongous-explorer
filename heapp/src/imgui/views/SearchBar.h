@@ -19,7 +19,7 @@ namespace humongousexplorer::imgui
 	private:
 		std::string m_sHint;
 		std::string m_sName;
-		std::string m_sIconPath = "../icons/icon_search.svg";
+		std::string m_sIconPath = "icon_search.svg";
 		char m_aBuffer[256] = "";
 	};
 }

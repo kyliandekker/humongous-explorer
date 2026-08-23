@@ -19,9 +19,9 @@ namespace humongousexplorer::dx11
 		/// <summary>
 		/// Returns a cached texture for the given SVG path, loading it if needed.
 		/// </summary>
-		/// <param name="a_sPath">Path to the SVG file.</param>
+		/// <param name="a_sName">Name of the SVG file.</param>
 		/// <returns>The texture, or nullptr on failure.</returns>
-		static ID3D11ShaderResourceView* Get(const std::string& a_sPath);
+		static ID3D11ShaderResourceView* Get(const std::string& a_sName);
 
 		/// <summary>
 		/// Returns the native width of the cached SVG.

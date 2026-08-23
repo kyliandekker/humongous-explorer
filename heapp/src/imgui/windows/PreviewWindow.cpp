@@ -191,7 +191,7 @@ namespace humongousexplorer::imgui
 		ImGui::NewLine();
 
 		if (ImGui::ImageButton(FormatId("", BUTTON_ID, "PreviewWindow", "Checkerboard").c_str(),
-			(ImTextureID)dx11::SVGTextureCache::Get("../icons/icon_transparent.svg"),
+			(ImTextureID)dx11::SVGTextureCache::Get("icon_transparent.svg"),
 			ImVec2(ImGui::GetFontSize() + 2.0f, ImGui::GetFontSize() + 2.0f)))
 		{
 			m_bShowCheckerboard = !m_bShowCheckerboard;

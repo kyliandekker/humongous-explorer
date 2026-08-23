@@ -301,7 +301,7 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void ArchiveContentsWindow::RenderDropZone()
 	{
-		const char* sIconPath = "../icons/icon_drop_file.svg";
+		const char* sIconPath = "icon_drop_file.svg";
 		ID3D11ShaderResourceView* pTex = dx11::SVGTextureCache::Get(sIconPath);
 
 		float zoneW = ImGui::GetContentRegionAvail().x;

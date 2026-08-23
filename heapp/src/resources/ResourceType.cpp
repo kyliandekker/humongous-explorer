@@ -7,49 +7,48 @@ namespace humongousexplorer::resources
 	//---------------------------------------------------------------------
 	std::string GetIconFromResourceType(ResourceType a_ResourceType)
 	{
-		std::string base = "../icons/";
 		switch (a_ResourceType)
 		{
 			case ResourceType::Unknown:
 			{
-				return base + "icon_all_files.svg";
+				return "icon_all_files.svg";
 			}
 			case ResourceType::Talkie:
 			{
-				return base + "icon_talkie.svg";
+				return "icon_talkie.svg";
 			}
 			case ResourceType::SFX:
 			{
-				return base + "icon_sfx.svg";
+				return "icon_sfx.svg";
 			}
 			case ResourceType::Song:
 			{
-				return base + "icon_song.svg";
+				return "icon_song.svg";
 			}
 			case ResourceType::RoomBackground:
 			{
-				return base + "icon_background.svg";
+				return "icon_background.svg";
 			}
 			case ResourceType::RoomImage:
 			case ResourceType::RoomImageLayer:
 			{
-				return base + "icon_image.svg";
+				return "icon_image.svg";
 			}
 			case ResourceType::LocalScript:
 			{
-				return base + "icon_local_script.svg";
+				return "icon_local_script.svg";
 			}
 			case ResourceType::GlobalScript:
 			{
-				return base + "icon_global_script.svg";
+				return "icon_global_script.svg";
 			}
 			case ResourceType::VerbScript:
 			{
-				return base + "icon_verb_script.svg";
+				return "icon_verb_script.svg";
 			}
 			case ResourceType::Room:
 			{
-				return base + "icon_room.svg";
+				return "icon_room.svg";
 			}
 		}
 		return "";
