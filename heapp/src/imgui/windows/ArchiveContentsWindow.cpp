@@ -112,14 +112,14 @@ namespace humongousexplorer::imgui
 
 	//---------------------------------------------------------------------
 	static std::vector<std::unique_ptr<FileEntryView>> BuildFileEntryViews(
-		std::vector<std::unique_ptr<DisplayableChunkNode>>& a_Nodes,
-		std::vector<std::string>& a_RoomNames,
-		size_t& a_RoomIndex,
+		std::vector<std::unique_ptr<DisplayableChunkNode>>& a_aNodes,
+		std::vector<std::string>& a_aRoomNames,
+		size_t& a_iRoomIndex,
 		std::unordered_map<std::string, size_t> a_mEntryCountMap
 	)
 	{
 		std::vector<std::unique_ptr<FileEntryView>> views;
-		for (auto& node : a_Nodes)
+		for (auto& node : a_aNodes)
 		{
 			std::string tag = node->m_pChunk->GetTag();
 
@@ -128,8 +128,8 @@ namespace humongousexplorer::imgui
 			std::string resName = resources::GetNameFromResourceType(node->m_eResourceType) + " " + std::to_string(a_mEntryCountMap[tag]);
 			if (tag == parsing::LFLF_CHUNK_ID)
 			{
-				resName = std::to_string(a_RoomIndex + 1) + ". " + (a_RoomNames.size() > a_RoomIndex ? a_RoomNames[a_RoomIndex] : "");
-				a_RoomIndex++;
+				resName = std::format("Room {:03} - ", a_iRoomIndex + 1) + (a_aRoomNames.size() > a_iRoomIndex ? a_aRoomNames[a_iRoomIndex] : "");
+				a_iRoomIndex++;
 			}
 
 			std::string resIcon = resources::GetIconFromResourceType(node->m_eResourceType);
@@ -137,7 +137,7 @@ namespace humongousexplorer::imgui
 			std::vector<std::unique_ptr<FileEntryView>> children;
 			if (!node->m_aChildren.empty())
 			{
-				children = BuildFileEntryViews(node->m_aChildren, a_RoomNames, a_RoomIndex, a_mEntryCountMap);
+				children = BuildFileEntryViews(node->m_aChildren, a_aRoomNames, a_iRoomIndex, a_mEntryCountMap);
 			}
 
 			auto view = std::make_unique<TreeFileEntryView>(
@@ -313,8 +313,10 @@ namespace humongousexplorer::imgui
 		}
 
 		// Estimate content height so zone fully contains icon + wrapped text + button (fixes half cut off)
-		const char* subtitleEstimate = "(.A, .HE0, .HE2, .HE3, .HE4)";
-		const char* hintEstimate = "You can also drop a file from Windows Explorer";
+		std::string subtitleEstimate = "(.A, .HE0, .HE2, .HE3, .HE4)";
+		std::string hintEstimate = "You can also drop a file from Windows Explorer";
+		std::string buttonText = std::string(icon::ICON_OPEN) + " Open Archive File";
+
 		float iconHEstimate = 0.0f;
 		if (pTex)
 		{
@@ -329,9 +331,9 @@ namespace humongousexplorer::imgui
 				iconHEstimate = 64.0f;
 			}
 		}
-		float subtitleHEstimate = ImGui::CalcTextSize(subtitleEstimate, nullptr, false, availableWidth).y;
-		float hintHEstimate = ImGui::CalcTextSize(hintEstimate, nullptr, false, availableWidth).y;
-		float buttonHNeeded = ImGui::CalcTextSize("Browse Files").y + ImGui::GetStyle().FramePadding.y * 2.0f + 6.0f;
+		float subtitleHEstimate = ImGui::CalcTextSize(subtitleEstimate.c_str(), nullptr, false, availableWidth).y;
+		float hintHEstimate = ImGui::CalcTextSize(hintEstimate.c_str(), nullptr, false, availableWidth).y;
+		float buttonHNeeded = ImGui::CalcTextSize(buttonText.c_str()).y + ImGui::GetStyle().FramePadding.y * 2.0f + 6.0f;
 		float neededH = 14.0f + (pTex ? iconHEstimate + 8.0f : 0.0f) + subtitleHEstimate + 4.0f + hintHEstimate + 12.0f + buttonHNeeded + 16.0f;
 		float zoneH = neededH;
 		if (zoneH < 200.0f)
@@ -459,15 +461,13 @@ namespace humongousexplorer::imgui
 			}
 		};
 
-		drawCenteredWrappedText("(.A, .HE0, .HE2, .HE3, .HE4)", IM_COL32(140, 140, 160, 255));
+		drawCenteredWrappedText(subtitleEstimate.c_str(), IM_COL32(140, 140, 160, 255));
 		curY += 4.0f;
 
-		drawCenteredWrappedText("You can also drop a file from Windows Explorer", IM_COL32(110, 110, 130, 255));
+		drawCenteredWrappedText(hintEstimate.c_str(), IM_COL32(110, 110, 130, 255));
 		curY += 12.0f;
 
 		drawList->PopClipRect();
-
-		std::string buttonText = std::string(icon::ICON_OPEN) + " Open Archive File";
 
 		// Browse button - height auto so text never half cut, centered, adapt to DPI
 		float buttonLabelW = ImGui::CalcTextSize(buttonText.c_str()).x;
@@ -503,7 +503,7 @@ namespace humongousexplorer::imgui
 				fs::path selected;
 				std::vector<COMDLG_FILTERSPEC> filters =
 				{
-					{ L"HE Archive", L"*.(A);*.HE0;*.HE1;*.HE2;*.HE3;*.HE4;*.HE7;*.HE8" },
+					{ L"HE Archive", L"*.(A);*.HE0;*.HE1;*.HE2;*.HE3;*.HE4;*.HE7;*.HE8;*.HE9" },
 					{ L"All Files", L"*.*" }
 				};
 				if (file::PickFile(selected, filters))

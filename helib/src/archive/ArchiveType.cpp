@@ -39,6 +39,10 @@ namespace humongousexplorer::archive
 		{
 			return ArchiveType::HE8;
 		}
+		if (ext == "HE9")
+		{
+			return ArchiveType::HE9;
+		}
 		if (ext == "(A)")
 		{
 			return ArchiveType::A;

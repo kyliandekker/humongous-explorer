@@ -298,6 +298,16 @@ namespace humongousexplorer::resources
 			return m_pSRV;
 		}
 
+		// Validate that ImageData is RGBA (4 bytes per pixel). If it's still
+		// 1 byte per pixel (palette indices), CreateTexture2D would read
+		// past the allocation (width*4 pitch vs width*1 buffer) and AV in
+		// atidxx64.dll - the crash reported at DX11System.cpp:126.
+		const size_t expected = static_cast<size_t>(m_iWidth) * static_cast<size_t>(m_iHeight) * 4;
+		if (m_ImageData.size() < expected)
+		{
+			return nullptr;
+		}
+
 		m_pSRV = dx11::GetDX11System().CreateTexture(
 			m_ImageData.data(),
 			m_iWidth,
@@ -448,35 +458,54 @@ namespace humongousexplorer::resources
 			return;
 		}
 
-		parsing::TRNS_Chunk* trnsData = apal->GetData().dataAs<parsing::TRNS_Chunk>();
+		parsing::TRNS_Chunk* trnsData = trns->GetData().dataAs<parsing::TRNS_Chunk>();
 		if (!trnsData)
 		{
 			return;
 		}
 
-		core::Data bmapImageData = core::Data(core::add(bmap->GetData().data(), sizeof(parsing::BMAP_Chunk)), bmap->ChunkSize() - sizeof(parsing::BMAP_Chunk));
-		if (!DecodeHE(bmapData->fillColor, bmapImageData, m_iWidth, m_iHeight, palen, m_ImageData, he_transparent))
+		size_t bmapSize = 0;
+		if (bmap->ChunkSize() >= sizeof(parsing::BMAP_Chunk))
 		{
-			return;
+			bmapSize = bmap->ChunkSize() - sizeof(parsing::BMAP_Chunk);
 		}
-
-		std::vector<uint8_t> newOut;
-		for (int i = 0; i < m_ImageData.size(); i++)
+		if (bmapSize > 0)
 		{
-			newOut.push_back(apalData->data[m_ImageData.dataAs<unsigned char>()[i] * 3]);
-			newOut.push_back(apalData->data[m_ImageData.dataAs<unsigned char>()[i] * 3 + 1]);
-			newOut.push_back(apalData->data[m_ImageData.dataAs<unsigned char>()[i] * 3 + 2]);
-			if (m_ImageData[i] == bmapData->fillColor && he_transparent)
+			core::Data bmapImageData = core::Data(core::add(bmap->GetData().data(), sizeof(parsing::BMAP_Chunk)), bmapSize);
+			if (!DecodeHE(bmapData->fillColor, bmapImageData, m_iWidth, m_iHeight, palen, m_ImageData, he_transparent))
 			{
-				newOut.push_back(0);
-			}
-			else
-			{
-				newOut.push_back(255);
+				return;
 			}
 		}
+		else
+		{
+			// No BMAP data -> no room background (valid case). Leave m_ImageData empty
+			// so GetSRV() returns nullptr instead of trying to create a 0-byte texture.
+			m_ImageData = core::Data();
+		}
 
-		m_ImageData = core::Data(newOut.data(), newOut.size());
+		if (!m_ImageData.empty())
+		{
+			std::vector<uint8_t> newOut;
+			newOut.reserve(m_ImageData.size() * 4);
+			for (size_t i = 0; i < m_ImageData.size(); i++)
+			{
+				uint8_t idx = m_ImageData.dataAs<unsigned char>()[i];
+				newOut.push_back(apalData->data[idx * 3]);
+				newOut.push_back(apalData->data[idx * 3 + 1]);
+				newOut.push_back(apalData->data[idx * 3 + 2]);
+				if (m_ImageData[i] == bmapData->fillColor && he_transparent)
+				{
+					newOut.push_back(0);
+				}
+				else
+				{
+					newOut.push_back(255);
+				}
+			}
+
+			m_ImageData = core::Data(newOut.data(), newOut.size());
+		}
 
 		for (size_t i = 0; i < 256; i++)
 		{

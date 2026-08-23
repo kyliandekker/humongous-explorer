@@ -10,6 +10,7 @@ namespace humongousexplorer::cmd
 		File,
 		Option,
 		Flag,
+		Int
 	};
 
 	//---------------------------------------------------------------------

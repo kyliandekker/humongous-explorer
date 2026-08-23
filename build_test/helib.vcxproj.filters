@@ -57,9 +57,6 @@
     <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\core\DataStream.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\core\LoadResult.h">
-      <Filter>core</Filter>
-    </ClInclude>
     <ClInclude Include="C:\Users\Kylian\Downloads\HumongousExplorer\helib\src\core\Log.h">
       <Filter>core</Filter>
     </ClInclude>

@@ -18,6 +18,7 @@ namespace humongousexplorer::archive
 		HE4,
 		HE7,
 		HE8,
+		HE9,
 
 		A,
 	};

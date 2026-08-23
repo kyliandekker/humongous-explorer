@@ -1,9 +1,12 @@
 #include "CommandParser.h"
 
 #include <cstdio>
+#include <cctype>
 
 namespace humongousexplorer::cmd
 {
+	//---------------------------------------------------------------------
+	// CommandParser
 	//---------------------------------------------------------------------
 	CommandParser::CommandParser(const std::vector<CommandArg>& a_aArgs) :
 		m_aArgs(a_aArgs)
@@ -28,71 +31,52 @@ namespace humongousexplorer::cmd
 		m_aFiles.clear();
 		m_bValid = true;
 
-		for (int i = 0; i < a_iArgc; i++)
+		for (size_t i = 0; i < a_iArgc; ++i)
 		{
 			std::string arg = a_sArgv[i];
 
-			if (arg == "--help")
+			if (arg.starts_with("--help"))
 			{
 				m_bValid = false;
 				return false;
 			}
-
-			if (arg.starts_with("--"))
+			else if (arg.starts_with("--"))
 			{
 				std::string name;
 				std::string value;
-				bool hasInlineValue = false;
 
 				size_t eqPos = arg.find('=', 2);
 				if (eqPos != std::string::npos)
 				{
-					name = arg.substr(2, eqPos - 2);
-					value = arg.substr(eqPos + 1);
-					hasInlineValue = true;
-				}
-				else
-				{
-					name = arg.substr(2);
-				}
+					size_t firstQuotePos = eqPos + 1;
+					size_t lastQuotePos = arg.substr(firstQuotePos).find('\0');
 
-				bool found = false;
-				for (const CommandArg& cmdArg : m_aArgs)
-				{
-					if (cmdArg.name == name)
+					name = arg.substr(2, eqPos - 2);
+					value = arg.substr(firstQuotePos, lastQuotePos);
+					bool found = false;
+					for (const CommandArg& cmdArg : m_aArgs)
 					{
-						if (cmdArg.type == ArgType::Flag)
+						if (cmdArg.name == name)
 						{
-							m_mProvided[name] = true;
-						}
-						else if (cmdArg.type == ArgType::Option)
-						{
-							if (hasInlineValue)
+							if (cmdArg.type == ArgType::Flag)
+							{
+								m_mProvided[name] = true;
+							}
+							else if (cmdArg.type == ArgType::Option)
 							{
 								m_mOptions[name] = value;
 								m_mProvided[name] = true;
 							}
-							else if (i + 1 < a_iArgc)
-							{
-								m_mOptions[name] = a_sArgv[i + 1];
-								m_mProvided[name] = true;
-								i++;
-							}
-							else
-							{
-								printf("Option --%s requires a value.\n", name.c_str());
-								m_bValid = false;
-							}
+							found = true;
+							break;
 						}
-						found = true;
-						break;
 					}
-				}
 
-				if (!found)
-				{
-					printf("Unknown option: --%s\n", name.c_str());
-					m_bValid = false;
+					if (!found)
+					{
+						printf("Unknown option: --%s\n", name.c_str());
+						m_bValid = false;
+					}
 				}
 			}
 			else

@@ -63,7 +63,6 @@ namespace humongousexplorer::archive
 			{
 				continue;
 			}
-			core::Log(core::LogLevel::Success, "Loaded " + filename + ".");
 			m_aArchives.push_back(std::move(ptr));
 		}
 

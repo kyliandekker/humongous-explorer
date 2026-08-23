@@ -21,13 +21,13 @@ namespace humongousexplorer::archive
 	{
 		if (!fs::exists(a_Path))
 		{
-			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\" because: Path did not exist.");
+			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\": Path did not exist.");
 			return false;
 		}
 
 		if (!fs::is_regular_file(a_Path))
 		{
-			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\" because: Path was not a file.");
+			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\": Path was not a file.");
 			return false;
 		}
 
@@ -37,7 +37,7 @@ namespace humongousexplorer::archive
 		ArchiveType archiveType = archive::GetArchiveTypeFromExtension(extension);
 		if (archiveType < archive::ArchiveType::HE0)
 		{
-			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\" because: Unsupported archive type.");
+			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\": Unsupported archive type.");
 			return false;
 		}
 
@@ -46,13 +46,13 @@ namespace humongousexplorer::archive
 		core::Data data;
 		if (!file::LoadFile(a_Path, data))
 		{
-			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\" because: Could not read file.");
+			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\": Could not read file.");
 			return false;
 		}
 
 		if (data.empty())
 		{
-			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\" because: Archive file is empty.");
+			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\": Archive file is empty.");
 			return false;
 		}
 
@@ -68,12 +68,13 @@ namespace humongousexplorer::archive
 			core::xorShift(xorredData, xorredDataContainer.size(), m_pRoot->GetEncryptionKey());
 			if (!parsing::ParseArchive(*m_pRoot, xorredDataContainer))
 			{
-				core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\" because: Failed to parse archive data.");
+				core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\": Failed to parse archive data.");
 				return false;
 			}
 		}
 
 		m_sName = a_Path.filename().string();
+		core::Log(core::LogLevel::Success, "Successfully loaded: \"" + a_Path.string() + "\".");
 		return true;
 	}
 

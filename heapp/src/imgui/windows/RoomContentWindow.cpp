@@ -106,6 +106,7 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void RoomContentWindow::OnSelectedViewChanged(const imgui::TreeFileEntryView* oldView, const imgui::TreeFileEntryView* newView)
 	{
+		m_sRoomName = "";
 		GetWorkspace().SetSelectedResource(nullptr);
 
 		s_aResourceEntries.clear();
@@ -126,6 +127,8 @@ namespace humongousexplorer::imgui
 
 			s_aResources.push_back(std::move(resources::ResourceFactory::GetResource(view->m_pChunk, view->m_sName)));
 		}
+
+		m_sRoomName = newView->m_sName;
 
 		for (size_t i = 0; i < s_aResources.size(); i++)
 		{
@@ -158,7 +161,14 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void RoomContentWindow::Update()
 	{
-		// TODO: Set ": Room_Name".
+		if (!m_sRoomName.empty())
+		{
+			m_sName = "CONTENT EXPLORER (" + m_sRoomName + ")";
+		}
+		else
+		{
+			m_sName = "CONTENT EXPLORER";
+		}
 
 		if (ImGui::BeginChild(
 			FormatId("", CHILD_ID, "CONTENT").c_str(),

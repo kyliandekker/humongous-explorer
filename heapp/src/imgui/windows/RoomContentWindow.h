@@ -42,5 +42,7 @@ namespace humongousexplorer::imgui
 
 		bool MatchesTabFilter(resources::ResourceType a_eType, int a_iTab) const;
 		int CountResourcesForTab(int a_iTab) const;
+
+		std::string m_sRoomName;
 	};
 }
