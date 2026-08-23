@@ -10,7 +10,7 @@ namespace humongousexplorer::imgui
 	/// <summary>
 	/// A window for inspecting specific archives.
 	/// </summary>
-	class InfoPanelWindow : public HEBaseWindow
+	class InfoPanelWindow : public LoggerDependentWindow
 	{
 	public:
 		/// <summary>

@@ -16,7 +16,7 @@ namespace humongousexplorer::imgui
 	/// <summary>
 	/// A window for inspecting specific archives.
 	/// </summary>
-	class ArchiveContentsWindow : public HEBaseWindow
+	class ArchiveContentsWindow : public LoggerDependentWindow
 	{
 	public:
 		/// <summary>

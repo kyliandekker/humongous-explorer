@@ -11,6 +11,9 @@
 
 #include "dx11/SVGTextureCache.h"
 
+#include "imgui/ImGuiSystem.h"
+#include "imgui/windows/TopToolbarWindow.h"
+
 namespace humongousexplorer::imgui
 {
 	constexpr float LOG_PANEL_HEIGHT = 200;
@@ -26,13 +29,6 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	void BottomToolbarWindow::Update()
 	{
-		if (m_aLogHistory.empty())
-		{
-			return;
-		}
-
-		LogEntry& lastEntry = m_aLogHistory[m_aLogHistory.size() - 1];
-
 		ImDrawList* drawlist = ImGui::GetWindowDrawList();
 		ImVec2 bottomToolbarStart = { ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetWindowSize().y - BOTTOM_TOOLBAR_HEIGHT };
 		ImVec2 bottomToolbarEnd = { bottomToolbarStart.x + ImGui::GetWindowSize().x, bottomToolbarStart.y + BOTTOM_TOOLBAR_HEIGHT };
@@ -43,6 +39,22 @@ namespace humongousexplorer::imgui
 		);
 
 		ImVec2 padding = ImGui::GetStyle().WindowPadding;
+		std::string version = GetWorkspace().GetAppName() + " " + GetWorkspace().GetAppVersion();
+		ImVec2 versionTextSize = ImGui::CalcTextSize(version.c_str());
+		ImVec2 versionTextPos = {
+			bottomToolbarEnd.x - (padding.x + versionTextSize.x),
+			bottomToolbarStart.y + (BOTTOM_TOOLBAR_HEIGHT - versionTextSize.y) * 0.5f
+		};
+		ImGui::SetCursorScreenPos(versionTextPos);
+		ImGui::Text("%s", version.c_str());
+
+		if (m_aLogHistory.empty())
+		{
+			return;
+		}
+
+		LogEntry& lastEntry = m_aLogHistory[m_aLogHistory.size() - 1];
+
 		const float iconSize = 24.0f;
 		float cursorX = bottomToolbarStart.x + padding.x;
 
@@ -120,22 +132,13 @@ namespace humongousexplorer::imgui
 					ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
 					if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 					{
-						m_bLogWindowOpened = !m_bLogWindowOpened;
+						GetWorkspace().ToggleLogHistoryPanelOpen();
 					}
 				}
 			}
 		}
 
-		std::string version = "Humongous Entertainment Explorer " + GetWorkspace().GetAppVersion();
-		ImVec2 versionTextSize = ImGui::CalcTextSize(version.c_str());
-		ImVec2 versionTextPos = {
-			bottomToolbarEnd.x - (padding.x + versionTextSize.x),
-			bottomToolbarStart.y + (BOTTOM_TOOLBAR_HEIGHT - textSize.y) * 0.5f
-		};
-		ImGui::SetCursorScreenPos(versionTextPos);
-		ImGui::Text("%s", version.c_str());
-
-		if (m_bLogWindowOpened)
+		if (GetWorkspace().IsLogHistoryPanelOpen())
 		{
 			ImVec2 panelMin = ImVec2(bottomToolbarStart.x, bottomToolbarStart.y - LOG_PANEL_HEIGHT);
 			ImVec2 panelSize = ImVec2(bottomToolbarEnd.x - bottomToolbarStart.x, LOG_PANEL_HEIGHT);
@@ -147,6 +150,15 @@ namespace humongousexplorer::imgui
 
 			ImGuiWindowFlags overlayFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
 				ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDocking;
+
+			ImDrawList* fgdrawlist = ImGui::GetForegroundDrawList();
+
+			ImVec2 topPos = { ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + TOP_TOOLBAR_HEIGHT };
+			fgdrawlist->AddRectFilled(
+				topPos,
+				{ topPos.x + ImGui::GetWindowSize().x, topPos.y + (ImGui::GetWindowSize().y - TOP_TOOLBAR_HEIGHT) - (BOTTOM_TOOLBAR_HEIGHT + LOG_PANEL_HEIGHT) },
+				IM_COL32(0, 0, 0, 100)
+			);
 
 			if (ImGui::Begin(FormatId("", WINDOW_ID, "LOG_PANEL").c_str(), nullptr, overlayFlags))
 			{

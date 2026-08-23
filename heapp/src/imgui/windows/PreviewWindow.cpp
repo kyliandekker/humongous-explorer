@@ -28,7 +28,7 @@ namespace humongousexplorer::imgui
 	const char* PreviewWindow::s_aPresetLabels[s_iPresetCount] = { "25%", "50%", "75%", "100%", "150%", "200%" };
 
 	//---------------------------------------------------------------------
-	PreviewWindow::PreviewWindow() : HEBaseWindow(ImGuiWindowFlags_NoCollapse, "PREVIEW", "PreviewWindow")
+	PreviewWindow::PreviewWindow() : LoggerDependentWindow(ImGuiWindowFlags_NoCollapse, "PREVIEW", "PreviewWindow")
 	{}
 
 	//---------------------------------------------------------------------

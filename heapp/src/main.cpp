@@ -42,7 +42,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
 	float mainScale = ImGui_ImplWin32_GetDpiScaleForMonitor(::MonitorFromPoint(POINT{ 0, 0 }, MONITOR_DEFAULTTOPRIMARY));
 
 	humongousexplorer::win32::Window& window = humongousexplorer::win32::GetWin32Window();
-	if (!window.Initialize(hInstance, (int)(1280 * mainScale), (int)(800 * mainScale), L"Humongous Explorer", true))
+	std::string appName = humongousexplorer::GetWorkspace().GetAppName();
+	std::wstring wAppName(appName.begin(), appName.end());
+	if (!window.Initialize(hInstance, (int)(1280 * mainScale), (int)(800 * mainScale), wAppName.c_str(), true))
 	{
 		return 1;
 	}

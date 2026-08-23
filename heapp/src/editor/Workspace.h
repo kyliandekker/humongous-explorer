@@ -64,8 +64,26 @@ namespace humongousexplorer::editor
 		{
 			return m_sAppVersion;
 		}
+
+		const std::string& GetAppName() const
+		{
+			return m_sAppName;
+		}
+
+		void ToggleLogHistoryPanelOpen()
+		{
+			m_bIsLogHistoryPanelOpened = !m_bIsLogHistoryPanelOpened;
+		}
+
+		bool IsLogHistoryPanelOpen() const
+		{
+			return m_bIsLogHistoryPanelOpened;
+		}
 	private:
+		std::string m_sAppName = "Humongous Explorer";
 		std::string m_sAppVersion = "v1.0.0";
+
+		bool m_bIsLogHistoryPanelOpened = false;
 
 		resources::ResourceType m_ResourceTypeFilter = resources::ResourceType::Unknown;
 		std::string m_sAppDataPath;

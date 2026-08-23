@@ -14,7 +14,7 @@ namespace humongousexplorer::imgui
 	/// <summary>
 	/// A window for inspecting resources in a room.
 	/// </summary>
-	class RoomContentWindow : public HEBaseWindow
+	class RoomContentWindow : public LoggerDependentWindow
 	{
 	public:
 		/// <summary>

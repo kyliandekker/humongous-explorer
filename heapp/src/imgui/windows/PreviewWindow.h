@@ -17,7 +17,7 @@ namespace humongousexplorer::imgui
 	/// <summary>
 	/// A window for previewing image resources with zoom controls and metadata.
 	/// </summary>
-	class PreviewWindow : public HEBaseWindow
+	class PreviewWindow : public LoggerDependentWindow
 	{
 	public:
 		/// <summary>

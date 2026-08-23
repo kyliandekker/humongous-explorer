@@ -91,7 +91,7 @@ namespace humongousexplorer::imgui
 	// RoomContentWindow
 	//---------------------------------------------------------------------
 	RoomContentWindow::RoomContentWindow()
-		: HEBaseWindow(ImGuiWindowFlags_NoCollapse, "CONTENT EXPLORER", "ContentWindow"),
+		: LoggerDependentWindow(ImGuiWindowFlags_NoCollapse, "CONTENT EXPLORER", "ContentWindow"),
 		m_SearchBar("RoomSearchbar", "Search resources...")
 	{
 	}

@@ -14,7 +14,7 @@
 namespace humongousexplorer::imgui
 {
 	//---------------------------------------------------------------------
-	InfoPanelWindow::InfoPanelWindow() : HEBaseWindow(ImGuiWindowFlags_NoCollapse, "INFO", "InfoPanelWindow")
+	InfoPanelWindow::InfoPanelWindow() : LoggerDependentWindow(ImGuiWindowFlags_NoCollapse, "INFO", "InfoPanelWindow")
 	{
 	}
 

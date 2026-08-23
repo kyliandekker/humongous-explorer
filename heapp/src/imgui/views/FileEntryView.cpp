@@ -1,6 +1,7 @@
 #include "FileEntryView.h"
 
 #include <imgui.h>
+#include <cstdio>
 
 #include "dx11/SVGTextureCache.h"
 
@@ -96,8 +97,6 @@ namespace humongousexplorer::imgui
 			return;
 		}
 
-		FileEntryInteractionType interaction = FileEntryInteractionType::None;
-
 		bool selected = a_fnSelected(this);
 
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
@@ -109,33 +108,44 @@ namespace humongousexplorer::imgui
 
 		ImVec2 rowMin = ImVec2(windowPos.x + a_fIndent, windowPos.y);
 		ImVec2 rowMax = ImVec2(windowPos.x + windowWidth, rowMin.y + rowHeight);
+		ImVec2 rowSize = ImVec2(rowMax.x - rowMin.x, rowHeight);
 
-		// Row background
-		if (selected)
-		{
-			drawList->AddRectFilled(rowMin, rowMax, ImGui::ColorConvertFloat4ToU32(imgui::ExtraColors[imgui::ImGuiExtraCol_Accent]), 4.0f);
-		}
-		else if (ImGui::IsMouseHoveringRect(rowMin, rowMax))
-		{
-			drawList->AddRectFilled(rowMin, rowMax, ImGui::ColorConvertFloat4ToU32(imgui::ExtraColors[imgui::ImGuiExtraCol_AccentHovered]), 4.0f);
-		}
+		// Use Selectable for background, hover and selection handling instead of manual HoveringRect
+		ImGui::SetCursorScreenPos(rowMin);
+		ImGui::PushStyleColor(ImGuiCol_Header, imgui::ExtraColors[imgui::ImGuiExtraCol_Accent]);
+		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, imgui::ExtraColors[imgui::ImGuiExtraCol_AccentHovered]);
+		ImGui::PushStyleColor(ImGuiCol_HeaderActive, imgui::ExtraColors[imgui::ImGuiExtraCol_Accent]);
+		ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0.0f, 0.5f));
+		ImGui::PushStyleVar(ImGuiStyleVar_SelectableRounding, 4.0f);
 
-		// Click detection
-		if (ImGui::IsMouseHoveringRect(rowMin, rowMax))
+		char selectableId[64];
+		snprintf(selectableId, sizeof(selectableId), "##FileEntry_%p", static_cast<void*>(this));
+		bool pressed = ImGui::Selectable(selectableId, selected, ImGuiSelectableFlags_AllowDoubleClick, rowSize);
+
+		ImGui::PopStyleVar(2);
+		ImGui::PopStyleColor(3);
+
+		FileEntryInteractionType interaction = FileEntryInteractionType::None;
+		if (ImGui::IsItemHovered())
 		{
 			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-			{
-				interaction = FileEntryInteractionType::LeftClicked;
-			}
-			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-			{
-				interaction = FileEntryInteractionType::DoubleClicked;
-			}
 			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 			{
 				interaction = FileEntryInteractionType::RightClicked;
 			}
+			else if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+			{
+				interaction = FileEntryInteractionType::DoubleClicked;
+			}
+			else if (pressed || ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+			{
+				interaction = FileEntryInteractionType::LeftClicked;
+			}
+		}
+		else if (pressed)
+		{
+			// Fallback for keyboard/nav activation
+			interaction = FileEntryInteractionType::LeftClicked;
 		}
 
 		float previousOffset = 0;
@@ -166,8 +176,6 @@ namespace humongousexplorer::imgui
 		{
 			a_fnOnInteraction(interaction, this);
 		}
-
-		ImGui::Dummy({ windowWidth, rowHeight });
 	}
 
 	//---------------------------------------------------------------------

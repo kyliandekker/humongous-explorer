@@ -65,7 +65,7 @@ namespace humongousexplorer::imgui
 	//---------------------------------------------------------------------
 	// ArchiveContentsWindow
 	//---------------------------------------------------------------------
-	ArchiveContentsWindow::ArchiveContentsWindow() : HEBaseWindow(ImGuiWindowFlags_NoCollapse, "ARCHIVE CONTENTS", "ArchiveContentsWindow"),
+	ArchiveContentsWindow::ArchiveContentsWindow() : LoggerDependentWindow(ImGuiWindowFlags_NoCollapse, "ARCHIVE CONTENTS", "ArchiveContentsWindow"),
 		m_SearchBar("ArchiveSearchbar", "Search archives...")
 	{}
 
