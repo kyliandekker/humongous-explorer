@@ -3,6 +3,7 @@
 #include "core/Data.h"
 #include "core/DataStream.h"
 #include "core/Memory.h"
+#include "core/Log.h"
 
 #include "archive/ArchiveType.h"
 
@@ -16,16 +17,18 @@ namespace humongousexplorer::archive
 	//---------------------------------------------------------------------
 	// Archive
 	//---------------------------------------------------------------------
-	core::LoadResult Archive::Load(const fs::path& a_Path)
+	bool Archive::Load(const fs::path& a_Path)
 	{
 		if (!fs::exists(a_Path))
 		{
-			return { core::LoadStatus::Failure, "Path did not exist." };
+			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\" because: Path did not exist.");
+			return false;
 		}
 
 		if (!fs::is_regular_file(a_Path))
 		{
-			return { core::LoadStatus::Failure, "Path was not a file." };
+			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\" because: Path was not a file.");
+			return false;
 		}
 
 		std::string extension = a_Path.extension().string().substr(1);
@@ -34,7 +37,8 @@ namespace humongousexplorer::archive
 		ArchiveType archiveType = archive::GetArchiveTypeFromExtension(extension);
 		if (archiveType < archive::ArchiveType::HE0)
 		{
-			return { core::LoadStatus::Failure, "Unsupported archive type." };
+			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\" because: Unsupported archive type.");
+			return false;
 		}
 
 		m_eType = archiveType;
@@ -42,12 +46,14 @@ namespace humongousexplorer::archive
 		core::Data data;
 		if (!file::LoadFile(a_Path, data))
 		{
-			return { core::LoadStatus::Failure, "Could not read file." };
+			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\" because: Could not read file.");
+			return false;
 		}
 
 		if (data.empty())
 		{
-			return { core::LoadStatus::Failure, "Archive file is empty." };
+			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\" because: Archive file is empty.");
+			return false;
 		}
 
 		m_pRoot = std::make_unique<parsing::Chunk>();
@@ -62,12 +68,13 @@ namespace humongousexplorer::archive
 			core::xorShift(xorredData, xorredDataContainer.size(), m_pRoot->GetEncryptionKey());
 			if (!parsing::ParseArchive(*m_pRoot, xorredDataContainer))
 			{
-				return { core::LoadStatus::Failure, "Failed to parse archive data." };
+				core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\" because: Failed to parse archive data.");
+				return false;
 			}
 		}
 
 		m_sName = a_Path.filename().string();
-		return { core::LoadStatus::Success, "" };
+		return true;
 	}
 
 	//---------------------------------------------------------------------

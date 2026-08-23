@@ -4,7 +4,6 @@
 #include <memory>
 
 #include "archive/Archive.h"
-#include "core/LoadResult.h"
 #include "file/file.h"
 
 namespace humongousexplorer::archive

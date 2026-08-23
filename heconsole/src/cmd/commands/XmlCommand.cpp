@@ -61,11 +61,8 @@ namespace humongousexplorer::cmd
 		for (const fs::path& filePath : files)
 		{
 			archive::Archive archive;
-			core::LoadResult result = archive.Load(filePath);
-
-			if (result.status != core::LoadStatus::Success)
+			if (!archive.Load(filePath))
 			{
-				core::Log(core::LogLevel::Error, "Failed to load: \"" + filePath.string() + "\" because: " + result.errorMessage);
 				failures++;
 				continue;
 			}
@@ -95,7 +92,7 @@ namespace humongousexplorer::cmd
 			tinyxml2::XMLError xmlResult = doc.SaveFile(outputFile.string().c_str());
 			if (xmlResult != tinyxml2::XML_SUCCESS)
 			{
-				core::Log(core::LogLevel::Error, "Failed to save " + outputFile.string());
+				core::Log(core::LogLevel::Error, "Failed to save " + outputFile.string() + ".");
 				failures++;
 				continue;
 			}

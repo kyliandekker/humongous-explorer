@@ -58,19 +58,13 @@ namespace humongousexplorer::archive
 		for (const fs::path& filePath : paths)
 		{
 			std::unique_ptr<Archive> ptr = std::make_unique<Archive>();
-			core::LoadResult result = ptr->Load(filePath);
-
 			std::string filename = filePath.filename().string();
-
-			if (result.status == core::LoadStatus::Success)
+			if (!ptr->Load(filePath))
 			{
-				core::Log(core::LogLevel::Success, "Loaded " + filename + ".");
-				m_aArchives.push_back(std::move(ptr));
+				continue;
 			}
-			else
-			{
-				core::Log(core::LogLevel::Error, "Failed to load " + filename + ": " + result.errorMessage + ".");
-			}
+			core::Log(core::LogLevel::Success, "Loaded " + filename + ".");
+			m_aArchives.push_back(std::move(ptr));
 		}
 
 		m_iScriptVersion = 6;

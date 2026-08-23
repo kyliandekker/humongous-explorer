@@ -4,7 +4,6 @@
 #include <string>
 
 #include "archive/ArchiveType.h"
-#include "core/LoadResult.h"
 #include "file/FILEPCH.h"
 #include "parsing/Chunk.h"
 
@@ -28,7 +27,7 @@ namespace humongousexplorer::archive
 		/// </summary>
 		/// <param name="a_Path">The file path of the archive to load.</param>
 		/// <returns>A LoadResult indicating success or failure with an error message.</returns>
-		core::LoadResult Load(const fs::path& a_Path);
+		bool Load(const fs::path& a_Path);
 
 		/// <summary>
 		/// Rebuilds the archive into a DataStream, re-serializing the chunk hierarchy.

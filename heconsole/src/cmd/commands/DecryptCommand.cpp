@@ -56,11 +56,8 @@ namespace humongousexplorer::cmd
 		for (const fs::path& filePath : files)
 		{
 			archive::Archive archive;
-			core::LoadResult result = archive.Load(filePath);
-
-			if (result.status != core::LoadStatus::Success)
+			if (!archive.Load(filePath))
 			{
-				core::Log(core::LogLevel::Error, "Failed to load: \"" + filePath.string() + "\" because: " + result.errorMessage);
 				failures++;
 				continue;
 			}
