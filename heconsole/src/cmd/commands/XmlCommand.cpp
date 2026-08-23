@@ -57,10 +57,7 @@ namespace humongousexplorer::cmd
 		std::string output = parser.Get("output");
 		bool hasOutput = parser.Has("output");
 
-		bool multiFile = files.size() > 1;
-
 		int failures = 0;
-
 		for (const fs::path& filePath : files)
 		{
 			archive::Archive archive;
@@ -68,52 +65,42 @@ namespace humongousexplorer::cmd
 
 			if (result.status != core::LoadStatus::Success)
 			{
-				core::Log(core::LogLevel::Error, "Failed to load " + filePath.string() + ": " + result.errorMessage);
+				core::Log(core::LogLevel::Error, "Failed to load: \"" + filePath.string() + "\" because: " + result.errorMessage);
 				failures++;
 				continue;
 			}
+
+			fs::path outputPath;
+			if (hasOutput)
+			{
+				outputPath = output;
+				if (fs::is_directory(outputPath))
+				{
+					fs::create_directories(outputPath);
+				}
+			}
+			else
+			{
+				outputPath = filePath.parent_path();
+				fs::create_directories(outputPath);
+			}
+
+			fs::path outputFile = outputPath.string() + "/" + filePath.filename().generic_string() + ".xml";
 
 			tinyxml2::XMLDocument doc;
 			xml::XMLStruct xmlInfo;
 			xmlInfo.m_iMaxDepth = maxDepth;
 			xml::CreateXMLFromArchive(archive, doc, xmlInfo);
 
-			fs::path inputPath(filePath);
-			fs::path outputPath;
-
-			if (hasOutput)
-			{
-				fs::path outputArg(output);
-
-				if (multiFile || fs::is_directory(outputArg))
-				{
-					fs::create_directories(outputArg);
-					outputPath = outputArg / (inputPath.filename().string() + ".xml");
-				}
-				else
-				{
-					fs::path parent = outputArg.parent_path();
-					if (!parent.empty())
-					{
-						fs::create_directories(parent);
-					}
-					outputPath = outputArg;
-				}
-			}
-			else
-			{
-				outputPath = inputPath += ".xml";
-			}
-
-			tinyxml2::XMLError xmlResult = doc.SaveFile(outputPath.string().c_str());
+			tinyxml2::XMLError xmlResult = doc.SaveFile(outputFile.string().c_str());
 			if (xmlResult != tinyxml2::XML_SUCCESS)
 			{
-				core::Log(core::LogLevel::Error, "Failed to save " + outputPath.string());
+				core::Log(core::LogLevel::Error, "Failed to save " + outputFile.string());
 				failures++;
 				continue;
 			}
 
-			core::Log(core::LogLevel::Success, "Created " + outputPath.string());
+			core::Log(core::LogLevel::Success, "Created: \"" + outputFile.string() + "\".");
 		}
 
 		return failures;

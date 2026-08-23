@@ -52,10 +52,7 @@ namespace humongousexplorer::cmd
 			output = parser.Get("output");
 		}
 
-		bool multiFile = files.size() > 1;
-
 		int failures = 0;
-
 		for (const fs::path& filePath : files)
 		{
 			archive::Archive archive;
