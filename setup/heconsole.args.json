@@ -1,6 +1,6 @@
 {
   "FileVersion": 2,
-  "Id": "43678bab-6503-39c6-8359-2eed876b7d13",
+  "Id": "68317d85-9b68-33e1-9c34-23abbb6c10b0",
   "Items": [
     {
       "Id": "f3cb68ee-986d-4615-9d9b-7a16de918fd3",
@@ -15,8 +15,72 @@
           "Command": "\"C:\\Program Files\""
         },
         {
+          "Id": "8341065d-6005-4f9b-9535-71eb79ac473e",
+          "Command": "\"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Spy Fox 3\\SPYOZON.HE2\""
+        },
+        {
           "Id": "c64444e9-eb46-4143-9897-ccc9eb41b1ba",
           "Command": "--depth=\"1\""
+        },
+        {
+          "Id": "4ac412cc-ab5f-4677-a8ae-61b78e64ad41",
+          "Command": "--help"
+        }
+      ]
+    },
+    {
+      "Id": "c3613480-609a-4c83-bc86-efb4ef6f5481",
+      "Command": "decrypt",
+      "Items": [
+        {
+          "Id": "e7702602-6529-448f-8cbf-ee02340ae4bc",
+          "Command": "decrypt"
+        },
+        {
+          "Id": "846e6ffd-850c-47f2-b070-98f5fad06927",
+          "Command": "\"C:\\Program Files\""
+        },
+        {
+          "Id": "0797614b-5be7-49e4-ae65-b03470e44ff3",
+          "Command": "\"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Spy Fox 3\\SPYOZON.(A)\""
+        },
+        {
+          "Id": "5f693291-b3b6-4422-9e59-3b7b5a810e7c",
+          "Command": "\"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Spy Fox 3\\SPYOZON.HE0\""
+        },
+        {
+          "Id": "b4ffaf29-0787-461b-a335-9aae7ae3805c",
+          "Command": "--output=\"C:\\Program Files (x86)\\Steam\""
+        },
+        {
+          "Id": "fbe159fe-ade3-44ad-9aac-947a3691a109",
+          "Command": "--help"
+        }
+      ]
+    },
+    {
+      "Id": "1185145e-681a-4bac-b050-a03c2471af8d",
+      "Command": "summary",
+      "Items": [
+        {
+          "Id": "b4899fa3-9456-47dc-81dc-59e9bd54830a",
+          "Command": "summary"
+        },
+        {
+          "Id": "130bcb6f-877d-46c1-9db4-06c42d8b79ec",
+          "Command": "\"C:\\Program Files\""
+        },
+        {
+          "Id": "34fd507f-c169-4652-845d-254903ffbb00",
+          "Command": "\"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Spy Fox 3\\SPYOZON.HE2\""
+        },
+        {
+          "Id": "7eb879fc-b3ce-49ed-afbd-43f469b031e3",
+          "Command": "--help"
+        },
+        {
+          "Id": "7dbd7560-0706-469a-9ad9-ae9ca3280262",
+          "Command": "--csv"
         }
       ]
     }

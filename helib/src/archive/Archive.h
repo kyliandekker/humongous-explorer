@@ -34,7 +34,7 @@ namespace humongousexplorer::archive
 		/// Rebuilds the archive into a DataStream, re-serializing the chunk hierarchy.
 		/// </summary>
 		/// <param name="a_Data">The output DataStream containing the rebuilt archive data.</param>
-		void Build(core::DataStream& a_Data) const;
+		void Build(core::DataStream& a_Data, bool a_bEncrypt = true) const;
 
 		/// <summary>
 		/// Retrieves the root chunk of the archive (read-only).

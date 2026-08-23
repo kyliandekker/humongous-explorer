@@ -29,7 +29,6 @@ struct TalkInstruction
 {
 	int32_t instructionIndex = -1;
 	int32_t argumentIndex = -1;
-	size_t size = 0;
 	size_t argumentOffsetInScript = 0;
 	size_t instructionOffsetInScript = 0;
 	std::vector<TalkInstructionCall> talkCalls;
@@ -111,7 +110,6 @@ std::vector<TalkInstruction> GetTalkInstructions(const script::ScrResource& scri
 					TalkInstruction talkInstruction;
 					talkInstruction.instructionIndex = instructionIndex;
 					talkInstruction.argumentIndex = argumentIndex;
-					talkInstruction.size = argument.GetData().size();
 					talkInstruction.argumentOffsetInScript = argumentOffsetInScript;
 					talkInstruction.instructionOffsetInScript = instructionOffsetInScript;
 					talkInstruction.talkCalls = calls;
@@ -190,13 +188,14 @@ int main()
 	for (parsing::Chunk* chunk : scripts)
 	{
 		// LOAD AND PARSE.
-		script::ScrResource script;
+		script::ScrResource script(chunk);
 		if (!script.Parse(chunk, map))
 		{
 			core::Log(core::LogLevel::Error, "Could not parse script data: \"" + archivesPath + "\".");
 			core::DestroyLog();
 			return 0;
 		}
+		script.Rebuild(map);
 	}
 
 	// REPLACE TEST

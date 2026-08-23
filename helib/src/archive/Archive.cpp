@@ -71,12 +71,25 @@ namespace humongousexplorer::archive
 	}
 
 	//---------------------------------------------------------------------
-	void Archive::Build(core::DataStream& a_Data) const
+	void Archive::Build(core::DataStream& a_Data, bool a_bEncrypt) const
 	{
-		a_Data = core::DataStream(m_pRoot->WholeChunkSize());
+		if (!m_pRoot)
+		{
+			a_Data.Free();
+			return;
+		}
+
+		const size_t size = m_pRoot->ChunkSize();
+		if (size == 0)
+		{
+			a_Data.Free();
+			return;
+		}
+
+		a_Data = core::DataStream(size);
 		m_pRoot->ToData(a_Data);
 
-		if (m_pRoot->IsEncrypted())
+		if (a_bEncrypt && m_pRoot->IsEncrypted())
 		{
 			unsigned char* data = a_Data.dataAs<unsigned char>();
 			core::xorShift(data, a_Data.size(), m_pRoot->GetEncryptionKey());

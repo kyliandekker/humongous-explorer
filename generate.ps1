@@ -35,23 +35,6 @@ if (Test-Path $ConfigDir) {
         -Force
 }
 
-# Generate command JSON
-$JsonPath = Join-Path $OutputDir "heconsole.args.json"
-$OutDir = Join-Path $OutputDir "out"
-
-$CommandJson = @{
-    FileVersion = 2
-    Id          = "c6f3fb3b-aa78-3332-84f5-c162d5dd17bf"
-    Items       = @(
-        @{
-            Id      = "930677a7-d3cd-4d1f-91eb-a74ad670d936"
-            Command = "-outputPath=`"$OutDir`""
-        }
-    )
-}
-
-$CommandJson | ConvertTo-Json -Depth 10 | Set-Content -Path $JsonPath -Encoding UTF8
-
 Write-Host "Generated $JsonPath"
 
 # Open solution if Visual Studio isn't already running

@@ -5,32 +5,32 @@
 namespace humongousexplorer::cmd
 {
 	//---------------------------------------------------------------------
-	CommandParser::CommandParser(const std::vector<CommandArg>& a_Args) :
-		m_Args(a_Args)
+	CommandParser::CommandParser(const std::vector<CommandArg>& a_aArgs) :
+		m_aArgs(a_aArgs)
 	{
-		for (const CommandArg& arg : m_Args)
+		for (const CommandArg& arg : m_aArgs)
 		{
 			if (arg.type == ArgType::Option)
 			{
-				m_Options[arg.name] = arg.defaultValue;
-				m_Provided[arg.name] = false;
+				m_mOptions[arg.name] = arg.defaultValue;
+				m_mProvided[arg.name] = false;
 			}
 			else if (arg.type == ArgType::Flag)
 			{
-				m_Provided[arg.name] = false;
+				m_mProvided[arg.name] = false;
 			}
 		}
 	}
 
 	//---------------------------------------------------------------------
-	bool CommandParser::Parse(int a_Argc, char* a_Argv[])
+	bool CommandParser::Parse(int a_iArgc, char* a_sArgv[])
 	{
-		m_Files.clear();
+		m_aFiles.clear();
 		m_bValid = true;
 
-		for (int i = 0; i < a_Argc; i++)
+		for (int i = 0; i < a_iArgc; i++)
 		{
-			std::string arg = a_Argv[i];
+			std::string arg = a_sArgv[i];
 
 			if (arg == "--help")
 			{
@@ -57,25 +57,25 @@ namespace humongousexplorer::cmd
 				}
 
 				bool found = false;
-				for (const CommandArg& cmdArg : m_Args)
+				for (const CommandArg& cmdArg : m_aArgs)
 				{
 					if (cmdArg.name == name)
 					{
 						if (cmdArg.type == ArgType::Flag)
 						{
-							m_Provided[name] = true;
+							m_mProvided[name] = true;
 						}
 						else if (cmdArg.type == ArgType::Option)
 						{
 							if (hasInlineValue)
 							{
-								m_Options[name] = value;
-								m_Provided[name] = true;
+								m_mOptions[name] = value;
+								m_mProvided[name] = true;
 							}
-							else if (i + 1 < a_Argc)
+							else if (i + 1 < a_iArgc)
 							{
-								m_Options[name] = a_Argv[i + 1];
-								m_Provided[name] = true;
+								m_mOptions[name] = a_sArgv[i + 1];
+								m_mProvided[name] = true;
 								i++;
 							}
 							else
@@ -97,13 +97,13 @@ namespace humongousexplorer::cmd
 			}
 			else
 			{
-				m_Files.push_back(arg);
+				m_aFiles.push_back(arg);
 			}
 		}
 
-		for (const CommandArg& arg : m_Args)
+		for (const CommandArg& arg : m_aArgs)
 		{
-			if (arg.type == ArgType::File && arg.required && m_Files.empty())
+			if (arg.type == ArgType::File && arg.required && m_aFiles.empty())
 			{
 				printf("Missing required argument: %s\n", arg.name.c_str());
 				m_bValid = false;
@@ -114,23 +114,23 @@ namespace humongousexplorer::cmd
 	}
 
 	//---------------------------------------------------------------------
-	const std::vector<std::string>& CommandParser::GetFiles() const
+	const std::vector<fs::path>& CommandParser::GetFiles() const
 	{
-		return m_Files;
+		return m_aFiles;
 	}
 
 	//---------------------------------------------------------------------
-	bool CommandParser::Has(const std::string& a_Name) const
+	bool CommandParser::Has(const std::string& a_sName) const
 	{
-		auto it = m_Provided.find(a_Name);
-		return it != m_Provided.end() && it->second;
+		auto it = m_mProvided.find(a_sName);
+		return it != m_mProvided.end() && it->second;
 	}
 
 	//---------------------------------------------------------------------
-	std::string CommandParser::Get(const std::string& a_Name) const
+	std::string CommandParser::Get(const std::string& a_sName) const
 	{
-		auto it = m_Options.find(a_Name);
-		if (it != m_Options.end())
+		auto it = m_mOptions.find(a_sName);
+		if (it != m_mOptions.end())
 		{
 			return it->second;
 		}
@@ -155,7 +155,7 @@ namespace humongousexplorer::cmd
 		bool hasFiles = false;
 		bool hasOptions = false;
 
-		for (const CommandArg& arg : m_Args)
+		for (const CommandArg& arg : m_aArgs)
 		{
 			if (arg.type == ArgType::Option || arg.type == ArgType::Flag)
 			{
@@ -169,7 +169,7 @@ namespace humongousexplorer::cmd
 
 		if (hasFiles)
 		{
-			for (const CommandArg& arg : m_Args)
+			for (const CommandArg& arg : m_aArgs)
 			{
 				if (arg.type == ArgType::File)
 				{
@@ -191,7 +191,7 @@ namespace humongousexplorer::cmd
 		printf("\n\n");
 
 		bool printedFiles = false;
-		for (const CommandArg& arg : m_Args)
+		for (const CommandArg& arg : m_aArgs)
 		{
 			if (arg.type == ArgType::File)
 			{
@@ -205,7 +205,7 @@ namespace humongousexplorer::cmd
 		}
 
 		bool printedOptions = false;
-		for (const CommandArg& arg : m_Args)
+		for (const CommandArg& arg : m_aArgs)
 		{
 			if (arg.type == ArgType::Option || arg.type == ArgType::Flag)
 			{

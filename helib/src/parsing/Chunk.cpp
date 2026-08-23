@@ -282,16 +282,18 @@ namespace humongousexplorer::parsing
 	//---------------------------------------------------------------------
 	void Chunk::ToData(core::DataStream& a_Data) const
 	{
-		a_Data.Write(m_sTag, sizeof(m_sTag));
+		if (!m_bIsRoot)
+		{
+			a_Data.Write(m_sTag, sizeof(m_sTag));
 
-		const size_t chunkSizest = WholeChunkSize();
-		assert(chunkSizest <= std::numeric_limits<uint32_t>::max());
-		uint32_t size32 = static_cast<uint32_t>(chunkSizest);
-		unsigned char chunkSize[sizeof(uint32_t)] = {};
+			const size_t chunkSizest = WholeChunkSize();
+			assert(chunkSizest <= std::numeric_limits<uint32_t>::max());
+			uint32_t size32 = static_cast<uint32_t>(chunkSizest);
+			unsigned char chunkSize[sizeof(uint32_t)] = {};
 
-		core::WriteBE32(chunkSize, size32);
-		a_Data.Write(chunkSize, sizeof(chunkSize));
-
+			core::WriteBE32(chunkSize, size32);
+			a_Data.Write(chunkSize, sizeof(chunkSize));
+		}
 		if (!m_Data.empty())
 		{
 			a_Data.Write(m_Data.data(), m_Data.size());

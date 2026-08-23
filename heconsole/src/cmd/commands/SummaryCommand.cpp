@@ -51,10 +51,10 @@ namespace humongousexplorer::cmd
 	}
 
 	//---------------------------------------------------------------------
-	int SummaryCommand::Execute(int a_Argc, char* a_Argv[])
+	int SummaryCommand::Execute(int a_iArgc, char* a_sArgv[])
 	{
 		CommandParser parser(GetArgs());
-		if (!parser.Parse(a_Argc, a_Argv))
+		if (!parser.Parse(a_iArgc, a_sArgv))
 		{
 			parser.PrintUsage(GetName(), GetDescription());
 			return 1;
@@ -65,14 +65,14 @@ namespace humongousexplorer::cmd
 
 		int failures = 0;
 
-		for (const std::string& filePath : files)
+		for (const fs::path& filePath : files)
 		{
 			archive::Archive archive;
 			core::LoadResult result = archive.Load(filePath);
 
 			if (result.status != core::LoadStatus::Success)
 			{
-				core::Log(core::LogLevel::Error, "Failed to load " + filePath + ": " + result.errorMessage);
+				core::Log(core::LogLevel::Error, "Failed to load " + filePath.string() + ": " + result.errorMessage);
 				failures++;
 				continue;
 			}

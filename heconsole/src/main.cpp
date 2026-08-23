@@ -8,6 +8,7 @@
 
 #include "cmd/commands/XmlCommand.h"
 #include "cmd/commands/SummaryCommand.h"
+#include "cmd/commands/DecryptCommand.h"
 
 static void PrintUsage(const std::vector<std::unique_ptr<humongousexplorer::cmd::Command>>& a_Commands)
 {
@@ -27,6 +28,7 @@ int main(int argc, char* argv[])
 	std::vector<std::unique_ptr<humongousexplorer::cmd::Command>> commands;
 	commands.push_back(std::make_unique<humongousexplorer::cmd::XmlCommand>());
 	commands.push_back(std::make_unique<humongousexplorer::cmd::SummaryCommand>());
+	commands.push_back(std::make_unique<humongousexplorer::cmd::DecryptCommand>());
 
 	if (argc < 2)
 	{

@@ -16,6 +16,10 @@ namespace humongousexplorer::script
 	//---------------------------------------------------------------------
 	// ScrResource
 	//---------------------------------------------------------------------
+	ScrResource::ScrResource(parsing::Chunk* a_pChunk) : m_pChunk(a_pChunk)
+	{}
+
+	//---------------------------------------------------------------------
 	std::vector<std::unique_ptr<ScrInstruction>>& ScrResource::GetInstructions()
 	{
 		return m_aInstructions;
@@ -37,7 +41,7 @@ namespace humongousexplorer::script
 			a_pChunk->GetTag() == parsing::SCRP_CHUNK_ID ||
 			a_pChunk->GetTag() == parsing::ENCD_CHUNK_ID ||
 			a_pChunk->GetTag() == parsing::EXCD_CHUNK_ID
-			)
+		)
 		{
 			tell = 0;
 		}
@@ -108,7 +112,76 @@ namespace humongousexplorer::script
 	}
 
 	//---------------------------------------------------------------------
-	bool ScrResource::Build(core::DataStream& a_Data, const OPCodeMap& a_mScrCodes)
+	bool ScrResource::Rebuild(const OPCodeMap& a_mScrCodes)
+	{
+		size_t skipBytes = 0;
+		if (
+			m_pChunk->GetTag() == parsing::SCRP_CHUNK_ID ||
+			m_pChunk->GetTag() == parsing::ENCD_CHUNK_ID ||
+			m_pChunk->GetTag() == parsing::EXCD_CHUNK_ID
+		)
+		{
+			skipBytes = 0;
+		}
+		else if (m_pChunk->GetTag() == parsing::LSCR_CHUNK_ID)
+		{
+			skipBytes = 1;
+		}
+		else if (m_pChunk->GetTag() == parsing::LSC2_CHUNK_ID)
+		{
+			skipBytes = 4;
+		}
+		else if (m_pChunk->GetTag() == parsing::VERB_CHUNK_ID)
+		{
+			skipBytes = 0;
+			size_t dataSize = m_pChunk->GetData().size();
+			while (skipBytes < dataSize)
+			{
+				uint8_t key = m_pChunk->GetData()[skipBytes];
+				skipBytes += 1; // key byte
+				if (key == 0x00)
+				{
+					break;
+				}
+				skipBytes += 2; // 2-byte offset
+			}
+		}
+		else
+		{
+			return false;
+		}
+
+		size_t scriptSize = GetScriptSize();
+
+		// Create the full script including skipped bytes.
+		core::DataStream newData(skipBytes + scriptSize);
+		if (!newData.Write(m_pChunk->GetData().data(), skipBytes))
+		{
+			return false;
+		}
+
+		// So for some reaon, some scripts in the game are completely empty.
+		// No clue why, but this check is a safeguard.
+		if (scriptSize > 0)
+		{
+			core::DataStream scriptData;
+			if (!BuildScriptInstructions(scriptData, a_mScrCodes))
+			{
+				return false;
+			}
+
+			if (!newData.Write(scriptData.data(), scriptData.size()))
+			{
+				return false;
+			}
+		}
+
+		m_pChunk->SetData(newData);
+		return true;
+	}
+
+	//---------------------------------------------------------------------
+	bool ScrResource::BuildScriptInstructions(core::DataStream& a_Data, const OPCodeMap& a_mScrCodes)
 	{
 		a_Data = core::DataStream(GetScriptSize());
 
@@ -162,7 +235,7 @@ namespace humongousexplorer::script
 	}
 
 	//---------------------------------------------------------------------
-	void ScrResource::UpdateJumps(size_t a_iInstructionOffsetInScript, size_t a_iArgumentOffsetInScript, size_t a_iIndex, size_t a_iArgumentIndex, int32_t a_iDiff)
+	void ScrResource::RecalculateJumps(size_t a_iInstructionOffsetInScript, size_t a_iArgumentOffsetInScript, size_t a_iIndex, size_t a_iArgumentIndex, int32_t a_iDiff)
 	{
 		if (a_iDiff == 0)
 		{
