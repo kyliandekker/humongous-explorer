@@ -177,77 +177,19 @@ int main()
 		return 0;
 	}
 
-	std::vector<parsing::Chunk*> SCRPchildren;
-	a->GetRoot().TryFindChildren(parsing::SCRP_CHUNK_ID, SCRPchildren);
-	std::vector<parsing::Chunk*> LSCRchildren;
-	a->GetRoot().TryFindChildren(parsing::LSCR_CHUNK_ID, LSCRchildren);
-	std::vector<parsing::Chunk*> LSC2children;
-	a->GetRoot().TryFindChildren(parsing::LSC2_CHUNK_ID, LSC2children);
-	std::vector<parsing::Chunk*> ENCDchildren;
-	a->GetRoot().TryFindChildren(parsing::ENCD_CHUNK_ID, ENCDchildren);
-	std::vector<parsing::Chunk*> EXCDchildren;
-	a->GetRoot().TryFindChildren(parsing::EXCD_CHUNK_ID, EXCDchildren);
-	std::vector<parsing::Chunk*> VERBchildren;
-	a->GetRoot().TryFindChildren(parsing::VERB_CHUNK_ID, VERBchildren);
+	std::vector<parsing::Chunk*> scripts;
+	a->GetRoot().TryFindChildren({
+		parsing::SCRP_CHUNK_ID,
+		parsing::LSCR_CHUNK_ID,
+		parsing::LSC2_CHUNK_ID,
+		parsing::ENCD_CHUNK_ID,
+		parsing::EXCD_CHUNK_ID,
+		parsing::VERB_CHUNK_ID,
+	}, scripts);
 
-	for (parsing::Chunk* chunk : SCRPchildren)
+	for (parsing::Chunk* chunk : scripts)
 	{
-		// LOAD AND PARSE TEST
-		script::ScrResource script;
-		if (!script.Parse(chunk, map))
-		{
-			core::Log(core::LogLevel::Error, "Could not parse script data: \"" + archivesPath + "\".");
-			core::DestroyLog();
-			return 0;
-		}
-	}
-	for (parsing::Chunk* chunk : LSCRchildren)
-	{
-		// LOAD AND PARSE TEST
-		script::ScrResource script;
-		if (!script.Parse(chunk, map))
-		{
-			core::Log(core::LogLevel::Error, "Could not parse script data: \"" + archivesPath + "\".");
-			core::DestroyLog();
-			return 0;
-		}
-	}
-	for (parsing::Chunk* chunk : LSC2children)
-	{
-		// LOAD AND PARSE TEST
-		script::ScrResource script;
-		if (!script.Parse(chunk, map))
-		{
-			core::Log(core::LogLevel::Error, "Could not parse script data: \"" + archivesPath + "\".");
-			core::DestroyLog();
-			return 0;
-		}
-	}
-	for (parsing::Chunk* chunk : ENCDchildren)
-	{
-		// LOAD AND PARSE TEST
-		script::ScrResource script;
-		if (!script.Parse(chunk, map))
-		{
-			core::Log(core::LogLevel::Error, "Could not parse script data: \"" + archivesPath + "\".");
-			core::DestroyLog();
-			return 0;
-		}
-	}
-	for (parsing::Chunk* chunk : VERBchildren)
-	{
-		// LOAD AND PARSE TEST
-		script::ScrResource script;
-		if (!script.Parse(chunk, map))
-		{
-			core::Log(core::LogLevel::Error, "Could not parse script data: \"" + archivesPath + "\".");
-			core::DestroyLog();
-			return 0;
-		}
-	}
-	for (parsing::Chunk* chunk : EXCDchildren)
-	{
-		// LOAD AND PARSE TEST
+		// LOAD AND PARSE.
 		script::ScrResource script;
 		if (!script.Parse(chunk, map))
 		{

@@ -79,6 +79,16 @@ namespace humongousexplorer::parsing
 	}
 
 	//---------------------------------------------------------------------
+	bool Chunk::TryFindChildren(const std::vector<std::string_view>& a_sChunkIDs, std::vector<Chunk*>& a_aChunks)
+	{
+		for (const std::string_view& view : a_sChunkIDs)
+		{
+			TryFindChildren(view, a_aChunks);
+		}
+		return !a_aChunks.empty();
+	}
+
+	//---------------------------------------------------------------------
 	Chunk* Chunk::FindChunkAt(size_t a_iTarget, size_t a_iBase)
 	{
 		const size_t totalSize = m_bIsRoot
