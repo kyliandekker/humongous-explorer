@@ -45,6 +45,14 @@ namespace humongousexplorer::imgui
 			// Sound Information child
 			if (ImGui::BeginChild("SoundInfo", ImVec2(0, 0), ImGuiChildFlags_Borders))
 			{
+				// Header row: icon + title on left, count on right
+				float iconSize = ImGui::GetFontSize();
+				ID3D11ShaderResourceView* paletteIcon = dx11::SVGTextureCache::Get("icon_sfx.svg");
+				if (paletteIcon)
+				{
+					ImGui::Image((ImTextureID)paletteIcon, ImVec2(iconSize, iconSize));
+					ImGui::SameLine();
+				}
 				ImGui::PushFont(GetImGuiSystem().GetBoldFont());
 				ImGui::Text("SOUND INFORMATION");
 				ImGui::PopFont();

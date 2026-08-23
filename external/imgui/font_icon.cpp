@@ -1,6 +1,6 @@
 // GENERATED FILE - DO NOT EDIT
 
-#include "./font_icon.h";
+#include "./font_icon.h"
 
 namespace icon
 {

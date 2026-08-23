@@ -45,6 +45,10 @@ namespace humongousexplorer::resources
 			{
 				return "icon_he8.svg";
 			}
+			case archive::ArchiveType::HE9:
+			{
+				return "icon_he9.svg";
+			}
 			case archive::ArchiveType::A:
 			{
 				return "icon_a.svg";

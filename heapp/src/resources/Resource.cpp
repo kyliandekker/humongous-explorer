@@ -55,7 +55,7 @@ namespace humongousexplorer::resources
 	}
 
 	//---------------------------------------------------------------------
-	std::string SoundResource::GetDurationStr()
+	std::string SoundResource::GetDurationStr() const
 	{
 		if (!m_pDataChunk)
 		{
@@ -141,12 +141,6 @@ namespace humongousexplorer::resources
 	}
 
 	//---------------------------------------------------------------------
-	std::string RoomResource::GetDurationStr()
-	{
-		return "";
-	}
-
-	//---------------------------------------------------------------------
 	// LocalScriptResource
 	//---------------------------------------------------------------------
 	LocalScriptResource::LocalScriptResource() : Resource()
@@ -174,12 +168,6 @@ namespace humongousexplorer::resources
 			return "";
 		}
 		return core::SizeToString(m_pDataChunk->ChunkSize());
-	}
-
-	//---------------------------------------------------------------------
-	std::string LocalScriptResource::GetDurationStr()
-	{
-		return "";
 	}
 
 	//---------------------------------------------------------------------
@@ -213,12 +201,6 @@ namespace humongousexplorer::resources
 	}
 
 	//---------------------------------------------------------------------
-	std::string GlobalScriptResource::GetDurationStr()
-	{
-		return "";
-	}
-
-	//---------------------------------------------------------------------
 	// VerbScriptResource
 	//---------------------------------------------------------------------
 	VerbScriptResource::VerbScriptResource() : Resource()
@@ -246,12 +228,6 @@ namespace humongousexplorer::resources
 			return "";
 		}
 		return core::SizeToString(m_pDataChunk->ChunkSize());
-	}
-
-	//---------------------------------------------------------------------
-	std::string VerbScriptResource::GetDurationStr()
-	{
-		return "";
 	}
 
 	//---------------------------------------------------------------------
@@ -318,19 +294,23 @@ namespace humongousexplorer::resources
 	}
 
 	//---------------------------------------------------------------------
+	std::string RoomBackgroundResource::GetDimensions() const
+	{
+		if (GetWidth() == 0 || GetHeight() == 0)
+		{
+			return "Unknown";
+		}
+		return std::to_string(GetWidth()) + "x" + std::to_string(GetHeight());
+	}
+
+	//---------------------------------------------------------------------
 	std::string RoomBackgroundResource::GetSize() const
 	{
 		if (!m_pDataChunk)
 		{
-			return "";
+			return core::SizeToString(m_ImageData.size());
 		}
-		return core::SizeToString(m_pDataChunk->ChunkSize());
-	}
-
-	//---------------------------------------------------------------------
-	std::string RoomBackgroundResource::GetDurationStr()
-	{
-		return "";
+		return core::SizeToString(m_ImageData.empty() ? m_pDataChunk->ChunkSize() : m_ImageData.size());
 	}
 
 	std::vector<uint8_t> CreateBitstream(const unsigned char* a_Data, size_t a_Length)
@@ -563,12 +543,6 @@ namespace humongousexplorer::resources
 			return "";
 		}
 		return core::SizeToString(m_pDataChunk->ChunkSize());
-	}
-
-	//---------------------------------------------------------------------
-	std::string RoomImageResource::GetDurationStr()
-	{
-		return "";
 	}
 
 	//---------------------------------------------------------------------

@@ -31,7 +31,11 @@ namespace humongousexplorer::resources
 		}
 
 		virtual std::string GetSize() const = 0;
-		virtual std::string GetDurationStr()
+		virtual std::string GetDurationStr() const
+		{
+			return "";
+		}
+		virtual std::string GetDimensions() const
 		{
 			return "";
 		}
@@ -67,7 +71,7 @@ namespace humongousexplorer::resources
 
 		std::string GetSize() const override;
 
-		std::string GetDurationStr() override;
+		std::string GetDurationStr() const override;
 	protected:
 		uint16_t m_iSampleRate;
 		parsing::Chunk* m_pDataChunk = nullptr;
@@ -108,7 +112,6 @@ namespace humongousexplorer::resources
 		RoomResource();
 
 		std::string GetSize() const override;
-		std::string GetDurationStr() override;
 	};
 
 	//---------------------------------------------------------------------
@@ -121,8 +124,6 @@ namespace humongousexplorer::resources
 		void SetDataChunk(parsing::Chunk* a_pChunk);
 
 		std::string GetSize() const override;
-
-		std::string GetDurationStr() override;
 	protected:
 		parsing::Chunk* m_pDataChunk = nullptr;
 	};
@@ -137,8 +138,6 @@ namespace humongousexplorer::resources
 		void SetDataChunk(parsing::Chunk* a_pChunk);
 
 		std::string GetSize() const override;
-
-		std::string GetDurationStr() override;
 	protected:
 		parsing::Chunk* m_pDataChunk = nullptr;
 	};
@@ -153,8 +152,6 @@ namespace humongousexplorer::resources
 		void SetDataChunk(parsing::Chunk* a_pChunk);
 
 		std::string GetSize() const override;
-
-		std::string GetDurationStr() override;
 	protected:
 		parsing::Chunk* m_pDataChunk = nullptr;
 	};
@@ -174,10 +171,9 @@ namespace humongousexplorer::resources
 
 		std::string GetSize() const override;
 
-		std::string GetDurationStr() override;
-
 		void Open() override;
 
+		std::string GetDimensions() const override;
 		uint16_t GetWidth() const;
 		uint16_t GetHeight() const;
 		const std::vector<Color>& GetColors() const;
@@ -201,8 +197,6 @@ namespace humongousexplorer::resources
 		void SetDataChunk(parsing::Chunk* a_pChunk);
 
 		std::string GetSize() const override;
-
-		std::string GetDurationStr() override;
 
 		void Open() override;
 	protected:

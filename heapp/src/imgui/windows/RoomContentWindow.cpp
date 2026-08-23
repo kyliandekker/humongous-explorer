@@ -46,11 +46,7 @@ namespace humongousexplorer::imgui
 	struct ResourceEntry
 	{
 		size_t m_iOrder;
-		std::string sName;
-		resources::ResourceType eType;
-		std::string sSize;
-		std::string sDuration;
-		std::string sDimensions;
+		resources::Resource* m_pResource = nullptr;
 	};
 
 	//---------------------------------------------------------------------
@@ -79,7 +75,7 @@ namespace humongousexplorer::imgui
 		int count = 0;
 		for (const std::unique_ptr<ResourceEntry>& entry : s_aResourceEntries)
 		{
-			if (MatchesTabFilter(entry->eType, a_iTab))
+			if (MatchesTabFilter(entry->m_pResource->GetResourceType(), a_iTab))
 			{
 				count++;
 			}
@@ -135,10 +131,7 @@ namespace humongousexplorer::imgui
 			auto& resource = s_aResources[i];
 
 			std::unique_ptr<ResourceEntry> resourceEntry = std::make_unique<ResourceEntry>();
-			resourceEntry->eType = resource ? resource->GetResourceType() : resources::ResourceType::Unknown;
-			resourceEntry->sName = resource ? resource->GetName() : "Unknown";
-			resourceEntry->sSize = resource ? resource->GetSize() : "0";
-			resourceEntry->sDuration = resource ? resource->GetDurationStr() : "";
+			resourceEntry->m_pResource = resource.get();
 			resourceEntry->m_iOrder = i;
 			s_aResourceEntries.push_back(std::move(resourceEntry));
 		}
@@ -265,14 +258,14 @@ namespace humongousexplorer::imgui
 				{
 					const std::unique_ptr<ResourceEntry>& entry = s_aResourceEntries[i];
 
-					if (!MatchesTabFilter(entry->eType, m_iSelectedTab))
+					if (!MatchesTabFilter(entry->m_pResource->GetResourceType(), m_iSelectedTab))
 					{
 						continue;
 					}
 
 					if (!filter.empty())
 					{
-						std::string lowerName = string_extensions::StringToLower(entry->sName);
+						std::string lowerName = string_extensions::StringToLower(entry->m_pResource->GetName());
 						if (lowerName.find(filter) == std::string::npos)
 						{
 							continue;
@@ -318,7 +311,7 @@ namespace humongousexplorer::imgui
 
 					ImGui::TableNextColumn();
 					{
-						ID3D11ShaderResourceView* pTex = dx11::SVGTextureCache::Get(resources::GetIconFromResourceType(entry->eType).c_str());
+						ID3D11ShaderResourceView* pTex = dx11::SVGTextureCache::Get(resources::GetIconFromResourceType(entry->m_pResource->GetResourceType()).c_str());
 						if (pTex)
 						{
 							ImVec2 pos = ImGui::GetCursorScreenPos();
@@ -332,23 +325,23 @@ namespace humongousexplorer::imgui
 
 					ImGui::TableNextColumn();
 					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(entry->sName.c_str());
+					ImGui::TextUnformatted(entry->m_pResource->GetName().c_str());
 
 					ImGui::TableNextColumn();
 					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(resources::GetNameFromResourceType(entry->eType).c_str());
+					ImGui::TextUnformatted(resources::GetNameFromResourceType(entry->m_pResource->GetResourceType()).c_str());
 
 					ImGui::TableNextColumn();
 					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(entry->sSize.c_str());
+					ImGui::TextUnformatted(entry->m_pResource->GetSize().c_str());
 
 					ImGui::TableNextColumn();
 					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(entry->sDimensions.c_str());
+					ImGui::TextUnformatted(entry->m_pResource->GetDimensions().c_str());
 
 					ImGui::TableNextColumn();
 					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(entry->sDuration.c_str());
+					ImGui::TextUnformatted(entry->m_pResource->GetDurationStr().c_str());
 				}
 
 				if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs())
@@ -373,27 +366,27 @@ namespace humongousexplorer::imgui
 									}
 									case 2:
 									{
-										cmp = a->sName.compare(b->sName);
+										cmp = a->m_pResource->GetName().compare(b->m_pResource->GetName());
 										break;
 									}
 									case 3:
 									{
-										cmp = resources::GetNameFromResourceType(a->eType).compare(resources::GetNameFromResourceType(b->eType));
+										cmp = resources::GetNameFromResourceType(a->m_pResource->GetResourceType()).compare(resources::GetNameFromResourceType(b->m_pResource->GetResourceType()));
 										break;
 									}
 									case 4:
 									{
-										cmp = a->sSize.compare(b->sSize);
+										cmp = a->m_pResource->GetSize().compare(b->m_pResource->GetSize());
 										break;
 									}
 									case 5:
 									{
-										cmp = a->sDimensions.compare(b->sDimensions);
+										cmp = a->m_pResource->GetDimensions().compare(b->m_pResource->GetDimensions());
 										break;
 									}
 									case 6:
 									{
-										cmp = a->sDuration.compare(b->sDuration);
+										cmp = a->m_pResource->GetDurationStr().compare(b->m_pResource->GetDurationStr());
 										break;
 									}
 								}
