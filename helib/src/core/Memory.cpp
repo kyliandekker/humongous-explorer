@@ -35,12 +35,6 @@ namespace humongousexplorer::core
 	}
 
 	//---------------------------------------------------------------------
-	int chunkcmp(const std::string_view& a_ChunkID1, const std::string_view& a_ChunkID2, size_t a_iSize)
-	{
-		return std::strncmp(a_ChunkID1.data(), a_ChunkID2.data(), a_iSize);
-	}
-
-	//---------------------------------------------------------------------
 	void reverseBytes(unsigned char* a_Start, size_t a_Size)
 	{
 		if (!a_Start || a_Size < 2)

@@ -22,10 +22,12 @@ namespace humongousexplorer::script
 
 		void SetData(const core::Data& a_Data);
 
+		// Public setters and getters.
 		void SetByte(uint8_t a_iValue);
 		void SetInt16(int16_t a_iValue);
 		void SetInt32(int32_t a_iValue);
-		void SetString(const std::string& a_sString);
+		int32_t SetString(const std::string& a_sString);
+		void SetRefJump(int32_t a_iValue);
 	private:
 		core::Data m_Data;
 		ScrArgumentType m_eArgumentType;

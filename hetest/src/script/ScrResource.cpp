@@ -8,6 +8,8 @@
 #include "script/ScrInstruction.h"
 #include "script/ScrArgumentType.h"
 #include "script/OPCodesHE.h"
+#include "parsing/ChunkIDs.h"
+#include "parsing/Chunk.h"
 
 namespace humongousexplorer::script
 {
@@ -26,13 +28,50 @@ namespace humongousexplorer::script
 	}
 
 	//---------------------------------------------------------------------
-	bool ScrResource::Parse(const core::Data& a_Data, const OPCodeMap& a_mScrCodes)
+	bool ScrResource::Parse(parsing::Chunk* a_pChunk, const OPCodeMap& a_mScrCodes)
 	{
-		// First parse the script and get instructions + arguments.
+		core::Data& data = a_pChunk->GetData();
+
 		size_t tell = 0;
-		while (tell < a_Data.size())
+		if (
+			a_pChunk->GetTag() == parsing::SCRP_CHUNK_ID ||
+			a_pChunk->GetTag() == parsing::ENCD_CHUNK_ID ||
+			a_pChunk->GetTag() == parsing::EXCD_CHUNK_ID
+			)
 		{
-			const unsigned char* pureDat = a_Data.dataAs<unsigned char>() + tell;
+			tell = 0;
+		}
+		else if (a_pChunk->GetTag() == parsing::LSCR_CHUNK_ID)
+		{
+			tell = 1;
+		}
+		else if (a_pChunk->GetTag() == parsing::LSC2_CHUNK_ID)
+		{
+			tell = 4;
+		}
+		else if (a_pChunk->GetTag() == parsing::VERB_CHUNK_ID)
+		{
+			tell = 0;
+			size_t dataSize = data.size();
+			while (tell < dataSize)
+			{
+				uint8_t key = data[tell];
+				tell += 1; // key byte
+				if (key == 0x00)
+				{
+					break;
+				}
+				tell += 2; // 2-byte offset
+			}
+		}
+		else
+		{
+			return false;
+		}
+
+		while (tell < data.size())
+		{
+			const unsigned char* pureDat = data.dataAs<unsigned char>() + tell;
 			uint8_t code = *pureDat;
 
 			auto it = a_mScrCodes.find(code);
@@ -102,6 +141,12 @@ namespace humongousexplorer::script
 	}
 
 	//---------------------------------------------------------------------
+	ScrInstruction* ScrResource::GetInstruction(size_t a_iIndex)
+	{
+		return m_aInstructions[a_iIndex].get();
+	}
+
+	//---------------------------------------------------------------------
 	ScrInstruction* ScrResource::GetInstructionAtOffset(size_t a_iOffset)
 	{
 		int64_t pos = 0;
@@ -114,6 +159,51 @@ namespace humongousexplorer::script
 			pos += instruction->GetSize();
 		}
 		return nullptr;
+	}
+
+	//---------------------------------------------------------------------
+	void ScrResource::UpdateJumps(size_t a_iInstructionOffsetInScript, size_t a_iArgumentOffsetInScript, size_t a_iIndex, size_t a_iArgumentIndex, int32_t a_iDiff)
+	{
+		if (a_iDiff == 0)
+		{
+			return;
+		}
+
+		const std::unique_ptr<ScrInstruction>& changedInstruction = m_aInstructions[a_iIndex];
+		const ScrArgument& changedArgument = changedInstruction->GetArgument(a_iArgumentIndex);
+		size_t endOfChangedArgument = a_iArgumentOffsetInScript + changedArgument.GetData().size();
+
+		int64_t instructionPos = 0;
+		for (std::unique_ptr<ScrInstruction>& instruction : m_aInstructions)
+		{
+			int64_t argumentPos = 0;
+			argumentPos += sizeof(instruction->GetByteCode());
+
+			for (ScrArgument& argument : instruction->GetArguments())
+			{
+				if (argument.GetArgumentType() == ScrArgumentType::Ref)
+				{
+					int32_t jumpArgPos = instructionPos + argumentPos;
+					int32_t endOfArgument = jumpArgPos + static_cast<int32_t>(argument.GetData().size());
+					int32_t jumpSize = argument.GetRefJump();
+					int32_t jumpedTo = endOfArgument + jumpSize;
+
+					// Case 1: before -> after.
+					if (endOfArgument <= static_cast<int32_t>(endOfChangedArgument) && jumpedTo > static_cast<int32_t>(endOfChangedArgument))
+					{
+						argument.SetRefJump(jumpSize + a_iDiff);
+					}
+					// Case 2: after -> before.
+					else if (endOfArgument > static_cast<int32_t>(endOfChangedArgument) && jumpedTo <= static_cast<int32_t>(endOfChangedArgument))
+					{
+						argument.SetRefJump(jumpSize - a_iDiff);
+					}
+				}
+				argumentPos += argument.GetData().size();
+			}
+
+			instructionPos += instruction->GetSize();
+		}
 	}
 
 	//---------------------------------------------------------------------

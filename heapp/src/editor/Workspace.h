@@ -59,7 +59,14 @@ namespace humongousexplorer::editor
 
 		const archive::ArchiveSet& GetArchiveSet() const;
 		archive::ArchiveSet& GetArchiveSet();
+
+		const std::string& GetAppVersion() const
+		{
+			return m_sAppVersion;
+		}
 	private:
+		std::string m_sAppVersion = "v1.0.0";
+
 		resources::ResourceType m_ResourceTypeFilter = resources::ResourceType::Unknown;
 		std::string m_sAppDataPath;
 

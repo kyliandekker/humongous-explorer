@@ -5,6 +5,8 @@
 
 #include "ui/AppLogger.h"
 
+#include "editor/Workspace.h"
+
 namespace humongousexplorer::imgui
 {
 	//---------------------------------------------------------------------
@@ -27,13 +29,22 @@ namespace humongousexplorer::imgui
 			IM_COL32(21, 26, 36, 255)
 		);
 
-		ImVec2 textSize = ImGui::CalcTextSize("Test");
+		ImVec2 textSize = ImGui::CalcTextSize(m_sMessage.c_str());
 		ImVec2 textPos = {
 			bottomToolbarStart.x + ImGui::GetStyle().WindowPadding.x,
 			bottomToolbarStart.y + (BOTTOM_TOOLBAR_HEIGHT - textSize.y) * 0.5f
 		};
 		ImGui::SetCursorScreenPos(textPos);
 		ImGui::Text("%s", m_sMessage.c_str());
+
+		std::string version = "Humongous Entertainment Explorer " + GetWorkspace().GetAppVersion();
+		ImVec2 versionTextSize = ImGui::CalcTextSize(version.c_str());
+		ImVec2 versionTextPos = {
+			bottomToolbarEnd.x - (ImGui::GetStyle().WindowPadding.x + versionTextSize.x),
+			bottomToolbarStart.y + (BOTTOM_TOOLBAR_HEIGHT - textSize.y) * 0.5f
+		};
+		ImGui::SetCursorScreenPos(versionTextPos);
+		ImGui::Text("%s", version.c_str());
 	}
 
 	//---------------------------------------------------------------------

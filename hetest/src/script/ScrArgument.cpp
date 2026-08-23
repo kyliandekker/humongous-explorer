@@ -89,9 +89,25 @@ namespace humongousexplorer::script
 	}
 
 	//---------------------------------------------------------------------
-	void ScrArgument::SetString(const std::string& a_sString)
+	int32_t ScrArgument::SetString(const std::string& a_sString)
 	{
+		int32_t oldSize = m_Data.size();
 		assert(m_eArgumentType == ScrArgumentType::String);
 		m_Data = core::Data(a_sString.c_str(), a_sString.size() + 1);
+		return static_cast<int32_t>(oldSize) - static_cast<int32_t>(m_Data.size());
+	}
+
+	//---------------------------------------------------------------------
+	void ScrArgument::SetRefJump(int32_t a_iValue)
+	{
+		if (m_Data.size() == sizeof(int32_t))
+		{
+			m_Data = core::Data(&a_iValue, sizeof(int32_t));
+		}
+		else if (m_Data.size() == sizeof(int16_t))
+		{
+			int16_t val = static_cast<int16_t>(a_iValue);
+			m_Data = core::Data(&val, sizeof(int16_t));
+		}
 	}
 }

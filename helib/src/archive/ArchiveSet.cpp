@@ -102,6 +102,7 @@ namespace humongousexplorer::archive
 			if (archiveEntry->GetType() == ArchiveType::HE0)
 			{
 				he0 = archiveEntry.get();
+				break;
 			}
 		}
 

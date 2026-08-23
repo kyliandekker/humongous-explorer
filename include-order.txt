@@ -1,0 +1,26 @@
+1) include header file with "./Header.h"
+
+2) include external libraries with <>
+this includes external imgui, nanosvg, rapidjson, tinyxml, stb_image.
+
+3) include helib files in this order:
+1. core
+2. parsing
+3. archive
+4. file
+5. audio
+6. xml
+
+4) include heapp or heconsole files in this order:
+1. core
+2. dx11
+3. win32
+4. cmd
+4. audio
+5. imgui
+6. resources
+7. editor
+8. ui
+9. utils
+
+include order is alphabetical

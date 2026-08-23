@@ -29,7 +29,7 @@ namespace humongousexplorer::parsing
 			return false;
 		}
 
-		std::string tag(a_Out.m_sTag, CHUNK_ID_SIZE);
+		std::string tag = a_Out.m_sTag;
 		auto it = SCHEMA.find(tag);
 		const bool isContainer = it != SCHEMA.end() && !it->second.empty();
 

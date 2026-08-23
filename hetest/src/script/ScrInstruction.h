@@ -32,6 +32,11 @@ namespace humongousexplorer::script
 			return m_aArguments;
 		}
 
+		ScrArgument& GetArgument(size_t a_iIndex)
+		{
+			return m_aArguments[a_iIndex];
+		}
+
 		uint8_t GetByteCode() const;
 	private:
 		uint8_t m_iByteCode = 0;

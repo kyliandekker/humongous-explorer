@@ -74,15 +74,6 @@ namespace humongousexplorer::core
 	}
 
 	/// <summary>
-	/// Compares two chunk ID strings byte-by-byte.
-	/// </summary>
-	/// <param name="a_ChunkID1">The first chunk ID to compare.</param>
-	/// <param name="a_ChunkID2">The second chunk ID to compare.</param>
-	/// <param name="a_iSize">The number of bytes to compare (default 4).</param>
-	/// <returns>Zero if equal, negative if a_ChunkID1 is less, positive if greater.</returns>
-	int chunkcmp(const std::string_view& a_ChunkID1, const std::string_view& a_ChunkID2, size_t a_iSize = 4);
-
-	/// <summary>
 	/// Reverses the byte order of a memory region in place.
 	/// </summary>
 	/// <param name="a_Start">Pointer to the start of the byte array.</param>

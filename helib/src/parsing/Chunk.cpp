@@ -51,7 +51,7 @@ namespace humongousexplorer::parsing
 		Chunk* found = nullptr;
 		for (std::unique_ptr<Chunk>& chunk : m_aChildren)
 		{
-			if (core::chunkcmp(chunk->m_sTag, a_sChunkID) == 0)
+			if (chunk->m_sTag == a_sChunkID)
 			{
 				return chunk.get();
 			}
@@ -62,6 +62,20 @@ namespace humongousexplorer::parsing
 			}
 		}
 		return found;
+	}
+
+	//---------------------------------------------------------------------
+	bool Chunk::TryFindChildren(const std::string_view& a_sChunkID, std::vector<Chunk*>& a_aChunks)
+	{
+		if (m_sTag == a_sChunkID)
+		{
+			a_aChunks.push_back(this);
+		}
+		for (std::unique_ptr<Chunk>& chunk : m_aChildren)
+		{
+			chunk->TryFindChildren(a_sChunkID, a_aChunks);
+		}
+		return !a_aChunks.empty();
 	}
 
 	//---------------------------------------------------------------------
