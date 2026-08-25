@@ -3,7 +3,10 @@
 #include <cassert>
 #include <unordered_map>
 
+#include <helib/core/DataStream.h>
 #include <helib/archive/Archive.h>
+#include <helib/file/file.h>
+#include <helib/core/Log.h>
 #include <helib/parsing/Chunk.h>
 #include <helib/parsing/ChunkIDs.h>
 #include <helib/parsing/chunks/sound/HSHD_Chunk.h>
@@ -18,6 +21,7 @@ namespace humongousexplorer::resources
 		assert(a_pChunk->GetTag() == parsing::TALK_CHUNK_ID);
 		if (a_pChunk->GetTag() != parsing::TALK_CHUNK_ID)
 		{
+			core::Log(core::LogLevel::Error, "Failed loading TALKie: Chunk was not a TALK chunk.");
 			return;
 		}
 
@@ -27,6 +31,7 @@ namespace humongousexplorer::resources
 		assert(hshdChunk);
 		if (!hshdChunk)
 		{
+			core::Log(core::LogLevel::Error, "Failed loading TALKie: Could not find HSHD chunk.");
 			return;
 		}
 
@@ -36,6 +41,7 @@ namespace humongousexplorer::resources
 		assert(sdatChunk);
 		if (!sdatChunk)
 		{
+			core::Log(core::LogLevel::Error, "Failed loading TALKie: Could not find SDAT chunk.");
 			return;
 		}
 
@@ -46,6 +52,61 @@ namespace humongousexplorer::resources
 		{
 			m_aRelevantChunks.push_back(sbngChunk);
 		}
+	}
+
+	//---------------------------------------------------------------------
+	bool RebuildDLFL(parsing::Chunk* a_pChunk, archive::Archive& a_Archive)
+	{
+		// DLFL (RMIM byte offsets)
+		assert(a_pChunk);
+		if (!a_pChunk)
+		{
+			core::Log(core::LogLevel::Error, "Failed rebuilding DLFL: Chunk was null.");
+			return false;
+		}
+
+		assert(a_pChunk->GetTag() == parsing::DLFL_CHUNK_ID);
+		if (a_pChunk->GetTag() != parsing::DLFL_CHUNK_ID)
+		{
+			core::Log(core::LogLevel::Error, "Failed rebuilding DLFL: Chunk was not a DLFL chunk.");
+			return false;
+		}
+
+		assert(a_Archive.GetType() == archive::ArchiveType::A);
+		if (a_Archive.GetType() != archive::ArchiveType::A)
+		{
+			core::Log(core::LogLevel::Error, "Failed rebuilding DLFL: Provided archive was not an (A).");
+			return false;
+		}
+
+		// Structure:
+		// numRooms = uint16_t, LE.
+		// then a list off uint32_t offsets, LE.
+		// NOTE: 0 is a dummy note, count is ALL LFLF chunks + 1.
+		// Contrary to the name, it actually saves RMIM offsets.
+		std::vector<parsing::Chunk*> rmimOffsets;
+
+		a_Archive.GetRoot().TryFindChildren(parsing::RMIM_CHUNK_ID, rmimOffsets);
+		rmimOffsets.insert(rmimOffsets.begin(), &a_Archive.GetRoot());
+
+		uint32_t dlflSize = static_cast<uint32_t>(sizeof(uint16_t)) + (static_cast<uint32_t>(sizeof(uint32_t)) * static_cast<uint32_t>(rmimOffsets.size()));
+		core::DataStream data(dlflSize);
+
+		uint16_t numRooms = static_cast<uint16_t>(rmimOffsets.size());
+		data.Write(&numRooms, sizeof(numRooms));
+
+		for (size_t i = 0; i < rmimOffsets.size(); i++)
+		{
+			uint32_t offsetFromRoot = static_cast<uint32_t>(rmimOffsets[i]->GetOffsetFromRoot());
+			data.Write(&offsetFromRoot, sizeof(offsetFromRoot));
+		}
+
+		// Not necessary, but let's do it either way.
+		a_pChunk->SetTag(parsing::DLFL_CHUNK_ID.data());
+
+		a_pChunk->SetData(data);
+
+		return true;
 	}
 
 	//---------------------------------------------------------------------
@@ -78,28 +139,33 @@ namespace humongousexplorer::resources
 		assert(talkChunk);
 		if (!talkChunk)
 		{
+			core::Log(core::LogLevel::Error, "Failed rebuilding TALKie: TALK chunk was null.");
 			return false;
 		}
 		assert(hshdChunk);
 		if (!hshdChunk)
 		{
+			core::Log(core::LogLevel::Error, "Failed rebuilding TALKie: HSHD chunk was null.");
 			return false;
 		}
 		assert(sdatChunk);
 		if (!sdatChunk)
 		{
+			core::Log(core::LogLevel::Error, "Failed rebuilding TALKie: SDAT chunk was null.");
 			return false;
 		}
 
-		parsing::Chunk* tlkbChunk = talkChunk->GetParent();
+		parsing::Chunk* tlkbChunk = talkChunk->GetRoot();
 		assert(tlkbChunk);
 		if (!tlkbChunk)
 		{
+			core::Log(core::LogLevel::Error, "Failed rebuilding TALKie: Root chunk was null.");
 			return false;
 		}
 		assert(tlkbChunk->GetTag() == parsing::TLKB_CHUNK_ID);
 		if (tlkbChunk->GetTag() != parsing::TLKB_CHUNK_ID)
 		{
+			core::Log(core::LogLevel::Error, "Failed rebuilding TALKie: Root was not a TLKB chunk.");
 			return false;
 		}
 
@@ -162,12 +228,14 @@ namespace humongousexplorer::resources
 
 		if (!he0)
 		{
-			return 0;
+			core::Log(core::LogLevel::Error, "Failed rebuilding TALKie: Could not find HE0 archive.");
+			return false;
 		}
 
 		if (!a)
 		{
-			return 0;
+			core::Log(core::LogLevel::Error, "Failed rebuilding TALKie: Could not find (A) archive.");
+			return false;
 		}
 
 		// DLFL (RMIM byte offsets)
@@ -175,14 +243,17 @@ namespace humongousexplorer::resources
 		assert(dlflChunk);
 		if (!dlflChunk)
 		{
+			core::Log(core::LogLevel::Error, "Failed rebuilding TALKie: Could not find DLFL chunk in HE0 archive.");
 			return false;
 		}
+		RebuildDLFL(dlflChunk, *a);
 
 		// DIRR (RMDA byte offsets)
 		parsing::Chunk* dirrChunk = he0->GetRoot().TryFindChild(parsing::DIRR_CHUNK_ID);
 		assert(dirrChunk);
 		if (!dirrChunk)
 		{
+			core::Log(core::LogLevel::Error, "Failed rebuilding TALKie: Could not find DIRR chunk in HE0 archive.");
 			return false;
 		}
 
@@ -192,6 +263,7 @@ namespace humongousexplorer::resources
 		assert(dirsChunk);
 		if (!dirsChunk)
 		{
+			core::Log(core::LogLevel::Error, "Failed rebuilding TALKie: Could not find DIRS chunk in HE0 archive.");
 			return false;
 		}
 
@@ -201,6 +273,7 @@ namespace humongousexplorer::resources
 		assert(dirnChunk);
 		if (!dirnChunk)
 		{
+			core::Log(core::LogLevel::Error, "Failed rebuilding TALKie: Could not find DIRN chunk in HE0 archive.");
 			return false;
 		}
 
@@ -209,6 +282,7 @@ namespace humongousexplorer::resources
 		assert(dircChunk);
 		if (!dircChunk)
 		{
+			core::Log(core::LogLevel::Error, "Failed rebuilding TALKie: Could not find DIRC chunk in HE0 archive.");
 			return false;
 		}
 
@@ -217,6 +291,7 @@ namespace humongousexplorer::resources
 		assert(dirfChunk);
 		if (!dirfChunk)
 		{
+			core::Log(core::LogLevel::Error, "Failed rebuilding TALKie: Could not find DIRF chunk in HE0 archive.");
 			return false;
 		}
 
@@ -225,17 +300,12 @@ namespace humongousexplorer::resources
 		assert(dirmChunk);
 		if (!dirmChunk)
 		{
+			core::Log(core::LogLevel::Error, "Failed rebuilding TALKie: Could not find DIRM chunk in HE0 archive.");
 			return false;
 		}
 
 		// DIRT (Talkie, TLKE (not applicable, we have TLKB).
 		parsing::Chunk* dirtChunk = he0->GetRoot().TryFindChild(parsing::DIRT_CHUNK_ID);
-
-		struct dlfl_offset
-		{
-			uint16_t count; // Starts with number of rooms.
-			std::vector<uint32_t> lflfOffsets; // List of offsets, LE.
-		};
 
 		struct HE_DIR
 		{

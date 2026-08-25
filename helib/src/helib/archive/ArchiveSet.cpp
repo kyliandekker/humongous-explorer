@@ -30,7 +30,8 @@ namespace humongousexplorer::archive
 
 			const fs::path& filePath = entry.path();
 
-			std::string extension = filePath.extension().string().substr(1);
+			std::string extension = filePath.extension().string();
+			extension = extension.empty() ? "" : extension.substr(1);
 			if (GetArchiveTypeFromExtension(extension) < ArchiveType::HE0)
 			{
 				continue;
