@@ -1,6 +1,7 @@
 #pragma once
 
-#include "core/Data.h"
+// helib
+#include <helib/core/Data.h>
 
 namespace humongousexplorer::core
 {

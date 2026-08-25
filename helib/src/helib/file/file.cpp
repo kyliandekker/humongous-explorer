@@ -1,7 +1,7 @@
 #include "file.h"
 
 // core
-#include "core/DataStream.h"
+#include <helib/core/Data.h>
 
 namespace humongousexplorer::file
 {
@@ -52,7 +52,7 @@ namespace humongousexplorer::file
 
 		rewind(file);
 
-		a_Data = core::DataStream(fileSize);
+		a_Data = core::Data(fileSize);
 
 		const size_t bytesRead = fread(a_Data.data(), 1, fileSize, file);
 

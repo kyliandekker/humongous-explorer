@@ -3,9 +3,9 @@
 #include <memory>
 #include <string>
 
-#include "archive/ArchiveType.h"
-#include "file/FILEPCH.h"
-#include "parsing/Chunk.h"
+#include <helib/archive/ArchiveType.h>
+#include <helib/file/FILEPCH.h>
+#include <helib/parsing/Chunk.h>
 
 namespace humongousexplorer::core
 {

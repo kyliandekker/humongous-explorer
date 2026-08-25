@@ -5,7 +5,8 @@
 #include <string>
 #include <memory>
 
-#include "core/Data.h"
+// helib
+#include <helib/core/Data.h>
 
 namespace humongousexplorer::core
 {

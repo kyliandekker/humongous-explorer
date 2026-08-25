@@ -1,11 +1,11 @@
-#include "DataStream.h"
+#include "./DataStream.h"
 
 // standard
 #include <cstring>
 #include <utility>
 
 // core
-#include "core/Memory.h"
+#include <helib/core/Memory.h>
 
 namespace humongousexplorer::core
 {

@@ -2,14 +2,14 @@
 
 #include <cassert>
 
-#include "core/DataStream.h"
+#include <helib/core/DataStream.h>
+#include <helib/parsing/Chunk.h>
+#include <helib/parsing/ChunkIDs.h>
 
 #include "script/ScrArgument.h"
 #include "script/ScrInstruction.h"
 #include "script/ScrArgumentType.h"
 #include "script/OPCodesHE.h"
-#include "parsing/ChunkIDs.h"
-#include "parsing/Chunk.h"
 
 namespace humongousexplorer::script
 {

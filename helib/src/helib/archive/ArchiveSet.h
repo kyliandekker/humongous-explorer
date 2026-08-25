@@ -3,8 +3,8 @@
 #include <vector>
 #include <memory>
 
-#include "archive/Archive.h"
-#include "file/file.h"
+#include <helib/archive/Archive.h>
+#include <helib/file/file.h>
 
 namespace humongousexplorer::archive
 {

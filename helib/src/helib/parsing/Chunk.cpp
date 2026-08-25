@@ -3,8 +3,9 @@
 #include <cassert>
 #include <limits>
 
-#include "core/DataStream.h"
-#include "core/Memory.h"
+// helib
+#include <helib/core/DataStream.h>
+#include <helib/core/Memory.h>
 
 namespace humongousexplorer::parsing
 {

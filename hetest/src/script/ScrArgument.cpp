@@ -2,7 +2,8 @@
 
 #include <cassert>
 
-#include "core/Data.h"
+#include <helib/core/Data.h>
+
 #include "script/ScrArgumentType.h"
 
 namespace humongousexplorer::script

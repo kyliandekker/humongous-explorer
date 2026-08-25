@@ -4,9 +4,10 @@
 #include <unordered_map>
 #include <string>
 
-#include "parsing/Chunk.h"
-#include "parsing/SCHEMA.h"
-#include "core/Memory.h"
+// helib
+#include <helib/core/Memory.h>
+#include <helib/parsing/Chunk.h>
+#include <helib/parsing/SCHEMA.h>
 
 namespace humongousexplorer::parsing
 {

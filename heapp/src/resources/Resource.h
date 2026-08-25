@@ -3,10 +3,10 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-
-#include "core/Data.h"
-
 #include <d3d11.h>
+
+// helib
+#include <helib/core/Data.h>
 
 struct Color
 {

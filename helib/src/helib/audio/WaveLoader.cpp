@@ -1,10 +1,10 @@
-#include "audio/WaveLoader.h"
+#include "./WaveLoader.h"
 
 #include <cstring>
 #include <limits>
 
-#include "core/Data.h"
-#include "file/file.h"
+#include <helib/core/Data.h>
+#include <helib/file/file.h>
 
 namespace humongousexplorer::audio
 {

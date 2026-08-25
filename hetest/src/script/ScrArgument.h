@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "core/Data.h"
+#include <helib/core/Data.h>
 
 namespace humongousexplorer::script
 {

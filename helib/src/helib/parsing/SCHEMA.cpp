@@ -1,13 +1,11 @@
-#pragma once
+#include "./SCHEMA.h"
 
-#include <unordered_map>
-#include <vector>
-#include <string>
-
-#include "parsing/ChunkIDs.h"
+// helib
+#include <helib/parsing/ChunkIDs.h>
 
 namespace humongousexplorer::parsing
 {
+	//---------------------------------------------------------------------
 	const std::vector<std::string_view> IMXX =
 	{
 		SMAP_CHUNK_ID,
@@ -22,9 +20,7 @@ namespace humongousexplorer::parsing
 	};
 
 	//---------------------------------------------------------------------
-	// NOTE: This is just a mental note pretty much. We never actually check specifically for chunks.
-	// We just keep track of what chunks are containers and what chunks are pure data.
-	inline const std::unordered_map<std::string_view, std::vector<std::string_view>> SCHEMA =
+	const std::unordered_map<std::string_view, std::vector<std::string_view>> SCHEMA =
 	{
 		{ LECF_CHUNK_ID, {
 				LOFF_CHUNK_ID,

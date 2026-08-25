@@ -1,12 +1,10 @@
 #include "XMLCreator.h"
 
-#include "tinyxml/tinyxml2.h"
+#include <tinyxml/tinyxml2.h>
 
-#include "archive/Archive.h"
-
-#include "xml/XMLStruct.h"
-
-#include "parsing/Chunk.h"
+#include <helib/archive/Archive.h>
+#include <helib/parsing/Chunk.h>
+#include <helib/xml/XMLStruct.h>
 
 namespace humongousexplorer::xml
 {

@@ -1,6 +1,7 @@
 #include "ResourceType.h"
 
-#include "parsing/ChunkIDs.h"
+// helib
+#include <helib/parsing/ChunkIDs.h>
 
 namespace humongousexplorer::resources
 {

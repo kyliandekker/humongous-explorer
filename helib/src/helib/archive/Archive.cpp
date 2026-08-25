@@ -1,16 +1,13 @@
 #include "Archive.h"
 
-#include "core/Data.h"
-#include "core/DataStream.h"
-#include "core/Memory.h"
-#include "core/Log.h"
-
-#include "archive/ArchiveType.h"
-
-#include "file/file.h"
-
-#include "parsing/Chunk.h"
-#include "parsing/ChunkParser.h"
+#include <helib/archive/ArchiveType.h>
+#include <helib/core/Data.h>
+#include <helib/core/DataStream.h>
+#include <helib/core/Log.h>
+#include <helib/core/Memory.h>
+#include <helib/file/file.h>
+#include <helib/parsing/Chunk.h>
+#include <helib/parsing/ChunkParser.h>
 
 namespace humongousexplorer::archive
 {

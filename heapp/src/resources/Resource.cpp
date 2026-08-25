@@ -1,18 +1,16 @@
 #include "Resource.h"
 
-#include "parsing/ChunkParser.h"
+// helib
+#include <helib/core/Memory.h>
+#include <helib/parsing/Chunk.h>
+#include <helib/parsing/ChunkIDs.h>
+#include <helib/parsing/ChunkParser.h>
+#include <helib/parsing/chunks/image/APAL_Chunk.h>
+#include <helib/parsing/chunks/image/BMAP_Chunk.h>
+#include <helib/parsing/chunks/image/RMHD_Chunk.h>
+#include <helib/parsing/chunks/image/TRNS_Chunk.h>
 
 #include "resources/ResourceType.h"
-
-#include "parsing/Chunk.h"
-
-#include "core/Memory.h"
-
-#include "parsing/ChunkIDs.h"
-#include "parsing/chunks/image/BMAP_Chunk.h"
-#include "parsing/chunks/image/RMHD_Chunk.h"
-#include "parsing/chunks/image/APAL_Chunk.h"
-#include "parsing/chunks/image/TRNS_Chunk.h"
 
 #include "dx11/DX11System.h"
 
