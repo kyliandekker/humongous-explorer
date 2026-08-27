@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 namespace humongousexplorer::parsing
 {
 #pragma pack(push, 1)
@@ -10,7 +12,7 @@ namespace humongousexplorer::parsing
 	{
 		uint32_t id = 0; // For some reason it does not start at 0 most of the time.
 		uint32_t songPos = 0; // Direct pointer to the DIGI header of the song.
-		uint32_t song_size = 0; // This is the ENTIRE DIGI chunk.
+		uint32_t songSize = 0; // This is the ENTIRE DIGI chunk.
 		uint8_t padding = 0;
 	};
 #pragma pack(pop)

@@ -4,6 +4,7 @@
 #include <helib/parsing/Chunk.h>
 #include <helib/parsing/ChunkIDs.h>
 #include <helib/resources/resources/TalkResource.h>
+#include <helib/building/HE4Builder.h>
 
 #include "script/OPCodesHE.h"
 #include "script/ScrResource.h"
@@ -145,11 +146,16 @@ int main()
 		return 1;
 	}
 
+	archive::Archive* he4 = nullptr;
 	archive::Archive* he2 = nullptr;
 	archive::Archive* he0 = nullptr;
 	archive::Archive* a = nullptr;
 	for (std::unique_ptr<archive::Archive>& archive : set.GetArchives())
 	{
+		if (archive->GetType() == archive::ArchiveType::HE4)
+		{
+			he4 = archive.get();
+		}
 		if (archive->GetType() == archive::ArchiveType::HE2)
 		{
 			he2 = archive.get();
@@ -164,16 +170,28 @@ int main()
 		}
 	}
 
-	if (!he2)
+	if (!he4)
 	{
 		return 0;
 	}
 
-	resources::TalkResource talkResource;
-	talkResource.Initialize(he2->GetRoot().TryFindChild(parsing::TALK_CHUNK_ID));
-	talkResource.m_pA = a;
-	talkResource.m_pHE0 = he0;
-	talkResource.Replace(core::Data());
+	core::DataStream prehe4Data(he4->GetRoot().WholeChunkSize());
+	he4->GetRoot().ToData(prehe4Data);
+	file::SaveFile("C:/ekkes/prehe4.HE4", prehe4Data);
+
+	building::HE4Builder he4Builder;
+	he4Builder.Precache(*he4);
+	he4Builder.Build(*he4);
+
+	core::DataStream posthe4Data(he4->GetRoot().WholeChunkSize());
+	he4->GetRoot().ToData(posthe4Data);
+	file::SaveFile("C:/ekkes/posthe4.HE4", posthe4Data);
+
+	//resources::TalkResource talkResource;
+	//talkResource.Initialize(he2->GetRoot().TryFindChild(parsing::TALK_CHUNK_ID));
+	//talkResource.m_pA = a;
+	//talkResource.m_pHE0 = he0;
+	//talkResource.Replace(core::Data());
 
 	//core::Data data;
 	//if (!file::LoadFile(archivesPath, data))
