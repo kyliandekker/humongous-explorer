@@ -90,6 +90,23 @@ namespace humongousexplorer::parsing
 	}
 
 	//---------------------------------------------------------------------
+	Chunk* Chunk::TryFindParent(const std::string_view& a_sChunkID)
+	{
+		Chunk* parent = m_pParent;
+		while (parent)
+		{
+			if (parent->m_sTag == a_sChunkID)
+			{
+				return parent;
+			}
+
+			parent = parent->m_pParent;
+		}
+
+		return nullptr;
+	}
+
+	//---------------------------------------------------------------------
 	Chunk* Chunk::FindChunkAt(size_t a_iTarget, size_t a_iBase)
 	{
 		const size_t totalSize = m_bIsRoot

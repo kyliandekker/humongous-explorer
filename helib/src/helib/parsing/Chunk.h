@@ -73,6 +73,12 @@ namespace humongousexplorer::parsing
 		bool TryFindChildren(const std::vector<std::string_view>& a_sChunkIDs, std::vector<Chunk*>& a_aChunks);
 
 		/// <summary>
+		/// Recursively searches for parent chunks with the specified tag.
+		/// </summary>
+		/// <param name="a_sChunkID">The 4-character chunk tag to search for.</param>
+		Chunk* TryFindParent(const std::string_view& a_sChunkID);
+
+		/// <summary>
 		/// Finds the chunk located at a specific byte offset within this chunk's data.
 		/// </summary>
 		/// <param name="a_iTarget">The absolute byte offset to find.</param>
