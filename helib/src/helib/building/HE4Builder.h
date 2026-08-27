@@ -33,13 +33,14 @@ namespace humongousexplorer::building
 		/// <summary>
 		/// Associates the chunks before rebuilding other archive this archive is dependent on.
 		/// </summary>
-		bool Precache(archive::Archive& a_Archive) override;
+		bool Bind(archive::ArchiveSet& a_ArchiveSet) override;
 
 		/// <summary>
 		/// Builds the chunks in the associated archive.
 		/// </summary>
-		bool Build(archive::Archive& a_Archive) override;
+		bool Build() override;
 	protected:
+		archive::Archive* m_pHE4 = nullptr;
 		std::vector<SGENEntry> m_aSGENs;
 	};
 }

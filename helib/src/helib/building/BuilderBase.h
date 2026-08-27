@@ -2,7 +2,7 @@
 
 namespace humongousexplorer::archive
 {
-	class Archive;
+	class ArchiveSet;
 }
 namespace humongousexplorer::building
 {
@@ -18,11 +18,11 @@ namespace humongousexplorer::building
 		/// <summary>
 		/// Associates the chunks before rebuilding other archive this archive is dependent on.
 		/// </summary>
-		virtual bool Precache(archive::Archive& a_Archive) = 0;
+		virtual bool Bind(archive::ArchiveSet& a_ArchiveSet) = 0;
 		
 		/// <summary>
 		/// Builds the chunks in the associated archive.
 		/// </summary>
-		virtual bool Build(archive::Archive& a_Archive) = 0;
+		virtual bool Build() = 0;
 	};
 }

@@ -4,6 +4,7 @@
 #include <cassert>
 
 #include <helib/archive/Archive.h>
+#include <helib/archive/ArchiveSet.h>
 #include <helib/archive/ArchiveType.h>
 #include <helib/core/Log.h>
 #include <helib/parsing/ChunkIDs.h>
@@ -14,16 +15,25 @@ namespace humongousexplorer::building
 	//---------------------------------------------------------------------
 	// HE4Builder
 	//---------------------------------------------------------------------
-	bool HE4Builder::Precache(archive::Archive& a_Archive)
+	bool HE4Builder::Bind(archive::ArchiveSet& a_ArchiveSet)
 	{
-		assert(a_Archive.GetType() == archive::ArchiveType::HE4);
-		if (a_Archive.GetType() != archive::ArchiveType::HE4)
+		for (std::unique_ptr<archive::Archive>& archive : a_ArchiveSet.GetArchives())
 		{
-			core::Log(core::LogLevel::Error, "Could not precache HE4: Provided archive was not a HE4.");
+			if (archive->GetType() == archive::ArchiveType::HE4)
+			{
+				m_pHE4 = archive.get();
+				break;
+			}
+		}
+
+		assert(m_pHE4);
+		if (!m_pHE4)
+		{
+			core::Log(core::LogLevel::Error, "Could not precache HE4: Could not find HE4.");
 			return false;
 		}
 
-		parsing::Chunk* songChunk = a_Archive.GetRoot().TryFindChild(parsing::SONG_CHUNK_ID);
+		parsing::Chunk* songChunk = m_pHE4->GetRoot().TryFindChild(parsing::SONG_CHUNK_ID);
 		assert(songChunk);
 		if (!songChunk)
 		{
@@ -103,7 +113,7 @@ namespace humongousexplorer::building
 	}
 
 	//---------------------------------------------------------------------
-	bool HE4Builder::Build(archive::Archive& a_Archive)
+	bool HE4Builder::Build()
 	{
 		for (const SGENEntry& sgenEntry : m_aSGENs)
 		{

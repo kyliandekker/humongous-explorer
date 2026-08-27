@@ -180,8 +180,11 @@ int main()
 	file::SaveFile("C:/ekkes/prehe4.HE4", prehe4Data);
 
 	building::HE4Builder he4Builder;
-	he4Builder.Precache(*he4);
-	he4Builder.Build(*he4);
+	he4Builder.Bind(set);
+
+	// do something in between.
+
+	he4Builder.Build();
 
 	core::DataStream posthe4Data(he4->GetRoot().WholeChunkSize());
 	he4->GetRoot().ToData(posthe4Data);
