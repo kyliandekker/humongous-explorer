@@ -40,13 +40,6 @@ namespace humongousexplorer::file
 	/// <summary>
 	/// Opens the explorer in a specified path.
 	/// </summary>
-	/// <param name="a_sPath">The directory to create.</param>
-	/// <returns>True if successful, false otherwise.</returns>
-	bool CreateDirectory(const fs::path& a_Path);
-
-	/// <summary>
-	/// Opens the explorer in a specified path.
-	/// </summary>
 	/// <param name="a_sPath">The directory to open.</param>
 	/// <returns>True if successful, false otherwise.</returns>
 	bool OpenInExplorer(const fs::path& a_Path);

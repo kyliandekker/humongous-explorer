@@ -101,4 +101,32 @@ namespace humongousexplorer::core
 	/// <param name="a_pData">Pointer to the destination byte array (at least 4 bytes).</param>
 	/// <param name="a_iValue">The 32-bit value to encode in big-endian format.</param>
 	void WriteBE32(unsigned char* a_pData, uint32_t a_iValue);
+
+	/// <summary>
+	/// Reads a little-endian 16-bit unsigned integer from a byte array.
+	/// </summary>
+	/// <param name="a_pData">Pointer to the 2-byte little-endian value.</param>
+	/// <returns>The decoded 16-bit unsigned integer in native byte order.</returns>
+	uint16_t ReadLE16(const unsigned char* a_pData);
+
+	/// <summary>
+	/// Reads a little-endian 32-bit unsigned integer from a byte array.
+	/// </summary>
+	/// <param name="a_pData">Pointer to the 4-byte little-endian value.</param>
+	/// <returns>The decoded 32-bit unsigned integer in native byte order.</returns>
+	uint32_t ReadLE32(const unsigned char* a_pData);
+
+	/// <summary>
+	/// Writes a 16-bit unsigned integer as little-endian bytes into a byte array.
+	/// </summary>
+	/// <param name="a_pData">Pointer to the destination byte array (at least 2 bytes).</param>
+	/// <param name="a_iValue">The 16-bit value to encode in little-endian format.</param>
+	void WriteLE16(unsigned char* a_pData, uint16_t a_iValue);
+
+	/// <summary>
+	/// Writes a 32-bit unsigned integer as little-endian bytes into a byte array.
+	/// </summary>
+	/// <param name="a_pData">Pointer to the destination byte array (at least 4 bytes).</param>
+	/// <param name="a_iValue">The 32-bit value to encode in little-endian format.</param>
+	void WriteLE32(unsigned char* a_pData, uint32_t a_iValue);
 }

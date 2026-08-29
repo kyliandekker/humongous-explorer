@@ -13,8 +13,13 @@ target_include_directories(helib PUBLIC
     ${CMAKE_SOURCE_DIR}/external
 )
 
+# Threads (required for std::thread in core/Log)
+find_package(Threads REQUIRED)
+target_link_libraries(helib PUBLIC Threads::Threads)
+
 # C++ standard
 set_target_properties(helib PROPERTIES
     CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
 )

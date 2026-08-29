@@ -77,4 +77,33 @@ namespace humongousexplorer::core
 		a_pData[2] = static_cast<unsigned char>(a_iValue >> 8);
 		a_pData[3] = static_cast<unsigned char>(a_iValue);
 	}
+
+	//---------------------------------------------------------------------
+	uint16_t ReadLE16(const unsigned char* a_pData)
+	{
+		return static_cast<uint16_t>(a_pData[0]) | (static_cast<uint16_t>(a_pData[1]) << 8);
+	}
+
+	//---------------------------------------------------------------------
+	uint32_t ReadLE32(const unsigned char* a_pData)
+	{
+		return static_cast<uint32_t>(a_pData[0]) | (static_cast<uint32_t>(a_pData[1]) << 8) |
+			(static_cast<uint32_t>(a_pData[2]) << 16) | (static_cast<uint32_t>(a_pData[3]) << 24);
+	}
+
+	//---------------------------------------------------------------------
+	void WriteLE16(unsigned char* a_pData, uint16_t a_iValue)
+	{
+		a_pData[0] = static_cast<unsigned char>(a_iValue);
+		a_pData[1] = static_cast<unsigned char>(a_iValue >> 8);
+	}
+
+	//---------------------------------------------------------------------
+	void WriteLE32(unsigned char* a_pData, uint32_t a_iValue)
+	{
+		a_pData[0] = static_cast<unsigned char>(a_iValue);
+		a_pData[1] = static_cast<unsigned char>(a_iValue >> 8);
+		a_pData[2] = static_cast<unsigned char>(a_iValue >> 16);
+		a_pData[3] = static_cast<unsigned char>(a_iValue >> 24);
+	}
 }

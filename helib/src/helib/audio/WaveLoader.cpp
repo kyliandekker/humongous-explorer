@@ -54,13 +54,14 @@ namespace humongousexplorer::audio
 
 	//---------------------------------------------------------------------
 	bool WaveLoader::Load(
-		const std::string& a_sFilePath,
+		const fs::path& a_FilePath,
 		core::Data& a_Data,
 		uint16_t& a_iSampleRate)
 	{
+		fs::path sanitizedPath = a_FilePath.lexically_normal();
 		core::Data file;
 
-		if (!file::LoadFile(a_sFilePath, file))
+		if (!file::LoadFile(sanitizedPath, file))
 		{
 			return false;
 		}
@@ -252,10 +253,12 @@ namespace humongousexplorer::audio
 
 	//---------------------------------------------------------------------
 	bool WaveLoader::Save(
-		const std::string& a_sFilePath,
+		const fs::path& a_FilePath,
 		const core::Data& a_Data,
 		uint16_t a_iSampleRate)
 	{
+		fs::path sanitizedPath = a_FilePath.lexically_normal();
+
 		const uint32_t dataSize =
 			static_cast<uint32_t>(a_Data.size());
 
@@ -336,6 +339,6 @@ namespace humongousexplorer::audio
 			);
 		}
 
-		return file::SaveFile(a_sFilePath, file);
+		return file::SaveFile(sanitizedPath, file);
 	}
 }

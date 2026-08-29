@@ -16,40 +16,41 @@ namespace humongousexplorer::archive
 	//---------------------------------------------------------------------
 	bool Archive::Load(const fs::path& a_Path)
 	{
-		if (!fs::exists(a_Path))
+		fs::path sanitizedPath = a_Path.lexically_normal();
+		if (!fs::exists(sanitizedPath))
 		{
-			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\": Path did not exist.");
+			core::Log(core::LogLevel::Error, "Failed to load: \"" + sanitizedPath.string() + "\": Path did not exist.");
 			return false;
 		}
 
-		if (!fs::is_regular_file(a_Path))
+		if (!fs::is_regular_file(sanitizedPath))
 		{
-			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\": Path was not a file.");
+			core::Log(core::LogLevel::Error, "Failed to load: \"" + sanitizedPath.string() + "\": Path was not a file.");
 			return false;
 		}
 
-		std::string extension = a_Path.extension().string().substr(1);
+		std::string extension = sanitizedPath.extension().string().substr(1);
 
 		// Unknown or Folder.
 		ArchiveType archiveType = archive::GetArchiveTypeFromExtension(extension);
 		if (archiveType < archive::ArchiveType::HE0)
 		{
-			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\": Unsupported archive type.");
+			core::Log(core::LogLevel::Error, "Failed to load: \"" + sanitizedPath.string() + "\": Unsupported archive type.");
 			return false;
 		}
 
 		m_eType = archiveType;
 
 		core::Data data;
-		if (!file::LoadFile(a_Path, data))
+		if (!file::LoadFile(sanitizedPath, data))
 		{
-			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\": Could not read file.");
+			core::Log(core::LogLevel::Error, "Failed to load: \"" + sanitizedPath.string() + "\": Could not read file.");
 			return false;
 		}
 
 		if (data.empty())
 		{
-			core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\": Archive file is empty.");
+			core::Log(core::LogLevel::Error, "Failed to load: \"" + sanitizedPath.string() + "\": Archive file is empty.");
 			return false;
 		}
 
@@ -65,13 +66,13 @@ namespace humongousexplorer::archive
 			core::xorShift(xorredData, xorredDataContainer.size(), m_pRoot->GetEncryptionKey());
 			if (!parsing::ParseArchive(*m_pRoot, xorredDataContainer))
 			{
-				core::Log(core::LogLevel::Error, "Failed to load: \"" + a_Path.string() + "\": Failed to parse archive data.");
+				core::Log(core::LogLevel::Error, "Failed to load: \"" + sanitizedPath.string() + "\": Failed to parse archive data.");
 				return false;
 			}
 		}
 
-		m_sName = a_Path.filename().string();
-		core::Log(core::LogLevel::Success, "Successfully loaded: \"" + a_Path.string() + "\".");
+		m_sName = sanitizedPath.filename().string();
+		core::Log(core::LogLevel::Success, "Successfully loaded: \"" + sanitizedPath.string() + "\".");
 		return true;
 	}
 

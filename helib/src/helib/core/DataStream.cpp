@@ -130,37 +130,79 @@ namespace humongousexplorer::core
 	}
 
 	//---------------------------------------------------------------------
-	bool DataStream::Seek(size_t a_Offset, size_t a_Whence)
+	bool DataStream::ReadLE16(uint16_t& a_Value)
 	{
-		size_t newPos = m_iPos;
+		unsigned char buf[2];
+		if (!Read(buf, sizeof(buf), 1))
+		{
+			return false;
+		}
+		a_Value = ::humongousexplorer::core::ReadLE16(buf);
+		return true;
+	}
+
+	//---------------------------------------------------------------------
+	bool DataStream::ReadLE32(uint32_t& a_Value)
+	{
+		unsigned char buf[4];
+		if (!Read(buf, sizeof(buf), 1))
+		{
+			return false;
+		}
+		a_Value = ::humongousexplorer::core::ReadLE32(buf);
+		return true;
+	}
+
+	//---------------------------------------------------------------------
+	bool DataStream::WriteLE16(uint16_t a_Value)
+	{
+		unsigned char buf[2];
+		::humongousexplorer::core::WriteLE16(buf, a_Value);
+		return Write(buf, sizeof(buf));
+	}
+
+	//---------------------------------------------------------------------
+	bool DataStream::WriteLE32(uint32_t a_Value)
+	{
+		unsigned char buf[4];
+		::humongousexplorer::core::WriteLE32(buf, a_Value);
+		return Write(buf, sizeof(buf));
+	}
+
+	//---------------------------------------------------------------------
+	bool DataStream::Seek(int64_t a_Offset, int a_Whence)
+	{
+		int64_t newPos = 0;
 
 		switch (a_Whence)
 		{
 			case SEEK_SET:
 			{
+				if (a_Offset < 0 || static_cast<uint64_t>(a_Offset) > m_iSize)
+				{
+					return false;
+				}
 				newPos = a_Offset;
 				break;
 			}
 
 			case SEEK_CUR:
 			{
-				if (a_Offset > m_iSize - m_iPos)
+				newPos = static_cast<int64_t>(m_iPos) + a_Offset;
+				if (newPos < 0 || static_cast<uint64_t>(newPos) > m_iSize)
 				{
 					return false;
 				}
-
-				newPos = m_iPos + a_Offset;
 				break;
 			}
 
 			case SEEK_END:
 			{
-				if (a_Offset > m_iSize)
+				newPos = static_cast<int64_t>(m_iSize) + a_Offset;
+				if (newPos < 0 || static_cast<uint64_t>(newPos) > m_iSize)
 				{
 					return false;
 				}
-
-				newPos = m_iSize - a_Offset;
 				break;
 			}
 
@@ -170,7 +212,7 @@ namespace humongousexplorer::core
 			}
 		}
 
-		m_iPos = newPos;
+		m_iPos = static_cast<size_t>(newPos);
 		return true;
 	}
 

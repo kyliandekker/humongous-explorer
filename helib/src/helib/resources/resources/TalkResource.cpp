@@ -6,7 +6,6 @@
 #include <helib/core/DataStream.h>
 #include <helib/archive/Archive.h>
 #include <set>
-#include <helib/file/file.h>
 #include <helib/core/Log.h>
 #include <helib/parsing/Chunk.h>
 #include <helib/parsing/ChunkIDs.h>
@@ -94,7 +93,7 @@ namespace humongousexplorer::resources
 		core::DataStream data(dlflSize);
 
 		uint16_t numRooms = static_cast<uint16_t>(lflfOffsets.size());
-		data.Write(&numRooms, sizeof(numRooms));
+		data.WriteLE16(numRooms);
 
 		for (size_t i = 0; i < lflfOffsets.size(); i++)
 		{
@@ -103,7 +102,7 @@ namespace humongousexplorer::resources
 			{
 				offsetFromRoot += parsing::CHUNK_HEADER_SIZE;
 			}
-			data.Write(&offsetFromRoot, sizeof(offsetFromRoot));
+			data.WriteLE32(offsetFromRoot);
 		}
 
 		// Not necessary, but let's do it either way.
@@ -137,11 +136,11 @@ namespace humongousexplorer::resources
 		}
 
 		core::DataStream data = a_pChunk->GetData();
-		data.Read(&a_iNumEntries, sizeof(a_iNumEntries), 1);
+		data.ReadLE16(a_iNumEntries);
 		for (size_t i = 0; i < static_cast<size_t>(a_iNumEntries); i++)
 		{
 			uint32_t offset;
-			data.Read(&offset, sizeof(offset), 1);
+			data.ReadLE32(offset);
 			a_aOffsets.push_back(offset);
 		}
 
@@ -174,7 +173,7 @@ namespace humongousexplorer::resources
 		}
 
 		core::DataStream data = a_pChunk->GetData();
-		data.Read(&a_iNumEntries, sizeof(a_iNumEntries), 1);
+		data.ReadLE16(a_iNumEntries);
 		for (size_t i = 0; i < static_cast<size_t>(a_iNumEntries); i++)
 		{
 			uint8_t id;
@@ -185,7 +184,7 @@ namespace humongousexplorer::resources
 		for (size_t i = 0; i < static_cast<size_t>(a_iNumEntries); i++)
 		{
 			uint32_t offset;
-			data.Read(&offset, sizeof(offset), 1);
+			data.ReadLE32(offset);
 			a_aOffsets.push_back(offset);
 		}
 
@@ -195,13 +194,13 @@ namespace humongousexplorer::resources
 		// Some HE games have size also appended in the entries.
 		if (tell < dataSize)
 		{
-			int32_t diff = dataSize - tell;
-			assert(diff == (static_cast<uint32_t>(sizeof(uint32_t)) * a_iNumEntries)); // Double check it is exactly a size array.
+			int64_t diff = static_cast<int64_t>(dataSize) - static_cast<int64_t>(tell);
+			assert(diff == (static_cast<int64_t>(sizeof(uint32_t)) * a_iNumEntries)); // Double check it is exactly a size array.
 
 			for (size_t i = 0; i < static_cast<size_t>(a_iNumEntries); i++)
 			{
 				uint32_t offset;
-				data.Read(&offset, sizeof(offset), 1);
+				data.ReadLE32(offset);
 				a_aSizes.push_back(offset);
 			}
 		}
@@ -329,7 +328,7 @@ namespace humongousexplorer::resources
 		uint32_t finalDirSize = 2 + newIds.size() * 1 + newOffsets.size() * 4 + newSizes.size() * 4;
 		core::DataStream data = core::DataStream(finalDirSize);
 		uint16_t numEntries = static_cast<uint16_t>(newIds.size());
-		data.Write(&numEntries, sizeof(numEntries));
+		data.WriteLE16(numEntries);
 
 		for (size_t i = 0; i < newIds.size(); i++)
 		{
@@ -338,12 +337,12 @@ namespace humongousexplorer::resources
 
 		for (size_t i = 0; i < newOffsets.size(); i++)
 		{
-			data.Write(&newOffsets[i], sizeof(uint32_t));
+			data.WriteLE32(newOffsets[i]);
 		}
 
 		for (size_t i = 0; i < newSizes.size(); i++)
 		{
-			data.Write(&newSizes[i], sizeof(uint32_t));
+			data.WriteLE32(newSizes[i]);
 		}
 
 		// Not necessary, but let's do it either way.
@@ -640,10 +639,6 @@ namespace humongousexplorer::resources
 			core::Log(core::LogLevel::Error, "Failed rebuilding TALKie: Could not rebuild DIRT chunk.");
 			return false;
 		}
-
-		core::DataStream dirsData(dirsChunk->WholeChunkSize());
-		dirsChunk->ToData(dirsData);
-		file::SaveFile("C:/Program Files (x86)/Steam/steamapps/common/Spy Fox 3/DIRS_Test2", dirsData);
 
 		return true;
 	}

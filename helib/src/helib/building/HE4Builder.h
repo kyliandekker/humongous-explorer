@@ -15,8 +15,15 @@ namespace humongousexplorer::parsing
 }
 namespace humongousexplorer::building
 {
-	struct SGENEntry
+	class SGENEntry
 	{
+	public:
+		parsing::Chunk* GetSGENChunk();
+		parsing::Chunk* GetDIGIChunk();
+
+		void SetSGENChunk(parsing::Chunk* a_pSGENChunk);
+		void SetDIGIChunk(parsing::Chunk* a_pDIGIChunk);
+	private:
 		parsing::Chunk* m_pSGENChunk = nullptr;
 		parsing::Chunk* m_pDIGIChunk = nullptr;
 	};

@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include <helib/archive/ArchiveSet.h>
 #include <helib/core/DataStream.h>
 #include <helib/core/Log.h>
@@ -5,28 +7,27 @@
 #include <helib/parsing/ChunkIDs.h>
 #include <helib/resources/resources/TalkResource.h>
 #include <helib/building/HE4Builder.h>
-
-#include "script/OPCodesHE.h"
-#include "script/ScrResource.h"
-#include "script/ScrArgumentType.h"
+#include <helib/building/HE0Builder.h>
+#include <helib/building/ScriptBuilder.h>
 
 using namespace humongousexplorer;
-//
-////---------------------------------------------------------------------
-//struct TalkInstructionCall
-//{
-//	size_t talkiePosVal;
-//	size_t talkieSizeVal;
-//
-//	size_t offsetTalkiePos;
-//	size_t offsetEndTalkieSize;
-//
-//	std::string debugStr;
-//};
+
+//---------------------------------------------------------------------
+struct TalkInstructionCall
+{
+	size_t talkiePosVal;
+	size_t talkieSizeVal;
+
+	size_t offsetTalkiePos;
+	size_t offsetEndTalkieSize;
+
+	std::string debugStr;
+};
 //
 ////---------------------------------------------------------------------
 //struct TalkInstruction
 //{
+//	uint8_t bytecode = -1;
 //	int32_t instructionIndex = -1;
 //	int32_t argumentIndex = -1;
 //	size_t argumentOffsetInScript = 0;
@@ -108,6 +109,7 @@ using namespace humongousexplorer;
 //				if (TryFindTalkInstructionCalls(argument, calls))
 //				{
 //					TalkInstruction talkInstruction;
+//					talkInstruction.bytecode = instruction->GetByteCode();
 //					talkInstruction.instructionIndex = instructionIndex;
 //					talkInstruction.argumentIndex = argumentIndex;
 //					talkInstruction.argumentOffsetInScript = argumentOffsetInScript;
@@ -135,7 +137,7 @@ int main()
 {
 	core::InitializeLog();
 
-	std::string archivesPath = "C:/Program Files (x86)/Steam/steamapps/common/Spy Fox 3/SPYOZON.HE2";
+	fs::path archivesPath = "C:/Program Files (x86)/Steam/steamapps/common/Spy Fox 3/SPYOZON.HE2";
 
 	archive::ArchiveSet set;
 	bool loaded = set.LoadArchives(archivesPath);
@@ -156,15 +158,15 @@ int main()
 		{
 			he4 = archive.get();
 		}
-		if (archive->GetType() == archive::ArchiveType::HE2)
+		else if (archive->GetType() == archive::ArchiveType::HE2)
 		{
 			he2 = archive.get();
 		}
-		if (archive->GetType() == archive::ArchiveType::HE0)
+		else if (archive->GetType() == archive::ArchiveType::HE0)
 		{
 			he0 = archive.get();
 		}
-		if (archive->GetType() == archive::ArchiveType::A)
+		else if (archive->GetType() == archive::ArchiveType::A)
 		{
 			a = archive.get();
 		}
@@ -175,55 +177,70 @@ int main()
 		return 0;
 	}
 
-	core::DataStream prehe4Data(he4->GetRoot().WholeChunkSize());
-	he4->GetRoot().ToData(prehe4Data);
-	file::SaveFile("C:/ekkes/prehe4.HE4", prehe4Data);
-
 	building::HE4Builder he4Builder;
-	he4Builder.Bind(set);
+	if (!he4Builder.Bind(set))
+	{
+		core::Log(core::LogLevel::Error, "Could not bind HE4.");
+		core::DestroyLog();
+		return 0;
+	}
+
+	building::ScriptBuilder scriptBuilder;
+	if (!scriptBuilder.Bind(set))
+	{
+		core::Log(core::LogLevel::Error, "Could not bind scripts.");
+		core::DestroyLog();
+		return 0;
+	}
+
+	building::HE0Builder he0Builder;
+	if (!he0Builder.Bind(set))
+	{
+		core::Log(core::LogLevel::Error, "Could not bind HE0.");
+		core::DestroyLog();
+		return 0;
+	}
 
 	// do something in between.
 
-	he4Builder.Build();
+	// First HE4. It does not change anything in HE0 or (A).
+	if (!he4Builder.Build())
+	{
+		core::Log(core::LogLevel::Error, "Could not build HE4.");
+		core::DestroyLog();
+		return 0;
+	}
 
-	core::DataStream posthe4Data(he4->GetRoot().WholeChunkSize());
-	he4->GetRoot().ToData(posthe4Data);
-	file::SaveFile("C:/ekkes/posthe4.HE4", posthe4Data);
+	// Then scripts. This changes (A) and HE0.
+	if (!scriptBuilder.Build())
+	{
+		core::Log(core::LogLevel::Error, "Could not build scripts.");
+		core::DestroyLog();
+		return 0;
+	}
 
-	//resources::TalkResource talkResource;
-	//talkResource.Initialize(he2->GetRoot().TryFindChild(parsing::TALK_CHUNK_ID));
-	//talkResource.m_pA = a;
-	//talkResource.m_pHE0 = he0;
-	//talkResource.Replace(core::Data());
+	// Last, build the HE0 again because all the changes in scripts, (A), HE2 are done.
+	if (!he0Builder.Build())
+	{
+		core::Log(core::LogLevel::Error, "Could not build HE0.");
+		core::DestroyLog();
+		return 0;
+	}
 
-	//core::Data data;
-	//if (!file::LoadFile(archivesPath, data))
-	//{
-	//	core::Log(core::LogLevel::Error, "Could not find file: \"" + archivesPath + "\".");
-	//	core::DestroyLog();
-	//	return 0;
-	//}
+	fs::path newArchiveFolderPath = archivesPath.parent_path().string() + "/build";
+	file::CreateDirectory(newArchiveFolderPath);
+	for (std::unique_ptr<archive::Archive>& archive : set.GetArchives())
+	{
+		core::DataStream data;
+		archive->Build(data);
+		fs::path newArchivePath = newArchiveFolderPath.string() + "/" + archive->GetName();
+		file::SaveFile(newArchivePath, data);
+	}
+
+	// SCRIPT
 
 	//script::OPCodeMap map;
 	//script::GetOPCodeTable(map, set.GetScriptVersion(), set.GetHEVersion());
-
-	//// Determine (A).
-	//archive::Archive* a = nullptr;
-	//for (const std::unique_ptr<archive::Archive>& archiveEntry : set.GetArchives())
-	//{
-	//	if (archiveEntry->GetType() == archive::ArchiveType::A)
-	//	{
-	//		a = archiveEntry.get();
-	//		break;
-	//	}
-	//}
-
-	//if (!a)
-	//{
-	//	core::Log(core::LogLevel::Error, "Could not find (a): \"" + archivesPath + "\".");
-	//	core::DestroyLog();
-	//	return 0;
-	//}
 
 	//std::vector<parsing::Chunk*> scripts;
 	//a->GetRoot().TryFindChildren({
@@ -241,11 +258,15 @@ int main()
 	//	script::ScrResource script(chunk);
 	//	if (!script.Parse(chunk, map))
 	//	{
-	//		core::Log(core::LogLevel::Error, "Could not parse script data: \"" + archivesPath + "\".");
+	//		core::Log(core::LogLevel::Error, "Could not parse script data: \"" + archivesPath.string() + "\".");
 	//		core::DestroyLog();
+	//		auto test = GetTalkInstructions(script);
+	//		for (auto& talk : test)
+	//		{
+	//			assert(talk.bytecode == 0xBA);
+	//		}
 	//		return 0;
 	//	}
-	//	script.Rebuild(map);
 	//}
 
 	// REPLACE TEST

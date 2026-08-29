@@ -2,6 +2,8 @@
 
 #include "Data.h"
 
+#include <cstdint>
+
 #ifndef SEEK_SET
 #define SEEK_SET 0
 #endif
@@ -99,10 +101,16 @@ namespace humongousexplorer::core
 		/// </summary>
 		virtual bool Write(void const* a_pData, size_t a_iSize);
 
+		// Little-endian helpers for platform-independent payloads (DIR/DLFL/SGEN etc.)
+		bool ReadLE16(uint16_t& a_Value);
+		bool ReadLE32(uint32_t& a_Value);
+		bool WriteLE16(uint16_t a_Value);
+		bool WriteLE32(uint32_t a_Value);
+
 		/// <summary>
 		/// Adjusts the current position within the data buffer based on the specified offset and origin.
 		/// </summary>
-		/// <param name="a_iOffset">The offset, in bytes, to move the current position.</param>
+		/// <param name="a_iOffset">The offset, in bytes, to move the current position (may be negative for SEEK_CUR/SEEK_END).</param>
 		/// <param name="a_iWhence">
 		/// The reference point for the offset. Possible values:
 		/// - SEEK_SET/0: Beginning of the data.
@@ -110,7 +118,7 @@ namespace humongousexplorer::core
 		/// - SEEK_END/2: End of the data.
 		/// </param>
 		/// <returns>True if the seek operation is successful, otherwise false.</returns>
-		bool Seek(size_t a_iOffset, size_t a_iWhence);
+		bool Seek(int64_t a_iOffset, int a_iWhence);
 
 		/// <summary>
 		/// Retrieves the current position within the data buffer.

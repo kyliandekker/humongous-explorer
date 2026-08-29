@@ -1,5 +1,7 @@
 #include "ArchiveType.h"
 
+#include <cctype>
+
 namespace humongousexplorer::archive
 {
 	//---------------------------------------------------------------------
@@ -8,7 +10,7 @@ namespace humongousexplorer::archive
 		std::string ext = a_sExtension;
 		for (auto& c : ext)
 		{
-			c = static_cast<char>(::toupper(c));
+			c = static_cast<char>(::toupper(static_cast<unsigned char>(c)));
 		}
 
 		if (ext == "HE0")

@@ -305,7 +305,6 @@ namespace humongousexplorer::parsing
 			a_Data.Write(m_sTag, sizeof(m_sTag));
 
 			const size_t chunkSizest = WholeChunkSize();
-			assert(a_Data.size() >= chunkSizest);
 			assert(chunkSizest <= std::numeric_limits<uint32_t>::max());
 			uint32_t size32 = static_cast<uint32_t>(chunkSizest);
 			unsigned char chunkSize[sizeof(uint32_t)] = {};

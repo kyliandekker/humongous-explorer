@@ -1,5 +1,6 @@
 #include "ArchiveSet.h"
 
+#include <cctype>
 #include <helib/archive/Archive.h>
 #include <helib/archive/ArchiveType.h>
 #include <helib/core/Log.h>
@@ -8,20 +9,47 @@
 
 namespace humongousexplorer::archive
 {
+	namespace
+	{
+		bool EqualsIgnoreCase(const std::string& a, const std::string& b)
+		{
+			if (a.size() != b.size())
+			{
+				return false;
+			}
+			for (size_t i = 0; i < a.size(); ++i)
+			{
+				if (std::tolower(static_cast<unsigned char>(a[i])) != std::tolower(static_cast<unsigned char>(b[i])))
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+
 	//---------------------------------------------------------------------
 	// ArchiveSet
 	//---------------------------------------------------------------------
 	bool ArchiveSet::LoadArchives(const fs::path& a_Path)
 	{
+		fs::path sanitizedPath = a_Path.lexically_normal();
 		m_aArchives.clear();
 
-		core::Log(core::LogLevel::Info, "Loading archives from: " + a_Path.filename().string() + ".");
+		core::Log(core::LogLevel::Info, "Loading archives from: " + sanitizedPath.filename().string() + ".");
 
 		std::vector<fs::path> paths;
 
-		fs::path folder = a_Path.parent_path();
+		fs::path folder = sanitizedPath.parent_path();
 
-		for (const auto& entry : fs::directory_iterator(folder))
+		std::error_code ec;
+		fs::directory_iterator it(folder, ec);
+		if (ec)
+		{
+			core::Log(core::LogLevel::Warning, "Failed to iterate directory: " + folder.string() + ".");
+			return false;
+		}
+		for (const auto& entry : it)
 		{
 			if (!entry.is_regular_file())
 			{
@@ -37,8 +65,8 @@ namespace humongousexplorer::archive
 				continue;
 			}
 
-			// Check if the filename is the same, not the extension.
-			if (filePath.stem().generic_string() != a_Path.stem().generic_string())
+			// Check if the filename is the same, not the extension (case-insensitive for Windows compatibility).
+			if (!EqualsIgnoreCase(filePath.stem().string(), sanitizedPath.stem().string()))
 			{
 				continue;
 			}
@@ -48,7 +76,7 @@ namespace humongousexplorer::archive
 
 		if (paths.empty())
 		{
-			core::Log(core::LogLevel::Warning, "No archive files found for: " + a_Path.stem().string() + ".");
+			core::Log(core::LogLevel::Warning, "No archive files found for: " + sanitizedPath.stem().string() + ".");
 			return false;
 		}
 

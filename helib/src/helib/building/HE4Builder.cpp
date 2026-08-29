@@ -7,11 +7,38 @@
 #include <helib/archive/ArchiveSet.h>
 #include <helib/archive/ArchiveType.h>
 #include <helib/core/Log.h>
+#include <helib/core/Memory.h>
 #include <helib/parsing/ChunkIDs.h>
 #include <helib/parsing/chunks/sound/SGEN_Chunk.h>
 
 namespace humongousexplorer::building
 {
+	//---------------------------------------------------------------------
+	// SGENEntry
+	//---------------------------------------------------------------------
+	parsing::Chunk* SGENEntry::GetSGENChunk()
+	{
+		return m_pSGENChunk;
+	}
+
+	//---------------------------------------------------------------------
+	parsing::Chunk* SGENEntry::GetDIGIChunk()
+	{
+		return m_pDIGIChunk;
+	}
+
+	//---------------------------------------------------------------------
+	void SGENEntry::SetSGENChunk(parsing::Chunk* a_pSGENChunk)
+	{
+		m_pSGENChunk = a_pSGENChunk;
+	}
+
+	//---------------------------------------------------------------------
+	void SGENEntry::SetDIGIChunk(parsing::Chunk* a_pDIGIChunk)
+	{
+		m_pDIGIChunk = a_pDIGIChunk;
+	}
+
 	//---------------------------------------------------------------------
 	// HE4Builder
 	//---------------------------------------------------------------------
@@ -29,7 +56,7 @@ namespace humongousexplorer::building
 		assert(m_pHE4);
 		if (!m_pHE4)
 		{
-			core::Log(core::LogLevel::Error, "Could not precache HE4: Could not find HE4.");
+			core::Log(core::LogLevel::Error, "Could not bind HE4: Could not find HE4.");
 			return false;
 		}
 
@@ -37,21 +64,21 @@ namespace humongousexplorer::building
 		assert(songChunk);
 		if (!songChunk)
 		{
-			core::Log(core::LogLevel::Error, "Could not precache HE4: Could not find SONG chunk.");
+			core::Log(core::LogLevel::Error, "Could not bind HE4: Could not find SONG chunk.");
 			return false;
 		}
 
 		std::vector<parsing::Chunk*> sgenChunks;
 		if (!songChunk->TryFindChildren(parsing::SGEN_CHUNK_ID, sgenChunks))
 		{
-			core::Log(core::LogLevel::Error, "Could not precache HE4: Could not find SGEN chunks.");
+			core::Log(core::LogLevel::Error, "Could not bind HE4: Could not find SGEN chunks.");
 			return false;
 		}
 
 		assert(!sgenChunks.empty());
 		if (sgenChunks.empty())
 		{
-			core::Log(core::LogLevel::Error, "Could not precache HE4: No SGEN chunks were found.");
+			core::Log(core::LogLevel::Error, "Could not bind HE4: No SGEN chunks were found.");
 			return false;
 		}
 
@@ -60,51 +87,53 @@ namespace humongousexplorer::building
 			assert(chunk);
 			if (!chunk)
 			{
-				core::Log(core::LogLevel::Error, "Could not precache HE4: SGEN chunk was null.");
+				core::Log(core::LogLevel::Error, "Could not bind HE4: SGEN chunk was null.");
 				return false;
 			}
 
 			SGENEntry sgenEntry;
-			sgenEntry.m_pSGENChunk = chunk;
+			sgenEntry.SetSGENChunk(chunk);
 
 			assert(!chunk->GetData().empty());
 			if (chunk->GetData().empty())
 			{
-				core::Log(core::LogLevel::Error, "Could not precache HE4: SGEN data was empty.");
+				core::Log(core::LogLevel::Error, "Could not bind HE4: SGEN data was empty.");
 				return false;
 			}
 
-			const parsing::SGEN_Chunk* sgenData = chunk->GetData().dataAs<parsing::SGEN_Chunk>();
-			assert(sgenData);
-			if (!sgenData)
+			const core::Data& sgenRaw = chunk->GetData();
+			if (sgenRaw.size() < 13)
 			{
-				core::Log(core::LogLevel::Error, "Could not precache HE4: Something went wrong with loading SGEN data.");
+				core::Log(core::LogLevel::Error, "Could not bind HE4: SGEN data too small.");
 				return false;
 			}
+			const unsigned char* sgenBytes = static_cast<const unsigned char*>(sgenRaw.data());
+			uint32_t songPos = core::ReadLE32(sgenBytes + 4);
+			uint32_t songSize = core::ReadLE32(sgenBytes + 8);
 
-			parsing::Chunk* digiChunk = songChunk->FindChunkAt(sgenData->songPos);
+			parsing::Chunk* digiChunk = songChunk->FindChunkAt(songPos);
 			assert(digiChunk);
 			if (!digiChunk)
 			{
-				core::Log(core::LogLevel::Error, "Could not precache HE4: Could not find DIGI chunk.");
+				core::Log(core::LogLevel::Error, "Could not bind HE4: Could not find DIGI chunk.");
 				return false;
 			}
 
 			assert(digiChunk->GetTag() == parsing::DIGI_CHUNK_ID);
 			if (digiChunk->GetTag() != parsing::DIGI_CHUNK_ID)
 			{
-				core::Log(core::LogLevel::Error, "Could not precache HE4: Chunk at position " + std::to_string(sgenData->songPos) + " was not a DIGI chunk.");
-				return false;
-			}
-			
-			assert(digiChunk->WholeChunkSize() == sgenData->songSize);
-			if (digiChunk->WholeChunkSize() != sgenData->songSize)
-			{
-				core::Log(core::LogLevel::Error, "Could not precache HE4: DIGI chunk size is not matching SGEN entry. Was this a failed rebuild?");
+				core::Log(core::LogLevel::Error, "Could not bind HE4: Chunk at position " + std::to_string(songPos) + " was not a DIGI chunk.");
 				return false;
 			}
 
-			sgenEntry.m_pDIGIChunk = digiChunk;
+			assert(digiChunk->WholeChunkSize() == songSize);
+			if (digiChunk->WholeChunkSize() != songSize)
+			{
+				core::Log(core::LogLevel::Error, "Could not bind HE4: DIGI chunk size is not matching SGEN entry. Was this a failed build?");
+				return false;
+			}
+
+			sgenEntry.SetDIGIChunk(digiChunk);
 
 			m_aSGENs.push_back(sgenEntry);
 		}
@@ -115,48 +144,50 @@ namespace humongousexplorer::building
 	//---------------------------------------------------------------------
 	bool HE4Builder::Build()
 	{
-		for (const SGENEntry& sgenEntry : m_aSGENs)
+		assert(m_pHE4);
+		if (!m_pHE4)
 		{
-			parsing::Chunk* sgenChunk = sgenEntry.m_pSGENChunk;
+			core::Log(core::LogLevel::Error, "Could not build HE4: HE4 archive was null.");
+			return false;
+		}
+
+		for (SGENEntry& sgenEntry : m_aSGENs)
+		{
+			parsing::Chunk* sgenChunk = sgenEntry.GetSGENChunk();
 			assert(sgenChunk);
 			if (!sgenChunk)
 			{
-				core::Log(core::LogLevel::Error, "Could not rebuild HE4: SGEN chunk was null.");
+				core::Log(core::LogLevel::Error, "Could not build HE4: SGEN chunk was null.");
 				return false;
 			}
 
-			assert(!sgenChunk->GetData().empty());
-			if (sgenChunk->GetData().empty())
+			core::Data& sgenRaw = sgenChunk->GetData();
+			if (sgenRaw.empty() || sgenRaw.size() < 13)
 			{
-				core::Log(core::LogLevel::Error, "Could not rebuild HE4: SGEN data was empty.");
+				core::Log(core::LogLevel::Error, "Could not build HE4: SGEN data was empty or too small.");
 				return false;
 			}
 
-			parsing::SGEN_Chunk* sgenData = sgenChunk->GetData().dataAs<parsing::SGEN_Chunk>();
-			assert(sgenData);
-			if (!sgenData)
-			{
-				core::Log(core::LogLevel::Error, "Could not rebuild HE4: Something went wrong with loading SGEN data.");
-				return false;
-			}
-
-			parsing::Chunk* digiChunk = sgenEntry.m_pDIGIChunk;
+			parsing::Chunk* digiChunk = sgenEntry.GetDIGIChunk();
 			assert(digiChunk);
 			if (!digiChunk)
 			{
-				core::Log(core::LogLevel::Error, "Could not rebuild HE4: Could not find DIGI chunk.");
+				core::Log(core::LogLevel::Error, "Could not build HE4: Could not find DIGI chunk.");
 				return false;
 			}
 
+			const unsigned char* chkBytes = static_cast<const unsigned char*>(sgenRaw.data());
+			uint32_t curPos = core::ReadLE32(chkBytes + 4);
 			assert(digiChunk->GetTag() == parsing::DIGI_CHUNK_ID);
 			if (digiChunk->GetTag() != parsing::DIGI_CHUNK_ID)
 			{
-				core::Log(core::LogLevel::Error, "Could not rebuild HE4: Chunk at position " + std::to_string(sgenData->songPos) + " was not a DIGI chunk.");
+				core::Log(core::LogLevel::Error, "Could not build HE4: Chunk at position " + std::to_string(curPos) + " was not a DIGI chunk.");
 				return false;
 			}
 
-			sgenData->songPos = digiChunk->GetOffsetFromRoot();
-			sgenData->songSize = digiChunk->WholeChunkSize();
+			unsigned char* mutableBytes = static_cast<unsigned char*>(sgenRaw.data());
+			core::WriteLE32(mutableBytes + 4, static_cast<uint32_t>(digiChunk->GetOffsetFromRoot()));
+			core::WriteLE32(mutableBytes + 8, static_cast<uint32_t>(digiChunk->WholeChunkSize()));
 		}
 
 		return true;

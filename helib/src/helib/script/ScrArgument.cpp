@@ -4,7 +4,7 @@
 
 #include <helib/core/Data.h>
 
-#include "script/ScrArgumentType.h"
+#include <helib/script/ScrArgumentType.h>
 
 namespace humongousexplorer::script
 {
