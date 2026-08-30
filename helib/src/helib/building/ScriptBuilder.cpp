@@ -262,10 +262,8 @@ namespace humongousexplorer::building
 			core::Log(core::LogLevel::Error, "Could not bind scripts: Could not find any scripts in (A).");
 			return false;
 		}
-
-		std::unordered_map<std::string, size_t> counts;
-		core::DataStream checkNames(300);
-
+		
+		// TODO: Increase speed. This is super slow. Constantly allocating arguments just to check if they are certain ones and throw away arguments anyways is wasteful.
 		for (parsing::Chunk* chunk : scripts)
 		{
 			assert(chunk);
@@ -295,14 +293,24 @@ namespace humongousexplorer::building
 				{
 					isTalkScript = true;
 
-					auto talks = GetTalkRefs(arg->GetData());
-					if (!talks.empty())
+					std::vector<TalkRef> talks = GetTalkRefs(arg->GetData());
+					for (const TalkRef& talkRef : talks)
 					{
-						auto it = m_mOPCodeMap.find(instruction->GetByteCode());
-						counts[it->second.GetName()]++;
-					}
-					for (auto& talkRef : talks)
-					{
+						parsing::Chunk* referencedTALK = m_pHE2->GetRoot().FindChunkAt(talkRef.pos);
+						assert(referencedTALK);
+						if (!referencedTALK)
+						{
+							core::Log(core::LogLevel::Error, "Could not bind scripts: Script referenced invalid TALK chunk.");
+							return false;
+						}
+
+						assert(referencedTALK->WholeChunkSize() == talkRef.size);
+						if (referencedTALK->WholeChunkSize() != talkRef.size)
+						{
+							core::Log(core::LogLevel::Error, "Could not bind scripts: Referenced TALK chunk in script was not the same size.");
+							return false;
+						}
+
 						talkScript.AddTALKChunk(m_pHE2->GetRoot().FindChunkAt(talkRef.pos));
 					}
 				}
@@ -313,16 +321,6 @@ namespace humongousexplorer::building
 				m_aTALKScripts.push_back(talkScript);
 			}
 		}
-
-		for (auto& entries : counts)
-		{
-			checkNames.Write(entries.first.c_str(), entries.first.size());
-			checkNames.Write(": ", 2);
-			std::string sizeStr = std::to_string(entries.second);
-			checkNames.Write(sizeStr.c_str(), sizeStr.size());
-			checkNames.Write("\n", 1);
-		}
-		file::SaveFile("C:/ekkes/script_tests.txt", checkNames);
 
 		return true;
 	}
@@ -351,6 +349,11 @@ namespace humongousexplorer::building
 			return false;
 		}
 
-		return false;
+		for (auto& talk : m_aTALKScripts)
+		{
+			//talk.GetChunk();
+		}
+
+		return true;
 	}
 }
