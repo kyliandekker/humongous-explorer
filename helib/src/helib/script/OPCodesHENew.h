@@ -9,13 +9,13 @@
 
 namespace humongousexplorer::script
 {
-	enum class ScrArgumentType;
+	enum class ScriptArgType;
 	struct ArgInfo
 	{
-		ArgInfo(size_t a_iSize, ScrArgumentType a_eArgumentType);
+		ArgInfo(size_t a_iSize, ScriptArgType a_eArgumentType);
 
 		size_t m_iSize;
-		ScrArgumentType m_eArgumentType;
+		ScriptArgType m_eArgumentType;
 	};
 
 	std::vector<ArgInfo> default_func(uint8_t a_iByte, const unsigned char* a_pData);

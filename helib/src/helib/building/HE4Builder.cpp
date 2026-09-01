@@ -44,6 +44,9 @@ namespace humongousexplorer::building
 	//---------------------------------------------------------------------
 	bool HE4Builder::Bind(archive::ArchiveSet& a_ArchiveSet)
 	{
+		m_pHE4 = nullptr;
+		m_aSGENs.clear();
+
 		for (std::unique_ptr<archive::Archive>& archive : a_ArchiveSet.GetArchives())
 		{
 			if (archive->GetType() == archive::ArchiveType::HE4)

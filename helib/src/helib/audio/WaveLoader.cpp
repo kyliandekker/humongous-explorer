@@ -124,17 +124,6 @@ namespace humongousexplorer::audio
 			}
 
 			p += chunkSize;
-
-			// WAV chunks are word-aligned.
-			if (chunkSize & 1)
-			{
-				if (p >= pEnd)
-				{
-					return false;
-				}
-
-				++p;
-			}
 		}
 
 		if (!fmtFound || !pData)

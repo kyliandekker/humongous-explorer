@@ -82,14 +82,9 @@ int main()
 		}
 	}
 
-	if (!he4)
-	{
-		return 0;
-	}
-
 	building::HE4Builder he4Builder;
 	{
-		ScopeTimer timer("Bind HE4");
+		ScopeTimer timer("Binded HE4");
 		if (!he4Builder.Bind(set))
 		{
 			core::Log(core::LogLevel::Error, "Could not bind HE4.");
@@ -100,7 +95,7 @@ int main()
 
 	building::ScriptBuilder scriptBuilder;
 	{
-		ScopeTimer timer("Bind scripts");
+		ScopeTimer timer("Binded scripts");
 		if (!scriptBuilder.Bind(set))
 		{
 			core::Log(core::LogLevel::Error, "Could not bind scripts.");
@@ -111,7 +106,7 @@ int main()
 
 	building::HE0Builder he0Builder;
 	{
-		ScopeTimer timer("Bind HE0");
+		ScopeTimer timer("Binded HE0");
 		if (!he0Builder.Bind(set))
 		{
 			core::Log(core::LogLevel::Error, "Could not bind HE0.");
@@ -123,14 +118,41 @@ int main()
 	std::vector<parsing::Chunk*> talkChunks;
 	he2->GetRoot().TryFindChildren(parsing::TALK_CHUNK_ID, talkChunks);
 
-	core::Data waveData;
-	uint16_t waveSampleRate;
-	audio::WaveLoader::Load("./test.wav", waveData, waveSampleRate);
-	talkChunks[0]->TryFindChild(parsing::SDAT_CHUNK_ID)->SetData(waveData);
+	fs::path replacePath = "C:/Users/Kylian/Downloads/HumongousExplorer/replace/";
+	std::error_code ec;
+	fs::directory_iterator it(replacePath, ec);
+	if (ec)
+	{
+		core::Log(core::LogLevel::Error, "Could not open replace directory: " + ec.message());
+		core::DestroyLog();
+		return 0;
+	}
+
+	for (const auto& entry : it)
+	{
+		if (!entry.is_regular_file())
+		{
+			continue;
+		}
+
+		const fs::path& filePath = entry.path();
+		size_t number = std::stoi(filePath.filename());
+
+		core::Data waveData;
+		uint16_t waveSampleRate = 0;
+		if (!audio::WaveLoader::Load(filePath, waveData, waveSampleRate))
+		{
+			core::Log(core::LogLevel::Error, "Could not load: \"" + filePath.string() + "\".");
+			core::DestroyLog();
+			return 0;
+		}
+
+		talkChunks[number]->TryFindChild(parsing::SDAT_CHUNK_ID)->SetData(waveData);
+	}
 
 	// First HE4. It does not change anything in HE0 or (A).
 	{
-		ScopeTimer timer("Build HE4");
+		ScopeTimer timer("Built HE4");
 		if (!he4Builder.Build())
 		{
 			core::Log(core::LogLevel::Error, "Could not build HE4.");
@@ -141,7 +163,7 @@ int main()
 
 	// Then scripts. This changes (A) and HE0.
 	{
-		ScopeTimer timer("Build scripts");
+		ScopeTimer timer("Built scripts");
 		if (!scriptBuilder.Build())
 		{
 			core::Log(core::LogLevel::Error, "Could not build scripts.");
@@ -152,7 +174,7 @@ int main()
 
 	// Last, build the HE0 again because all the changes in scripts, (A), HE2 are done.
 	{
-		ScopeTimer timer("Build HE0");
+		ScopeTimer timer("Built HE0");
 		if (!he0Builder.Build())
 		{
 			core::Log(core::LogLevel::Error, "Could not build HE0.");

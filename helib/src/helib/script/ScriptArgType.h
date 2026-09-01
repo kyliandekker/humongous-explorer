@@ -3,7 +3,7 @@
 namespace humongousexplorer::script
 {
 	//---------------------------------------------------------------------
-	enum class ScrArgumentType
+	enum class ScriptArgType
 	{
 		Byte, // Unsigned.
 		Int16, // Signed.

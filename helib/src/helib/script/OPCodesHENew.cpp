@@ -1,13 +1,13 @@
 #include "OPCodesHENew.h"
 
-#include <helib/script/ScrArgumentType.h>
+#include <helib/script/ScriptArgType.h>
 
 namespace humongousexplorer::script
 {
 	//---------------------------------------------------------------------
 	// ArgInfo
 	//---------------------------------------------------------------------
-	ArgInfo::ArgInfo(size_t a_iSize, ScrArgumentType a_eArgumentType) :
+	ArgInfo::ArgInfo(size_t a_iSize, ScriptArgType a_eArgumentType) :
 		m_iSize(a_iSize),
 		m_eArgumentType(a_eArgumentType)
 	{}
@@ -51,7 +51,7 @@ namespace humongousexplorer::script
 	std::vector<ArgInfo> extended_b_op(uint8_t a_iByte, const unsigned char* a_pData)
 	{
 		std::vector<ArgInfo> args;
-		args.emplace_back(sizeof(uint8_t), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(uint8_t), ScriptArgType::Byte);
 		return args;
 	}
 
@@ -59,7 +59,7 @@ namespace humongousexplorer::script
 	std::vector<ArgInfo> extended_w_op(uint8_t a_iByte, const unsigned char* a_pData)
 	{
 		std::vector<ArgInfo> args;
-		args.emplace_back(sizeof(uint16_t), ScrArgumentType::Int16);
+		args.emplace_back(sizeof(uint16_t), ScriptArgType::Int16);
 		return args;
 	}
 
@@ -67,8 +67,8 @@ namespace humongousexplorer::script
 	std::vector<ArgInfo> extended_ww_op(uint8_t a_iByte, const unsigned char* a_pData)
 	{
 		std::vector<ArgInfo> args;
-		args.emplace_back(sizeof(uint16_t), ScrArgumentType::Int16);
-		args.emplace_back(sizeof(uint16_t), ScrArgumentType::Int16);
+		args.emplace_back(sizeof(uint16_t), ScriptArgType::Int16);
+		args.emplace_back(sizeof(uint16_t), ScriptArgType::Int16);
 		return args;
 	}
 
@@ -76,7 +76,7 @@ namespace humongousexplorer::script
 	std::vector<ArgInfo> extended_dw_op(uint8_t a_iByte, const unsigned char* a_pData)
 	{
 		std::vector<ArgInfo> args;
-		args.emplace_back(sizeof(uint32_t), ScrArgumentType::Int32);
+		args.emplace_back(sizeof(uint32_t), ScriptArgType::Int32);
 		return args;
 	}
 
@@ -84,8 +84,8 @@ namespace humongousexplorer::script
 	std::vector<ArgInfo> extended_ddw_op(uint8_t a_iByte, const unsigned char* a_pData)
 	{
 		std::vector<ArgInfo> args;
-		args.emplace_back(sizeof(uint32_t), ScrArgumentType::Int32);
-		args.emplace_back(sizeof(uint32_t), ScrArgumentType::Int32);
+		args.emplace_back(sizeof(uint32_t), ScriptArgType::Int32);
+		args.emplace_back(sizeof(uint32_t), ScriptArgType::Int32);
 		return args;
 	}
 
@@ -93,8 +93,8 @@ namespace humongousexplorer::script
 	std::vector<ArgInfo> extended_bw_op(uint8_t a_iByte, const unsigned char* a_pData)
 	{
 		std::vector<ArgInfo> args;
-		args.emplace_back(sizeof(uint8_t), ScrArgumentType::Byte);
-		args.emplace_back(sizeof(uint16_t), ScrArgumentType::Int16);
+		args.emplace_back(sizeof(uint8_t), ScriptArgType::Byte);
+		args.emplace_back(sizeof(uint16_t), ScriptArgType::Int16);
 		return args;
 	}
 
@@ -102,8 +102,8 @@ namespace humongousexplorer::script
 	std::vector<ArgInfo> extended_bdw_op(uint8_t a_iByte, const unsigned char* a_pData)
 	{
 		std::vector<ArgInfo> args;
-		args.emplace_back(sizeof(uint8_t), ScrArgumentType::Byte);
-		args.emplace_back(sizeof(uint32_t), ScrArgumentType::Int32);
+		args.emplace_back(sizeof(uint8_t), ScriptArgType::Byte);
+		args.emplace_back(sizeof(uint32_t), ScriptArgType::Int32);
 		return args;
 	}
 
@@ -111,7 +111,7 @@ namespace humongousexplorer::script
 	std::vector<ArgInfo> jump_cmd(uint8_t a_iByte, const unsigned char* a_pData)
 	{
 		std::vector<ArgInfo> args;
-		args.emplace_back(sizeof(int16_t), ScrArgumentType::Ref);
+		args.emplace_back(sizeof(int16_t), ScriptArgType::Ref);
 		return args;
 	}
 
@@ -119,7 +119,7 @@ namespace humongousexplorer::script
 	std::vector<ArgInfo> djump_cmd(uint8_t a_iByte, const unsigned char* a_pData)
 	{
 		std::vector<ArgInfo> args;
-		args.emplace_back(sizeof(int32_t), ScrArgumentType::Ref);
+		args.emplace_back(sizeof(int32_t), ScriptArgType::Ref);
 		return args;
 	}
 
@@ -130,7 +130,7 @@ namespace humongousexplorer::script
 
 		uint8_t cmd = a_pData[0];
 
-		args.emplace_back(sizeof(cmd), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(cmd), ScriptArgType::Byte);
 
 		size_t pos = 1;
 
@@ -144,7 +144,7 @@ namespace humongousexplorer::script
 			pos++;
 
 			args.emplace_back(pos - 1,
-				ScrArgumentType::String
+				ScriptArgType::String
 			);
 		}
 
@@ -158,7 +158,7 @@ namespace humongousexplorer::script
 
 		uint8_t cmd = a_pData[0];
 
-		args.emplace_back(sizeof(cmd), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(cmd), ScriptArgType::Byte);
 
 		size_t pos = 1;
 
@@ -171,13 +171,13 @@ namespace humongousexplorer::script
 				(static_cast<uint32_t>(a_pData[pos + 3]) << 24);
 
 			args.emplace_back(sizeof(uint32_t),
-				ScrArgumentType::Int32
+				ScriptArgType::Int32
 			);
 
 			pos += 4;
 
 			args.emplace_back(len,
-				ScrArgumentType::String
+				ScriptArgType::String
 			);
 		}
 
@@ -191,7 +191,7 @@ namespace humongousexplorer::script
 
 		uint8_t cmd = a_pData[0];
 
-		args.emplace_back(sizeof(cmd), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(cmd), ScriptArgType::Byte);
 
 		size_t pos = 1;
 
@@ -205,7 +205,7 @@ namespace humongousexplorer::script
 			pos++;
 
 			args.emplace_back(pos - 1,
-				ScrArgumentType::String
+				ScriptArgType::String
 			);
 		}
 
@@ -227,7 +227,7 @@ namespace humongousexplorer::script
 		pos++;
 
 		args.emplace_back(pos,
-			ScrArgumentType::String
+			ScriptArgType::String
 		);
 
 		return args;
@@ -245,11 +245,11 @@ namespace humongousexplorer::script
 			(static_cast<uint32_t>(a_pData[3]) << 24);
 
 		args.emplace_back(sizeof(uint32_t),
-			ScrArgumentType::Int32
+			ScriptArgType::Int32
 		);
 
 		args.emplace_back(len,
-			ScrArgumentType::String
+			ScriptArgType::String
 		);
 
 		return args;
@@ -262,7 +262,7 @@ namespace humongousexplorer::script
 
 		uint8_t cmd = a_pData[0];
 
-		args.emplace_back(sizeof(cmd), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(cmd), ScriptArgType::Byte);
 
 		size_t pos = 1;
 
@@ -276,7 +276,7 @@ namespace humongousexplorer::script
 			pos++;
 
 			args.emplace_back(pos - 1,
-				ScrArgumentType::String
+				ScriptArgType::String
 			);
 		}
 
@@ -290,7 +290,7 @@ namespace humongousexplorer::script
 
 		uint8_t cmd = a_pData[0];
 
-		args.emplace_back(sizeof(cmd), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(cmd), ScriptArgType::Byte);
 
 		size_t pos = 1;
 
@@ -303,13 +303,13 @@ namespace humongousexplorer::script
 				(static_cast<uint32_t>(a_pData[pos + 3]) << 24);
 
 			args.emplace_back(sizeof(uint32_t),
-				ScrArgumentType::Int32
+				ScriptArgType::Int32
 			);
 
 			pos += 4;
 
 			args.emplace_back(len,
-				ScrArgumentType::String
+				ScriptArgType::String
 			);
 		}
 
@@ -323,7 +323,7 @@ namespace humongousexplorer::script
 
 		uint8_t cmd = a_pData[0];
 
-		args.emplace_back(sizeof(cmd), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(cmd), ScriptArgType::Byte);
 
 		size_t pos = 1;
 
@@ -337,7 +337,7 @@ namespace humongousexplorer::script
 			pos++;
 
 			args.emplace_back(pos - 1,
-				ScrArgumentType::String
+				ScriptArgType::String
 			);
 		}
 
@@ -351,7 +351,7 @@ namespace humongousexplorer::script
 
 		uint8_t cmd = a_pData[0];
 
-		args.emplace_back(sizeof(cmd), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(cmd), ScriptArgType::Byte);
 
 		size_t pos = 1;
 
@@ -365,7 +365,7 @@ namespace humongousexplorer::script
 			pos++;
 
 			args.emplace_back(pos - 1,
-				ScrArgumentType::String
+				ScriptArgType::String
 			);
 		}
 
@@ -379,7 +379,7 @@ namespace humongousexplorer::script
 
 		uint8_t cmd = a_pData[0];
 
-		args.emplace_back(sizeof(cmd), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(cmd), ScriptArgType::Byte);
 
 		size_t pos = 1;
 
@@ -392,13 +392,13 @@ namespace humongousexplorer::script
 				(static_cast<uint32_t>(a_pData[pos + 3]) << 24);
 
 			args.emplace_back(sizeof(uint32_t),
-				ScrArgumentType::Int32
+				ScriptArgType::Int32
 			);
 
 			pos += 4;
 
 			args.emplace_back(len,
-				ScrArgumentType::String
+				ScriptArgType::String
 			);
 		}
 
@@ -412,10 +412,10 @@ namespace humongousexplorer::script
 
 		uint8_t cmd = a_pData[0];
 
-		args.emplace_back(sizeof(cmd), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(cmd), ScriptArgType::Byte);
 
 		args.emplace_back(sizeof(uint16_t),
-			ScrArgumentType::Int16
+			ScriptArgType::Int16
 		);
 
 		size_t pos = 1 + sizeof(uint16_t);
@@ -430,7 +430,7 @@ namespace humongousexplorer::script
 			pos++;
 
 			args.emplace_back(pos - (1 + sizeof(uint16_t)),
-				ScrArgumentType::String
+				ScriptArgType::String
 			);
 		}
 
@@ -444,10 +444,10 @@ namespace humongousexplorer::script
 
 		uint8_t cmd = a_pData[0];
 
-		args.emplace_back(sizeof(cmd), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(cmd), ScriptArgType::Byte);
 
 		args.emplace_back(sizeof(uint16_t),
-			ScrArgumentType::Int16
+			ScriptArgType::Int16
 		);
 
 		size_t pos = 1 + sizeof(uint16_t);
@@ -455,17 +455,17 @@ namespace humongousexplorer::script
 		if (cmd == 127)
 		{
 			args.emplace_back(sizeof(uint16_t),
-				ScrArgumentType::Int16
+				ScriptArgType::Int16
 			);
 		}
 		else if (cmd == 138)
 		{
 			args.emplace_back(sizeof(uint16_t),
-				ScrArgumentType::Int16
+				ScriptArgType::Int16
 			);
 
 			args.emplace_back(sizeof(uint16_t),
-				ScrArgumentType::Int16
+				ScriptArgType::Int16
 			);
 		}
 
@@ -479,10 +479,10 @@ namespace humongousexplorer::script
 
 		uint8_t cmd = a_pData[0];
 
-		args.emplace_back(sizeof(cmd), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(cmd), ScriptArgType::Byte);
 
 		args.emplace_back(sizeof(uint32_t),
-			ScrArgumentType::Int32
+			ScriptArgType::Int32
 		);
 
 		size_t pos = 1 + sizeof(uint32_t);
@@ -496,13 +496,13 @@ namespace humongousexplorer::script
 				(static_cast<uint32_t>(a_pData[pos + 3]) << 24);
 
 			args.emplace_back(sizeof(uint32_t),
-				ScrArgumentType::Int32
+				ScriptArgType::Int32
 			);
 
 			pos += 4;
 
 			args.emplace_back(len,
-				ScrArgumentType::String
+				ScriptArgType::String
 			);
 		}
 
@@ -516,10 +516,10 @@ namespace humongousexplorer::script
 
 		uint8_t cmd = a_pData[0];
 
-		args.emplace_back(sizeof(cmd), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(cmd), ScriptArgType::Byte);
 
 		args.emplace_back(sizeof(uint16_t),
-			ScrArgumentType::Int16
+			ScriptArgType::Int16
 		);
 
 		size_t pos = 1 + sizeof(uint16_t);
@@ -527,17 +527,17 @@ namespace humongousexplorer::script
 		if (cmd == 131)
 		{
 			args.emplace_back(sizeof(uint16_t),
-				ScrArgumentType::Int16
+				ScriptArgType::Int16
 			);
 		}
 		else if (cmd == 132)
 		{
 			args.emplace_back(sizeof(uint16_t),
-				ScrArgumentType::Int16
+				ScriptArgType::Int16
 			);
 
 			args.emplace_back(sizeof(uint16_t),
-				ScrArgumentType::Int16
+				ScriptArgType::Int16
 			);
 		}
 
@@ -551,12 +551,12 @@ namespace humongousexplorer::script
 
 		uint8_t cmd = a_pData[0];
 
-		args.emplace_back(sizeof(cmd), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(cmd), ScriptArgType::Byte);
 
 		if (cmd == 168 || cmd == 226 || cmd == 232)
 		{
 			args.emplace_back(sizeof(int16_t),
-				ScrArgumentType::Ref
+				ScriptArgType::Ref
 			);
 		}
 
@@ -570,12 +570,12 @@ namespace humongousexplorer::script
 
 		uint8_t cmd = a_pData[0];
 
-		args.emplace_back(sizeof(cmd), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(cmd), ScriptArgType::Byte);
 
 		if (cmd == 30 || cmd == 34 || cmd == 35)
 		{
 			args.emplace_back(sizeof(int32_t),
-				ScrArgumentType::Ref
+				ScriptArgType::Ref
 			);
 		}
 
@@ -589,12 +589,12 @@ namespace humongousexplorer::script
 
 		uint8_t cmd = a_pData[0];
 
-		args.emplace_back(sizeof(cmd), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(cmd), ScriptArgType::Byte);
 
 		if (cmd == 128)
 		{
 			args.emplace_back(sizeof(int16_t),
-				ScrArgumentType::Ref
+				ScriptArgType::Ref
 			);
 		}
 
@@ -608,7 +608,7 @@ namespace humongousexplorer::script
 
 		uint8_t cmd = a_pData[0];
 
-		args.emplace_back(sizeof(cmd), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(cmd), ScriptArgType::Byte);
 
 		size_t pos = 1;
 
@@ -622,7 +622,7 @@ namespace humongousexplorer::script
 			pos++;
 
 			args.emplace_back(pos - 1,
-				ScrArgumentType::String
+				ScriptArgType::String
 			);
 		}
 
@@ -644,7 +644,7 @@ namespace humongousexplorer::script
 		pos++;
 
 		args.emplace_back(pos,
-			ScrArgumentType::String
+			ScriptArgType::String
 		);
 
 		size_t start = pos;
@@ -657,7 +657,7 @@ namespace humongousexplorer::script
 		pos++;
 
 		args.emplace_back(pos - start,
-			ScrArgumentType::String
+			ScriptArgType::String
 		);
 
 		return args;
@@ -669,7 +669,7 @@ namespace humongousexplorer::script
 		std::vector<ArgInfo> args;
 
 		args.emplace_back(sizeof(uint8_t),
-			ScrArgumentType::Byte
+			ScriptArgType::Byte
 		);
 		size_t pos = sizeof(uint8_t);
 
@@ -681,7 +681,7 @@ namespace humongousexplorer::script
 		pos++;
 
 		args.emplace_back(pos - 1,
-			ScrArgumentType::String
+			ScriptArgType::String
 		);
 
 		return args;
@@ -705,7 +705,7 @@ namespace humongousexplorer::script
 			pos++;
 
 			args.emplace_back(pos,
-				ScrArgumentType::String
+				ScriptArgType::String
 			);
 		}
 		else if (type == 2)
@@ -718,7 +718,7 @@ namespace humongousexplorer::script
 			pos++;
 
 			args.emplace_back(pos,
-				ScrArgumentType::String
+				ScriptArgType::String
 			);
 
 			size_t start = pos;
@@ -731,7 +731,7 @@ namespace humongousexplorer::script
 			pos++;
 
 			args.emplace_back(pos - start,
-				ScrArgumentType::String
+				ScriptArgType::String
 			);
 		}
 
@@ -745,12 +745,12 @@ namespace humongousexplorer::script
 
 		uint8_t cmd = a_pData[0];
 
-		args.emplace_back(sizeof(cmd), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(cmd), ScriptArgType::Byte);
 
 		if (cmd == 8)
 		{
 			args.emplace_back(sizeof(uint8_t),
-				ScrArgumentType::Byte
+				ScriptArgType::Byte
 			);
 		}
 
@@ -764,12 +764,12 @@ namespace humongousexplorer::script
 
 		uint8_t cmd = a_pData[0];
 
-		args.emplace_back(sizeof(cmd), ScrArgumentType::Byte);
+		args.emplace_back(sizeof(cmd), ScriptArgType::Byte);
 
 		if (cmd == 5)
 		{
 			args.emplace_back(sizeof(uint8_t),
-				ScrArgumentType::Byte
+				ScriptArgType::Byte
 			);
 		}
 

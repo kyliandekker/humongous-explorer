@@ -921,26 +921,26 @@ namespace humongousexplorer::imgui
 				smallBtnSize,
 				smallBtnSize)))
 		{
-			//fs::path savePath;
-			//const std::vector<COMDLG_FILTERSPEC> filters =
-			//{
-			//	{L"WAVE files (*.wav)", L"*.wav;*.WAV"}
-			//};
-			//if (file::SaveFile(savePath, filters))
-			//{
-			//	if (file::SaveFile(savePath, ))
-			//	{
-			//		core::Log(core::LogLevel::Success, "Saved file to \"" + savePath.string() + "\".");
-			//	}
-			//	else
-			//	{
-			//		core::Log(core::LogLevel::Error, "Failed to save file to \"" + savePath.string() + "\".");
-			//	}
-			//}
-			//else
-			//{
-			//	core::Log(core::LogLevel::Error, "Failed to save file to \"" + savePath.string() + "\".");
-			//}
+			fs::path savePath;
+			const std::vector<COMDLG_FILTERSPEC> filters =
+			{
+				{L"WAVE files (*.wav)", L"*.wav;*.WAV"}
+			};
+			if (file::SaveFile(savePath, filters))
+			{
+				if (audio::WaveLoader::Save(savePath, soundResource->GetData(), soundResource->GetSampleRate()))
+				{
+					core::Log(core::LogLevel::Success, "Saved file to \"" + savePath.string() + "\".");
+				}
+				else
+				{
+					core::Log(core::LogLevel::Error, "Failed to save file to \"" + savePath.string() + "\".");
+				}
+			}
+			else
+			{
+				core::Log(core::LogLevel::Error, "Failed to save file to \"" + savePath.string() + "\".");
+			}
 		}
 
 		ImGui::SameLine();

@@ -18,6 +18,25 @@ namespace humongousexplorer::building
 	//---------------------------------------------------------------------
 	bool HE0Builder::Bind(archive::ArchiveSet& a_ArchiveSet)
 	{
+		m_pHE0 = nullptr;
+		m_pA = nullptr;
+		m_aOriginalDLFLData.clear();
+		m_pDLFLChunk = nullptr;
+		m_pDIRRChunk = nullptr;
+		m_aDIRR.clear();
+		m_pDIRSChunk = nullptr;
+		m_aDIRS.clear();
+		m_pDIRNChunk = nullptr;
+		m_aDIRN.clear();
+		m_pDIRCChunk = nullptr;
+		m_aDIRC.clear();
+		m_pDIRFChunk = nullptr;
+		m_aDIRF.clear();
+		m_pDIRMChunk = nullptr;
+		m_aDIRM.clear();
+		m_pDIRTChunk = nullptr;
+		m_aDIRT.clear();
+
 		for (std::unique_ptr<archive::Archive>& archive : a_ArchiveSet.GetArchives())
 		{
 			if (archive->GetType() == archive::ArchiveType::HE0)

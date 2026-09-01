@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <helib/script/OPCodesHENew.h>
+#include <helib/building/script/Script.h>
 
 namespace humongousexplorer::archive
 {
@@ -17,42 +18,6 @@ namespace humongousexplorer::parsing
 }
 namespace humongousexplorer::building
 {
-	struct ScriptInfo
-	{
-		size_t m_iInstrTell;
-		size_t m_iInstrEnd;
-	};
-
-	struct TalkScriptInfo : public ScriptInfo
-	{
-		size_t m_iTalkOffset;
-		size_t m_iTalkSize;
-		parsing::Chunk* m_pTalkChunk = nullptr;
-	};
-
-	struct JumpScriptInfo : public ScriptInfo
-	{
-		size_t m_iJumpTo;
-		size_t m_iJumpSize;
-	};
-
-	//---------------------------------------------------------------------
-	// TalkScript
-	//---------------------------------------------------------------------
-	class TalkScript
-	{
-	public:
-		parsing::Chunk* GetChunk();
-
-		void SetChunk(parsing::Chunk* a_pChunk);
-		std::vector<TalkScriptInfo>& GetTalks();
-		std::vector<JumpScriptInfo>& GetJumps();
-	private:
-		parsing::Chunk* m_pChunk = nullptr; // SCRP/LSCR/LSC2/VERB/EXCD/ENCD in (A).
-		std::vector<TalkScriptInfo> m_aTalks;
-		std::vector<JumpScriptInfo> m_aJumps;
-	};
-
 	//---------------------------------------------------------------------
 	// ScriptBuilder
 	//---------------------------------------------------------------------
@@ -74,8 +39,8 @@ namespace humongousexplorer::building
 	protected:
 		archive::Archive* m_pA = nullptr;
 		archive::Archive* m_pHE2 = nullptr;
-		std::vector<TalkScript> m_aTalkScripts;
 
 		script::OPCodeMap m_mOPCodeMap;
+		std::vector<Script> m_aTalkScripts;
 	};
 }
