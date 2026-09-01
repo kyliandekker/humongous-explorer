@@ -1,12 +1,12 @@
 #include "ResourceFactory.h"
 
-#include "core/Memory.h"
+#include <helib/core/Memory.h>
 
-#include "parsing/ChunkParser.h"
-#include "parsing/Chunk.h"
-#include "parsing/ChunkIDs.h"
-#include "parsing/chunks/sound/HSHD_Chunk.h"
-#include "parsing/chunks/sound/SGEN_Chunk.h"
+#include <helib/parsing/ChunkParser.h>
+#include <helib/parsing/Chunk.h>
+#include <helib/parsing/ChunkIDs.h>
+#include <helib/parsing/chunks/sound/HSHD_Chunk.h>
+#include <helib/parsing/chunks/sound/SGEN_Chunk.h>
 
 #include "resources/Resource.h"
 

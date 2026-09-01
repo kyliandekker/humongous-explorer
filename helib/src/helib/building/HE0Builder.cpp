@@ -30,6 +30,55 @@ namespace humongousexplorer::building
 			}
 		}
 
+		// Cache chunks in a map beforehand.
+		std::unordered_map<std::size_t, parsing::Chunk*> dirChunkTable;
+		std::vector<parsing::Chunk*> dirChunks;
+		m_pHE0->GetRoot().TryFindChildren({
+			parsing::DLFL_CHUNK_ID,
+			parsing::DIRR_CHUNK_ID,
+			parsing::DIRS_CHUNK_ID,
+			parsing::DIRN_CHUNK_ID,
+			parsing::DIRC_CHUNK_ID,
+			parsing::DIRF_CHUNK_ID,
+			parsing::DIRM_CHUNK_ID,
+			parsing::DIRT_CHUNK_ID,
+		}, dirChunks);
+		for (parsing::Chunk* dirChunk : dirChunks)
+		{
+			if (dirChunk->GetTag() == parsing::DLFL_CHUNK_ID)
+			{
+				m_pDLFLChunk = dirChunk;
+			}
+			else if (dirChunk->GetTag() == parsing::DIRR_CHUNK_ID)
+			{
+				m_pDIRRChunk = dirChunk;
+			}
+			else if (dirChunk->GetTag() == parsing::DIRS_CHUNK_ID)
+			{
+				m_pDIRSChunk = dirChunk;
+			}
+			else if (dirChunk->GetTag() == parsing::DIRN_CHUNK_ID)
+			{
+				m_pDIRNChunk = dirChunk;
+			}
+			else if (dirChunk->GetTag() == parsing::DIRC_CHUNK_ID)
+			{
+				m_pDIRCChunk = dirChunk;
+			}
+			else if (dirChunk->GetTag() == parsing::DIRF_CHUNK_ID)
+			{
+				m_pDIRFChunk = dirChunk;
+			}
+			else if (dirChunk->GetTag() == parsing::DIRM_CHUNK_ID)
+			{
+				m_pDIRMChunk = dirChunk;
+			}
+			else if (dirChunk->GetTag() == parsing::DIRT_CHUNK_ID)
+			{
+				m_pDIRTChunk = dirChunk;
+			}
+		}
+
 		assert(m_pHE0);
 		if (!m_pHE0)
 		{
@@ -44,7 +93,6 @@ namespace humongousexplorer::building
 			return false;
 		}
 
-		m_pDLFLChunk = m_pHE0->GetRoot().TryFindChild(parsing::DLFL_CHUNK_ID);
 		assert(m_pDLFLChunk);
 		if (!m_pDLFLChunk)
 		{
@@ -58,7 +106,6 @@ namespace humongousexplorer::building
 			return false;
 		}
 
-		m_pDIRRChunk = m_pHE0->GetRoot().TryFindChild(parsing::DIRR_CHUNK_ID);
 		assert(m_pDIRRChunk);
 		if (!m_pDIRRChunk)
 		{
@@ -72,7 +119,6 @@ namespace humongousexplorer::building
 			return false;
 		}
 
-		m_pDIRSChunk = m_pHE0->GetRoot().TryFindChild(parsing::DIRS_CHUNK_ID);
 		assert(m_pDIRSChunk);
 		if (!m_pDIRSChunk)
 		{
@@ -86,7 +132,6 @@ namespace humongousexplorer::building
 			return false;
 		}
 
-		m_pDIRNChunk = m_pHE0->GetRoot().TryFindChild(parsing::DIRN_CHUNK_ID);
 		assert(m_pDIRNChunk);
 		if (!m_pDIRNChunk)
 		{
@@ -100,7 +145,6 @@ namespace humongousexplorer::building
 			return false;
 		}
 
-		m_pDIRCChunk = m_pHE0->GetRoot().TryFindChild(parsing::DIRC_CHUNK_ID);
 		assert(m_pDIRCChunk);
 		if (!m_pDIRCChunk)
 		{
@@ -114,7 +158,6 @@ namespace humongousexplorer::building
 			return false;
 		}
 
-		m_pDIRFChunk = m_pHE0->GetRoot().TryFindChild(parsing::DIRF_CHUNK_ID);
 		assert(m_pDIRFChunk);
 		if (!m_pDIRFChunk)
 		{
@@ -128,7 +171,6 @@ namespace humongousexplorer::building
 			return false;
 		}
 
-		m_pDIRMChunk = m_pHE0->GetRoot().TryFindChild(parsing::DIRM_CHUNK_ID);
 		assert(m_pDIRMChunk);
 		if (!m_pDIRMChunk)
 		{
@@ -143,7 +185,6 @@ namespace humongousexplorer::building
 		}
 
 		// Generally, there will be no DIRT entries, but the chunk should still be present.
-		m_pDIRTChunk = m_pHE0->GetRoot().TryFindChild(parsing::DIRT_CHUNK_ID);
 		assert(m_pDIRTChunk);
 		if (!m_pDIRTChunk)
 		{

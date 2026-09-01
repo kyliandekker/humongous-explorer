@@ -82,10 +82,9 @@ namespace humongousexplorer::file
 	}
 
 	//---------------------------------------------------------------------
-	bool CreateDirectory(const fs::path& a_Path)
+	bool CreateFolder(const fs::path& a_Path)
 	{
 		fs::path sanitizedPath = a_Path.lexically_normal();
 		return fs::create_directories(sanitizedPath);
 	}
-
 }

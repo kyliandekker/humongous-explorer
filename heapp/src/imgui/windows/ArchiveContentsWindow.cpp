@@ -8,17 +8,18 @@
 
 #include "dx11/SVGTextureCache.h"
 #include "win32/winfile.h"
-#include "file/file.h"
+#include <helib/file/file.h>
 #include "resources/ResourceType.h"
 #include "resources/ResourceFactory.h"
 #include "resources/Resource.h"
 #include "resources/UIHelpers.h"
 #include "editor/Workspace.h"
-#include "parsing/ChunkParser.h"
-#include "parsing/ChunkIDs.h"
-#include "core/Memory.h"
+#include <helib/parsing/ChunkParser.h>
+#include <helib/parsing/ChunkIDs.h>
+#include <helib/core/Memory.h>
+#include <helib/parsing/Chunk.h>
 
-#include "core/DataStream.h"
+#include <helib/core/DataStream.h>
 #include "imgui/ImGuiSystem.h"
 #include "imgui/views/FileEntryView.h"
 #include "imgui/views/ResourceFileEntryView.h"

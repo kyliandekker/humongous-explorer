@@ -1,8 +1,8 @@
 #include "UIHelpers.h"
 
-#include "archive/ArchiveType.h"
+#include "helib/archive/ArchiveType.h"
 
-#include "parsing/ChunkIDs.h"
+#include "helib/parsing/ChunkIDs.h"
 
 #include "resources/ResourceType.h"
 

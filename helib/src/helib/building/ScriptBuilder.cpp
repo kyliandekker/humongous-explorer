@@ -1,15 +1,14 @@
 #include "./ScriptBuilder.h"
 
 #include <cassert>
+#include <map>
 
-#include <helib/archive/ArchiveSet.h>
 #include <helib/archive/Archive.h>
+#include <helib/archive/ArchiveSet.h>
 #include <helib/core/DataStream.h>
 #include <helib/core/Log.h>
 #include <helib/parsing/ChunkIDs.h>
-#include <helib/script/ScrInstruction.h>
 #include <helib/script/ScrArgumentType.h>
-#include <helib/script/OPCodesHE.h>
 
 namespace humongousexplorer::building
 {
@@ -19,12 +18,6 @@ namespace humongousexplorer::building
 	parsing::Chunk* TalkScript::GetChunk()
 	{
 		return m_pChunk;
-	}
-
-	//---------------------------------------------------------------------
-	const std::vector<parsing::Chunk*> TalkScript::GetTALKChunks() const
-	{
-		return m_aTALKChunks;
 	}
 
 	//---------------------------------------------------------------------
@@ -56,26 +49,15 @@ namespace humongousexplorer::building
 	}
 
 	//---------------------------------------------------------------------
-	void TalkScript::AddTALKChunk(parsing::Chunk* a_pChunk)
+	std::vector<TalkScriptInfo>& TalkScript::GetTalks()
 	{
-		assert(a_pChunk);
-		if (!a_pChunk)
-		{
-			core::Log(core::LogLevel::Error, "Could not set TALK script: Script was null.");
-			return;
-		}
+		return m_aTalks;
+	}
 
-		bool isTALK =
-			a_pChunk->GetTag() == parsing::TALK_CHUNK_ID;
-
-		assert(isTALK);
-		if (!isTALK)
-		{
-			core::Log(core::LogLevel::Error, "Could not TALK script: Chunk was not a TALK chunk.");
-			return;
-		}
-
-		m_aTALKChunks.push_back(a_pChunk);
+	//---------------------------------------------------------------------
+	std::vector<JumpScriptInfo>& TalkScript::GetJumps()
+	{
+		return m_aJumps;
 	}
 
 	//---------------------------------------------------------------------
@@ -123,50 +105,18 @@ namespace humongousexplorer::building
 	}
 
 	//---------------------------------------------------------------------
-	std::vector<std::unique_ptr<script::ScrInstruction>> GetInstructions(size_t a_iTell, const core::Data& a_Data, const script::OPCodeMap& a_mOPCodeMap)
-	{
-		std::vector<std::unique_ptr<script::ScrInstruction>> instructions;
-
-		while (a_iTell < a_Data.size())
-		{
-			const unsigned char* pureDat = a_Data.dataAs<unsigned char>() + a_iTell;
-			uint8_t code = *pureDat;
-
-			auto it = a_mOPCodeMap.find(code);
-
-			assert(it != a_mOPCodeMap.end());
-			if (it == a_mOPCodeMap.end())
-			{
-				return {};
-			}
-
-			std::vector<std::unique_ptr<humongousexplorer::script::ScrArgument>> args = it->second.GetSizeFn()(code, pureDat + 1);
-			std::unique_ptr<humongousexplorer::script::ScrInstruction> instr = std::make_unique<humongousexplorer::script::ScrInstruction>(code);
-			for (std::unique_ptr<humongousexplorer::script::ScrArgument>& arg : args)
-			{
-				instr->AddArgument(arg);
-			}
-			std::size_t size = instr->GetSize();
-			instructions.push_back(std::move(instr));
-
-			// Go to next arg.
-			a_iTell += size;
-		}
-
-		return instructions;
-	}
-
-	//---------------------------------------------------------------------
 	struct TalkRef
 	{
-		std::size_t pos;
-		std::size_t size;
+		size_t pos;
+		size_t size;
+		size_t strSize;
 	};
 
 	//---------------------------------------------------------------------
 	std::vector<TalkRef> GetTalkRefs(const humongousexplorer::core::Data& a_Data)
 	{
 		std::vector<TalkRef> out;
+		out.reserve(3);
 		for (std::size_t i = 0; i + 1 < a_Data.size(); )
 		{
 			if (a_Data[i] == 0x7F && a_Data[i + 1] == 0x54)
@@ -194,6 +144,7 @@ namespace humongousexplorer::building
 					TalkRef ref;
 					ref.pos = std::stoul(posStr);
 					ref.size = std::stoul(sizeStr);
+					ref.strSize = posStr.size() + 1 + sizeStr.size();
 					out.push_back(ref);
 				}
 				i = b + 1;
@@ -262,8 +213,16 @@ namespace humongousexplorer::building
 			core::Log(core::LogLevel::Error, "Could not bind scripts: Could not find any scripts in (A).");
 			return false;
 		}
-		
-		// TODO: Increase speed. This is super slow. Constantly allocating arguments just to check if they are certain ones and throw away arguments anyways is wasteful.
+
+		// Cache chunks in a map beforehand.
+		std::unordered_map<std::size_t, parsing::Chunk*> talkChunkTable;
+		std::vector<parsing::Chunk*> talkChunks;
+		m_pHE2->GetRoot().TryFindChildren(parsing::TALK_CHUNK_ID, talkChunks);
+		for (parsing::Chunk* talkChunk : talkChunks)
+		{
+			talkChunkTable[talkChunk->GetOffsetFromRoot()] = talkChunk;
+		}
+
 		for (parsing::Chunk* chunk : scripts)
 		{
 			assert(chunk);
@@ -274,51 +233,159 @@ namespace humongousexplorer::building
 			}
 
 			size_t tell = GetStartOfByteCode(chunk);
-			std::vector<std::unique_ptr<script::ScrInstruction>> instructions = GetInstructions(tell, chunk->GetData(), m_mOPCodeMap);
+			core::Data data = chunk->GetData();
 
 			TalkScript talkScript;
 			talkScript.SetChunk(chunk);
 
 			bool isTalkScript = false;
-			for (std::unique_ptr<script::ScrInstruction>& instruction : instructions)
+
+			std::unordered_map<size_t, uint8_t> byteCodePoints;
+
+			while (tell < data.size())
 			{
-				// So contrary to popular belief, talkActor is not the only code for calling TALKies.
-				// These are known to call TALKs as of right now:
-				//	* o72_getScriptString: By far the most calls.
-				//	* o72_talkActor: Second-most calls.
-				//	* o72_talkEgo: Third-most calls.
-				//	* o6_printLine: Really only occasionally, but still a significant amount.
-				//	* o6_printActor: Weirdly few calls.
-				for (std::unique_ptr<script::ScrArgument>& arg : instruction->GetArguments())
+				size_t instrTell = tell;
+
+				const unsigned char* pureDat = data.dataAs<unsigned char>() + tell;
+				uint8_t code = *pureDat;
+
+				byteCodePoints[tell] = code;
+
+				auto it = m_mOPCodeMap.find(code);
+
+				assert(it != m_mOPCodeMap.end());
+				if (it == m_mOPCodeMap.end())
 				{
-					isTalkScript = true;
-
-					std::vector<TalkRef> talks = GetTalkRefs(arg->GetData());
-					for (const TalkRef& talkRef : talks)
-					{
-						parsing::Chunk* referencedTALK = m_pHE2->GetRoot().FindChunkAt(talkRef.pos);
-						assert(referencedTALK);
-						if (!referencedTALK)
-						{
-							core::Log(core::LogLevel::Error, "Could not bind scripts: Script referenced invalid TALK chunk.");
-							return false;
-						}
-
-						assert(referencedTALK->WholeChunkSize() == talkRef.size);
-						if (referencedTALK->WholeChunkSize() != talkRef.size)
-						{
-							core::Log(core::LogLevel::Error, "Could not bind scripts: Referenced TALK chunk in script was not the same size.");
-							return false;
-						}
-
-						talkScript.AddTALKChunk(m_pHE2->GetRoot().FindChunkAt(talkRef.pos));
-					}
+					core::Log(core::LogLevel::Error, "Could not bind scripts: Script encountered invalid byte code.");
+					return false;
 				}
+
+				std::vector<script::ArgInfo> args = it->second.GetSizeFn()(code, pureDat + 1);
+
+				size_t size = sizeof(code);
+
+				size_t instrEnd = tell + sizeof(code);
+				for (const script::ArgInfo& arg : args)
+				{
+					instrEnd += arg.m_iSize;
+				}
+
+				for (const script::ArgInfo& arg : args)
+				{
+					const unsigned char* argData = data.dataAs<unsigned char>() + tell + size;
+
+					if (arg.m_eArgumentType == script::ScrArgumentType::String)
+					{
+						// So contrary to popular belief, talkActor is not the only code for calling TALKies.
+						// These are known to call TALKs as of right now:
+						//	* o72_getScriptString: By far the most calls.
+						//	* o72_talkActor: Second-most calls.
+						//	* o72_talkEgo: Third-most calls.
+						//	* o6_printLine: Really only occasionally, but still a significant amount.
+						//	* o6_printActor: Weirdly few calls.
+						std::vector<TalkRef> talks = GetTalkRefs(core::Data(argData, arg.m_iSize));
+						assert(talks.size() == 1 || talks.size() == 0);
+						for (const TalkRef& talkRef : talks)
+						{
+							parsing::Chunk* referencedTALK = talkChunkTable[talkRef.pos];
+							assert(referencedTALK);
+							if (!referencedTALK)
+							{
+								core::Log(core::LogLevel::Error, "Could not bind scripts: Script referenced invalid TALK chunk.");
+								return false;
+							}
+
+							assert(referencedTALK->WholeChunkSize() == talkRef.size);
+							if (referencedTALK->WholeChunkSize() != talkRef.size)
+							{
+								core::Log(core::LogLevel::Error, "Could not bind scripts: Referenced TALK chunk in script was not the same size.");
+								return false;
+							}
+
+							bool isTALK =
+								referencedTALK->GetTag() == parsing::TALK_CHUNK_ID;
+
+							assert(isTALK);
+							if (!isTALK)
+							{
+								core::Log(core::LogLevel::Error, "Could not TALK script: Chunk was not a TALK chunk.");
+								return false;
+							}
+
+							isTalkScript = true;
+
+							talkScript.GetTalks().push_back({ instrTell, instrEnd, talkRef.pos, talkRef.size, referencedTALK });
+						}
+					}
+					else if (arg.m_eArgumentType == script::ScrArgumentType::Ref)
+					{
+						int32_t jump{};
+
+						if (arg.m_iSize == sizeof(int16_t))
+						{
+							jump = static_cast<int16_t>(
+								static_cast<uint16_t>(argData[0]) |
+								(static_cast<uint16_t>(argData[1]) << 8)
+								);
+						}
+						else
+						{
+							jump = static_cast<int32_t>(
+								static_cast<uint32_t>(argData[0]) |
+								(static_cast<uint32_t>(argData[1]) << 8) |
+								(static_cast<uint32_t>(argData[2]) << 16) |
+								(static_cast<uint32_t>(argData[3]) << 24)
+								);
+						}
+
+						const int32_t endOfArgument =
+							static_cast<int32_t>(tell) +
+							static_cast<int32_t>(size) +
+							static_cast<int32_t>(arg.m_iSize);
+
+						size_t jumpTo = static_cast<size_t>(endOfArgument + jump);
+						assert(jumpTo < data.size());
+						if (jumpTo >= data.size())
+						{
+							core::Log(core::LogLevel::Error, "Could not bind scripts: Script encountered invalid jump-to position.");
+							return false;
+						}
+
+						talkScript.GetJumps().push_back({ instrTell, instrEnd, jumpTo, static_cast<size_t>(jump) });
+					}
+
+					size += arg.m_iSize;
+				}
+
+				// Go to next arg.
+				tell += size;
 			}
 
 			if (isTalkScript)
 			{
-				m_aTALKScripts.push_back(talkScript);
+				for (JumpScriptInfo& jump : talkScript.GetJumps())
+				{
+					auto itJump = byteCodePoints.find(jump.m_iJumpTo);
+
+					assert(itJump != byteCodePoints.end());
+					if (itJump == byteCodePoints.end())
+					{
+						core::Log(core::LogLevel::Error, "Could not bind scripts: Script encountered invalid jump-to position.");
+						return false;
+					}
+
+					auto it = m_mOPCodeMap.find(itJump->second);
+
+					assert(it != m_mOPCodeMap.end());
+					if (it == m_mOPCodeMap.end())
+					{
+						core::Log(core::LogLevel::Error, "Could not bind scripts: Jump-to position had an invalid byte code.");
+						return false;
+					}
+
+				}
+
+				m_aTalkScripts.push_back(talkScript);
 			}
 		}
 
@@ -349,10 +416,135 @@ namespace humongousexplorer::building
 			return false;
 		}
 
-		for (auto& talk : m_aTALKScripts)
+		for (TalkScript& talkScript : m_aTalkScripts)
 		{
-			//talk.GetChunk();
+			struct DiffInfo
+			{
+				int32_t m_iDiff;
+				size_t m_iEndOfInstr;
+			};
+			std::map<std::size_t, DiffInfo> diffByOffset;
+			for (TalkScriptInfo& talkInfo : talkScript.GetTalks())
+			{
+				std::string oldTalkRef = std::to_string(talkInfo.m_iTalkOffset) + "," + std::to_string(talkInfo.m_iTalkSize);
+
+				parsing::Chunk* talkChunk = talkInfo.m_pTalkChunk;
+				std::string newTalkRef = std::to_string(talkChunk->GetOffsetFromRoot()) + "," + std::to_string(talkChunk->WholeChunkSize());
+
+				int32_t diff = static_cast<int32_t>(newTalkRef.size()) - static_cast<int32_t>(oldTalkRef.size());
+				diffByOffset[talkInfo.m_iInstrTell] = { diff, talkInfo.m_iInstrEnd };
+			}
+
+			parsing::Chunk* chunk = talkScript.GetChunk();
+			assert(chunk);
+			if (!chunk)
+			{
+				core::Log(core::LogLevel::Error, "Could not build scripts: Script was null.");
+				return false;
+			}
+
+			size_t tell = GetStartOfByteCode(chunk);
+			core::Data data = chunk->GetData();
+
+			while (tell < data.size())
+			{
+				size_t instrTell = tell;
+
+				const unsigned char* pureDat = data.dataAs<unsigned char>() + tell;
+				uint8_t code = *pureDat;
+
+				auto it = m_mOPCodeMap.find(code);
+
+				assert(it != m_mOPCodeMap.end());
+				if (it == m_mOPCodeMap.end())
+				{
+					core::Log(core::LogLevel::Error, "Could not bind scripts: Script encountered invalid byte code.");
+					return false;
+				}
+
+				std::vector<script::ArgInfo> args = it->second.GetSizeFn()(code, pureDat + 1);
+
+				size_t size = sizeof(code);
+
+				size_t instrEnd = tell + sizeof(code);
+				for (const script::ArgInfo& arg : args)
+				{
+					instrEnd += arg.m_iSize;
+				}
+
+				for (const script::ArgInfo& arg : args)
+				{
+					unsigned char* argData = data.dataAs<unsigned char>() + tell + size;
+					
+					if (arg.m_eArgumentType == script::ScrArgumentType::Ref)
+					{
+						int32_t jump{};
+
+						if (arg.m_iSize == sizeof(int16_t))
+						{
+							jump = static_cast<int16_t>(
+								static_cast<uint16_t>(argData[0]) |
+								(static_cast<uint16_t>(argData[1]) << 8)
+								);
+						}
+						else
+						{
+							jump = static_cast<int32_t>(
+								static_cast<uint32_t>(argData[0]) |
+								(static_cast<uint32_t>(argData[1]) << 8) |
+								(static_cast<uint32_t>(argData[2]) << 16) |
+								(static_cast<uint32_t>(argData[3]) << 24)
+							);
+						}
+
+						const int32_t endOfArgument =
+							static_cast<int32_t>(tell) +
+							static_cast<int32_t>(size) +
+							static_cast<int32_t>(arg.m_iSize);
+
+						size_t jumpTo = static_cast<size_t>(endOfArgument + jump);
+					
+						for (auto& diffOffset : diffByOffset)
+						{
+							// Case 1: before -> after.
+							if (endOfArgument <= static_cast<int32_t>(diffOffset.second.m_iEndOfInstr) && jumpTo > static_cast<int32_t>(diffOffset.second.m_iEndOfInstr))
+							{
+								jump += diffOffset.second.m_iDiff;
+							}
+							// Case 2: after -> before.
+							else if (endOfArgument > static_cast<int32_t>(diffOffset.second.m_iEndOfInstr) && jumpTo <= static_cast<int32_t>(diffOffset.second.m_iEndOfInstr))
+							{
+								jump -= diffOffset.second.m_iDiff;
+							}
+						}
+
+						if (arg.m_iSize == sizeof(int16_t))
+						{
+							int16_t jump16 = static_cast<int16_t>(jump);
+							memcpy(argData, &jump16, sizeof(jump16));
+						}
+						else
+						{
+							memcpy(argData, &jump, sizeof(jump));
+						}
+					}
+
+					size += arg.m_iSize;
+				}
+
+				// Go to next arg.
+				tell += size;
+			}
+
+			
+
+
+
+
+
 		}
+
+
 
 		return true;
 	}

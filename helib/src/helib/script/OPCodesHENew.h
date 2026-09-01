@@ -7,60 +7,67 @@
 #include <unordered_map>
 #include <vector>
 
-#include <helib/script/ScrArgument.h>
-
 namespace humongousexplorer::script
 {
-	std::vector<std::unique_ptr<ScrArgument>> default_func(uint8_t a_iByte, const unsigned char* a_pData);
+	enum class ScrArgumentType;
+	struct ArgInfo
+	{
+		ArgInfo(size_t a_iSize, ScrArgumentType a_eArgumentType);
+
+		size_t m_iSize;
+		ScrArgumentType m_eArgumentType;
+	};
+
+	std::vector<ArgInfo> default_func(uint8_t a_iByte, const unsigned char* a_pData);
 	class bytecode
 	{
 	public:
 		~bytecode();
 		bytecode() = default;
 		bytecode(const std::string& a_sName);
-		bytecode(const std::string& a_sName, std::function<std::vector<std::unique_ptr<ScrArgument>>(uint8_t, const unsigned char*)> a_fnSize);
+		bytecode(const std::string& a_sName, std::function<std::vector<ArgInfo>(uint8_t, const unsigned char*)> a_fnSize);
 
 		const std::string& GetName() const;
-		std::function<std::vector<std::unique_ptr<ScrArgument>>(uint8_t, const unsigned char*)> GetSizeFn() const;
+		std::function<std::vector<ArgInfo>(uint8_t, const unsigned char*)> GetSizeFn() const;
 	private:
 		std::string m_sName;
-		std::function<std::vector<std::unique_ptr<ScrArgument>>(uint8_t, const unsigned char*)> m_fnSize = default_func;
+		std::function<std::vector<ArgInfo>(uint8_t, const unsigned char*)> m_fnSize = default_func;
 	};
 
 	using OPCodeMap = std::unordered_map<uint8_t, bytecode>;
 
-	std::vector<std::unique_ptr<ScrArgument>> extended_b_op(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> extended_w_op(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> extended_ww_op(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> extended_dw_op(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> extended_ddw_op(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> extended_bw_op(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> extended_bdw_op(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> jump_cmd(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> djump_cmd(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> msg_cmd(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> msg_cmd_v8(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> msg_cmd_he100(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> msg_op(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> msg_op_v8(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> actor_ops_v6(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> actor_ops_v8(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> actor_ops_he60(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> verb_ops_v6(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> verb_ops_v8(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> array_ops_v6(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> array_ops(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> array_ops_v8(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> array_ops_he100(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> wait_ops(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> wait_ops_v8(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> wait_ops_he100(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> room_ops_he60(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> dmsg_op(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> sys_msg(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> ini_op_v71(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> file_op(uint8_t a_iByte, const unsigned char* a_pData);
-	std::vector<std::unique_ptr<ScrArgument>> file_op_he100(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> extended_b_op(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> extended_w_op(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> extended_ww_op(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> extended_dw_op(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> extended_ddw_op(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> extended_bw_op(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> extended_bdw_op(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> jump_cmd(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> djump_cmd(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> msg_cmd(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> msg_cmd_v8(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> msg_cmd_he100(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> msg_op(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> msg_op_v8(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> actor_ops_v6(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> actor_ops_v8(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> actor_ops_he60(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> verb_ops_v6(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> verb_ops_v8(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> array_ops_v6(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> array_ops(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> array_ops_v8(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> array_ops_he100(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> wait_ops(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> wait_ops_v8(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> wait_ops_he100(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> room_ops_he60(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> dmsg_op(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> sys_msg(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> ini_op_v71(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> file_op(uint8_t a_iByte, const unsigned char* a_pData);
+	std::vector<ArgInfo> file_op_he100(uint8_t a_iByte, const unsigned char* a_pData);
 
 	//---------------------------------------------------------------------
 	inline void GetV6codes(OPCodeMap& a_mOPCodes)

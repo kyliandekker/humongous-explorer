@@ -6,7 +6,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "core/Memory.h"
+#include "helib/core/Memory.h"
 #include "imgui/ImGuiSystem.h"
 #include "imgui/views/SearchBar.h"
 #include "resources/ResourceType.h"

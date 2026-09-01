@@ -1,7 +1,7 @@
 #include "imgui/imgui.h"
 #include "imgui/implot.h"
 
-#include "core/Log.h"
+#include "helib/core/Log.h"
 
 #include "win32/Window.h"
 #include "dx11/DX11System.h"
@@ -12,6 +12,7 @@
 #include "ui/AppLogger.h"
 
 #include "win32/winfile.h"
+#include "helib/file/file.h"
 
 #include "imgui/backends/imgui_impl_win32.h"
 #include "imgui/backends/imgui_impl_dx11.h"
@@ -65,7 +66,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR lp
 	humongousexplorer::GetWorkspace().Initialize();
 
 	fs::path appDataPath = humongousexplorer::file::GetAppDataPath().string() + "/humongousexplorer";
-	humongousexplorer::file::CreateDirectory(appDataPath);
+	humongousexplorer::file::CreateFolder(appDataPath);
 
 	humongousexplorer::imgui::GetImGuiSystem().SetIniPath(appDataPath.string());
 	humongousexplorer::imgui::GetImGuiSystem().Initialize();

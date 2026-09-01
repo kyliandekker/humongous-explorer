@@ -9,6 +9,7 @@
 #include <helib/building/HE4Builder.h>
 #include <helib/building/HE0Builder.h>
 #include <helib/building/ScriptBuilder.h>
+#include <helib/audio/WaveLoader.h>
 
 #include <chrono>
 #include <cstdio>
@@ -119,7 +120,13 @@ int main()
 		}
 	}
 
-	// do something in between.
+	std::vector<parsing::Chunk*> talkChunks;
+	he2->GetRoot().TryFindChildren(parsing::TALK_CHUNK_ID, talkChunks);
+
+	core::Data waveData;
+	uint16_t waveSampleRate;
+	audio::WaveLoader::Load("./test.wav", waveData, waveSampleRate);
+	talkChunks[0]->TryFindChild(parsing::SDAT_CHUNK_ID)->SetData(waveData);
 
 	// First HE4. It does not change anything in HE0 or (A).
 	{
@@ -155,7 +162,7 @@ int main()
 	}
 
 	fs::path newArchiveFolderPath = archivesPath.parent_path().string() + "/build";
-	file::CreateDirectory(newArchiveFolderPath);
+	file::CreateFolder(newArchiveFolderPath);
 	for (std::unique_ptr<archive::Archive>& archive : set.GetArchives())
 	{
 		core::DataStream data;

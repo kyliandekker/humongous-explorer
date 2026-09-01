@@ -124,12 +124,6 @@ namespace humongousexplorer::file
 	}
 
 	//---------------------------------------------------------------------
-	bool CreateDirectory(const fs::path& a_Path)
-	{
-		return fs::create_directories(a_Path);
-	}
-
-	//---------------------------------------------------------------------
 	bool OpenInExplorer(const fs::path& a_Path)
 	{
 		ShellExecuteA(NULL, "open", fs::absolute(a_Path).string().c_str(), NULL, NULL, SW_SHOWDEFAULT);

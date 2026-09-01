@@ -1,12 +1,12 @@
 #include "Workspace.h"
 
 #include "win32/winfile.h"
-#include "file/file.h"
+#include "helib/file/file.h"
 #include "imgui/views/FileEntryView.h"
 #include "resources/Resource.h"
-#include "parsing/ChunkParser.h"
-#include "core/Memory.h"
-#include "parsing/ChunkIDs.h"
+#include "helib/parsing/ChunkParser.h"
+#include "helib/core/Memory.h"
+#include "helib/parsing/ChunkIDs.h"
 
 namespace humongousexplorer
 {
@@ -25,7 +25,7 @@ namespace humongousexplorer::editor
 	bool Workspace::Initialize()
 	{
 		m_sAppDataPath = file::GetAppDataPath().generic_string() + "/humongous_explorer";
-		file::CreateDirectory(m_sAppDataPath);
+		file::CreateFolder(m_sAppDataPath);
 		return core::System::Initialize();
 	}
 

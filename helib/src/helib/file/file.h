@@ -29,5 +29,5 @@ namespace humongousexplorer::file
 	/// </summary>
 	/// <param name="a_sPath">The directory to create.</param>
 	/// <returns>True if successful, false otherwise.</returns>
-	bool CreateDirectory(const fs::path& a_Path);
+	bool CreateFolder(const fs::path& a_Path);
 }

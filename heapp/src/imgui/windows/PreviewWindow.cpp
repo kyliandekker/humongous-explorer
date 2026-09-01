@@ -12,12 +12,12 @@
 #include "imgui/ImGuiSystem.h"
 #include "editor/Workspace.h"
 #include "resources/Resource.h"
-#include "core/Data.h"
-#include "audio/WaveLoader.h"
-#include "file/file.h"
+#include "helib/core/Data.h"
+#include "helib/audio/WaveLoader.h"
+#include "helib/file/file.h"
 #include "win32/winfile.h"
-#include "parsing/chunks/sound/SBNG_Chunk.h"
-#include "core/Log.h"
+#include "helib/parsing/chunks/sound/SBNG_Chunk.h"
+#include "helib/core/Log.h"
 
 #undef min
 #undef max

@@ -6,17 +6,17 @@
 #include <functional>
 
 #include "core/System.h"
-#include "core/Data.h"
+#include "helib/core/Data.h"
 #include "core/Event.h"
 #include "core/Observable.h"
 
-#include "file/FILEPCH.h"
+#include "helib/file/FILEPCH.h"
 
-#include "parsing/Chunk.h"
+#include "helib/parsing/Chunk.h"
 
 #include "resources/ResourceType.h"
 
-#include "archive/ArchiveSet.h"
+#include "helib/archive/ArchiveSet.h"
 
 namespace humongousexplorer
 {

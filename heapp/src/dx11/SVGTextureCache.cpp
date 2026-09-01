@@ -1,6 +1,6 @@
 #include "SVGTextureCache.h"
 
-#include "core/Data.h"
+#include "helib/core/Data.h"
 #include "dx11/DX11System.h"
 #include "ui/SVGParser.h"
 

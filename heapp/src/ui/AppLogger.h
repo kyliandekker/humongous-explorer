@@ -3,7 +3,7 @@
 #include <string>
 
 #include "core/Event.h"
-#include "core/Log.h"
+#include "helib/core/Log.h"
 
 namespace humongousexplorer::logger
 {

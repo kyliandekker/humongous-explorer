@@ -7,7 +7,7 @@
 
 #include "dx11/SVGTextureCache.h"
 
-#include "core/Memory.h"
+#include "helib/core/Memory.h"
 #include "editor/Workspace.h"
 #include "resources/Resource.h"
 

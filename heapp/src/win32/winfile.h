@@ -5,7 +5,7 @@
 #include <shtypes.h>
 
 // file
-#include "file/FILEPCH.h"
+#include <helib/file/FILEPCH.h>
 
 #if defined(CreateDirectory)
 #undef CreateDirectory
