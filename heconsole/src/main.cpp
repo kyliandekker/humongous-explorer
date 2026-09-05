@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "cmd/Command.h"
-#include "core/Log.h"
+#include "helib/core/Log.h"
 
 #include "cmd/commands/XmlCommand.h"
 #include "cmd/commands/SummaryCommand.h"

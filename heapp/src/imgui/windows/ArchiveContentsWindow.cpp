@@ -124,12 +124,10 @@ namespace humongousexplorer::imgui
 		{
 			std::string tag = node->m_pChunk->GetTag();
 
-			a_mEntryCountMap[tag]++;
-
 			std::string resName = resources::GetNameFromResourceType(node->m_eResourceType) + " " + std::to_string(a_mEntryCountMap[tag]);
 			if (tag == parsing::LFLF_CHUNK_ID)
 			{
-				resName = std::format("Room {:03} - ", a_iRoomIndex + 1) + (a_aRoomNames.size() > a_iRoomIndex ? a_aRoomNames[a_iRoomIndex] : "");
+				resName = std::format("Room {:03} - ", a_iRoomIndex) + (a_aRoomNames.size() > a_iRoomIndex ? a_aRoomNames[a_iRoomIndex] : "");
 				a_iRoomIndex++;
 			}
 
@@ -152,6 +150,8 @@ namespace humongousexplorer::imgui
 			view->m_pChunk = node->m_pChunk;
 			view->m_bVisible = node->m_bVisible;
 			views.push_back(std::move(view));
+
+			a_mEntryCountMap[tag]++;
 		}
 		return views;
 	}

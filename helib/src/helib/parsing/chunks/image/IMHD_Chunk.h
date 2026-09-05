@@ -8,6 +8,7 @@ namespace humongousexplorer::parsing
 	// It is used for multiple images.
 	class IMHD_Chunk
 	{
+	public:
 		uint16_t id = 0;
 		uint16_t num_imnn = 0;
 		uint16_t nums_zpnn = 0;

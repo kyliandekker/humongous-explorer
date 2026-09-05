@@ -4,7 +4,7 @@
 #include <vector>
 #include <unordered_map>
 
-#include "file/FILEPCH.h"
+#include "helib/file/FILEPCH.h"
 #include "Command.h"
 
 namespace humongousexplorer::cmd

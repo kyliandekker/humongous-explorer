@@ -1,6 +1,7 @@
 #include "Resource.h"
 
 // helib
+#include <helib/core/DataStream.h>
 #include <helib/core/Memory.h>
 #include <helib/parsing/Chunk.h>
 #include <helib/parsing/ChunkIDs.h>
@@ -9,6 +10,7 @@
 #include <helib/parsing/chunks/image/BMAP_Chunk.h>
 #include <helib/parsing/chunks/image/RMHD_Chunk.h>
 #include <helib/parsing/chunks/image/TRNS_Chunk.h>
+#include <helib/parsing/chunks/image/IMHD_Chunk.h>
 
 #include "resources/ResourceType.h"
 
@@ -229,15 +231,205 @@ namespace humongousexplorer::resources
 	}
 
 	//---------------------------------------------------------------------
-	// RoomBackgroundResource
-	//---------------------------------------------------------------------
-	RoomBackgroundResource::RoomBackgroundResource() : Resource()
+	static core::Data CreateBitstream(const core::Data a_Data)
 	{
-		m_eResourceType = resources::ResourceType::RoomBackground;
+		core::DataStream outBits = core::DataStream(a_Data.size() * 8);
+
+		for (size_t i = 0; i < a_Data.size(); ++i)
+		{
+			const char c = a_Data[i];
+			for (int j = 0; j < 8; j++)
+			{
+				uint8_t bit = (c >> j) & 1;
+				outBits.Write(&bit, sizeof(bit));
+			}
+		}
+		return outBits;
 	}
 
 	//---------------------------------------------------------------------
-	RoomBackgroundResource::~RoomBackgroundResource()
+	static uint8_t CollectBits(int& a_Pos, const core::Data& a_Bitstream, int a_Count)
+	{
+		int result = 0;
+		for (int i = 0; i < a_Count; i++)
+		{
+			result |= a_Bitstream[a_Pos++] << i;
+		}
+
+		return result;
+	}
+
+	//---------------------------------------------------------------------
+	static bool DecodeHE(uint8_t a_FillColor, const core::Data& a_BMAPData, uint16_t a_iWidth, uint16_t a_iHeight, int a_iPalen, core::Data& a_OutData, bool a_bTransparent)
+	{
+		std::vector<uint8_t> out;
+
+		const size_t num_pixels = a_iWidth * a_iHeight;
+		out.reserve(num_pixels);
+
+		if (a_BMAPData.size() == 0)
+		{
+			for (size_t i = 0; i < num_pixels; i++)
+			{
+				out.push_back(a_FillColor % 256);
+			}
+		}
+		else
+		{
+			std::vector<int> delta_color = { -4, -3, -2, -1, 1, 2, 3, 4 };
+
+			core::Data bits = CreateBitstream(a_BMAPData);
+
+			out.push_back(a_FillColor % 256);
+
+			int pos = 0;
+			while (out.size() < num_pixels)
+			{
+				if (bits[pos++] == 1)
+				{
+					if (bits[pos++] == 1)
+					{
+						const uint8_t bitc = CollectBits(pos, bits, 3);
+						a_FillColor += delta_color[bitc];
+					}
+					else
+					{
+						a_FillColor = CollectBits(pos, bits, a_iPalen);
+					}
+				}
+				out.push_back(a_FillColor % 256);
+			};
+		}
+
+		a_OutData = core::Data(out.data(), out.size());
+		return true;
+	}
+
+	//---------------------------------------------------------------------
+	static bool DecodeMajmin(uint8_t a_FillColor, const core::Data& a_BMAPData, uint16_t a_iWidth, uint16_t a_iHeight, int a_iPalen, core::Data& a_OutData, bool a_bTransparent)
+	{
+		std::vector<uint8_t> out;
+
+		const size_t numPixels = a_iWidth * a_iHeight;
+		out.reserve(numPixels);
+
+		if (a_BMAPData.size() == 0)
+		{
+			for (size_t i = 0; i < numPixels; i++)
+			{
+				out.push_back(a_FillColor % 256);
+			}
+		}
+		else
+		{
+			core::Data bits = CreateBitstream(a_BMAPData);
+
+			out.push_back(a_FillColor % 256);
+
+			const size_t num_pixels = a_iWidth * a_iHeight;
+			out.reserve(num_pixels);
+
+			int pos = 0;
+			while (out.size() < num_pixels)
+			{
+				if (bits[pos++] == 1)
+				{
+					if (bits[pos++] == 1)
+					{
+						const uint8_t shift = CollectBits(pos, bits, 3) - 4;
+						if (shift != 0)
+						{
+							a_FillColor += shift;
+						}
+						else
+						{
+							uint8_t ln = CollectBits(pos, bits, 8) - 1;
+							for (size_t i = 0; i < ln; i++)
+							{
+								out.push_back((a_FillColor % 256));
+							}
+						}
+					}
+					else
+					{
+						a_FillColor = CollectBits(pos, bits, a_iPalen);
+					}
+				}
+				out.push_back(a_FillColor % 256);
+			};
+		}
+
+		a_OutData = core::Data(out.data(), out.size());
+		return true;
+	}
+
+	//---------------------------------------------------------------------
+	static bool DecodeBasic(uint8_t a_FillColor, const core::Data& a_BMAPData, uint16_t a_iWidth, uint16_t a_iHeight, int a_iPalen, core::Data& a_OutData, bool a_bTransparent)
+	{
+		std::vector<uint8_t> out;
+
+		const size_t numPixels = a_iWidth * a_iHeight;
+		out.reserve(numPixels);
+
+		if (a_BMAPData.size() == 0)
+		{
+			for (size_t i = 0; i < numPixels; i++)
+			{
+				out.push_back(a_FillColor % 256);
+			}
+		}
+		else
+		{
+			core::Data bits = CreateBitstream(a_BMAPData);
+
+			out.push_back(a_FillColor % 256);
+
+			const size_t num_pixels = a_iWidth * a_iHeight;
+			out.reserve(num_pixels);
+
+			int sub = 1;
+			int pos = 0;
+			while (out.size() < num_pixels)
+			{
+				if (bits[pos++] == 1)
+				{
+					if (bits[pos++] == 1)
+					{
+						if (bits[pos++] == 1)
+						{
+							sub = -sub;
+						}
+						a_FillColor -= sub;
+					}
+					else
+					{
+						a_FillColor = CollectBits(pos, bits, a_iPalen);
+						sub = 1;
+					}
+				}
+				out.push_back(a_FillColor % 256);
+			};
+		}
+
+		a_OutData = core::Data(out.data(), out.size());
+		return true;
+	}
+
+	//---------------------------------------------------------------------
+	static bool DecodeRaw(const core::Data& a_BMAPData, core::Data& a_OutData)
+	{
+		a_OutData = a_BMAPData;
+		return true;
+	}
+
+	//---------------------------------------------------------------------
+	// ImageResource
+	//---------------------------------------------------------------------
+	ImageResource::ImageResource() : Resource()
+	{}
+
+	//---------------------------------------------------------------------
+	ImageResource::~ImageResource()
 	{
 		if (m_pSRV)
 		{
@@ -247,25 +439,25 @@ namespace humongousexplorer::resources
 	}
 
 	//---------------------------------------------------------------------
-	core::Data RoomBackgroundResource::GetData() const
+	core::Data ImageResource::GetData() const
 	{
 		return m_pDataChunk->GetData();
 	}
 
 	//---------------------------------------------------------------------
-	void RoomBackgroundResource::SetDataChunk(parsing::Chunk* a_pChunk)
+	void ImageResource::SetDataChunk(parsing::Chunk* a_pChunk)
 	{
 		m_pDataChunk = a_pChunk;
 	}
 
 	//---------------------------------------------------------------------
-	const core::Data& RoomBackgroundResource::GetImageData() const
+	const core::Data& ImageResource::GetImageData() const
 	{
 		return m_ImageData;
 	}
 
 	//---------------------------------------------------------------------
-	ID3D11ShaderResourceView* RoomBackgroundResource::GetSRV()
+	ID3D11ShaderResourceView* ImageResource::GetSRV()
 	{
 		if (m_pSRV || m_ImageData.empty())
 		{
@@ -292,7 +484,7 @@ namespace humongousexplorer::resources
 	}
 
 	//---------------------------------------------------------------------
-	std::string RoomBackgroundResource::GetDimensions() const
+	std::string ImageResource::GetDimensions() const
 	{
 		if (GetWidth() == 0 || GetHeight() == 0)
 		{
@@ -302,7 +494,7 @@ namespace humongousexplorer::resources
 	}
 
 	//---------------------------------------------------------------------
-	std::string RoomBackgroundResource::GetSize() const
+	std::string ImageResource::GetSize() const
 	{
 		if (!m_pDataChunk)
 		{
@@ -311,78 +503,30 @@ namespace humongousexplorer::resources
 		return core::SizeToString(m_ImageData.empty() ? m_pDataChunk->ChunkSize() : m_ImageData.size());
 	}
 
-	std::vector<uint8_t> CreateBitstream(const unsigned char* a_Data, size_t a_Length)
+	//---------------------------------------------------------------------
+	uint16_t ImageResource::GetWidth() const
 	{
-		std::vector<uint8_t> bits;
-		bits.reserve(a_Length * 8);
-
-		for (size_t i = 0; i < a_Length; ++i)
-		{
-			const char c = a_Data[i];
-			for (int j = 0; j < 8; j++)
-			{
-				bits.push_back((c >> j) & 1);
-			}
-		}
-		return bits;
+		return m_iWidth;
 	}
 
-	uint8_t CollectBits(int& a_Pos, std::vector<uint8_t>& a_Bitstream, int a_Count)
+	//---------------------------------------------------------------------
+	uint16_t ImageResource::GetHeight() const
 	{
-		int result = 0;
-		for (int i = 0; i < a_Count; i++)
-		{
-			result |= a_Bitstream[a_Pos++] << i;
-		}
-
-		return result;
+		return m_iHeight;
 	}
 
-	bool DecodeHE(uint8_t a_FillColor, const core::Data& a_BMAPData, uint16_t a_iWidth, uint16_t a_iHeight, int a_iPalen, core::Data& a_OutData, bool a_bTransparent)
+	//---------------------------------------------------------------------
+	const std::vector<Color>& ImageResource::GetColors() const
 	{
-		std::vector<uint8_t> out;
+		return m_aColors;
+	}
 
-		unsigned char color = a_FillColor;
-
-		const size_t num_pixels = a_iWidth * a_iHeight;
-		out.reserve(num_pixels);
-
-		if (a_BMAPData.size() == 0)
-		{
-			for (size_t i = 0; i < num_pixels; i++)
-			{
-				out.push_back(color % 256);
-			}
-		}
-		else
-		{
-			std::vector<int> delta_color = { -4, -3, -2, -1, 1, 2, 3, 4 };
-
-			std::vector<uint8_t> bits = CreateBitstream(a_BMAPData.dataAs<unsigned char>(), a_BMAPData.size());
-
-			out.push_back(color % 256);
-
-			int pos = 0;
-			while (out.size() < num_pixels)
-			{
-				if (bits[pos++] == 1)
-				{
-					if (bits[pos++] == 1)
-					{
-						const uint8_t bitc = CollectBits(pos, bits, 3);
-						color += delta_color[bitc];
-					}
-					else
-					{
-						color = CollectBits(pos, bits, a_iPalen);
-					}
-				}
-				out.push_back(color % 256);
-			};
-		}
-
-		a_OutData = core::Data(out.data(), out.size());
-		return true;
+	//---------------------------------------------------------------------
+	// RoomBackgroundResource
+	//---------------------------------------------------------------------
+	RoomBackgroundResource::RoomBackgroundResource() : ImageResource()
+	{
+		m_eResourceType = resources::ResourceType::RoomBackground;
 	}
 
 	//---------------------------------------------------------------------
@@ -496,56 +640,180 @@ namespace humongousexplorer::resources
 	}
 
 	//---------------------------------------------------------------------
-	uint16_t RoomBackgroundResource::GetWidth() const
-	{
-		return m_iWidth;
-	}
-
-	//---------------------------------------------------------------------
-	uint16_t RoomBackgroundResource::GetHeight() const
-	{
-		return m_iHeight;
-	}
-
-	//---------------------------------------------------------------------
-	const std::vector<Color>& RoomBackgroundResource::GetColors() const
-	{
-		return m_aColors;
-	}
-
-	//---------------------------------------------------------------------
 	// RoomImageResource
 	//---------------------------------------------------------------------
-	RoomImageResource::RoomImageResource() : Resource()
+	RoomImageResource::RoomImageResource() : ImageResource()
 	{
 		m_eResourceType = resources::ResourceType::RoomImage;
 	}
 
-	//---------------------------------------------------------------------
-	core::Data RoomImageResource::GetData() const
-	{
-		return m_pDataChunk->GetData();
-	}
-
-	//---------------------------------------------------------------------
-	void RoomImageResource::SetDataChunk(parsing::Chunk* a_pChunk)
-	{
-		m_pDataChunk = a_pChunk;
-	}
-
-	//---------------------------------------------------------------------
-	std::string RoomImageResource::GetSize() const
-	{
-		if (!m_pDataChunk)
-		{
-			return "";
-		}
-		return core::SizeToString(m_pDataChunk->ChunkSize());
-	}
-
+	constexpr uint32_t StripWidth = 8;
 	//---------------------------------------------------------------------
 	void RoomImageResource::Open()
 	{
+		m_aColors.clear();
+
+		// SMAP is the data chunk.
+		parsing::Chunk* smap = m_pDataChunk->TryFindChild(parsing::SMAP_CHUNK_ID);
+		if (!smap)
+		{
+			return;
+		}
+
+		parsing::Chunk* obim = m_pDataChunk->TryFindParent(parsing::OBIM_CHUNK_ID);
+		if (!obim)
+		{
+			return;
+		}
+
+		parsing::Chunk* imhd = obim->TryFindChild(parsing::IMHD_CHUNK_ID);
+		if (!imhd)
+		{
+			return;
+		}
+
+		parsing::IMHD_Chunk* imhdData = imhd->GetData().dataAs<parsing::IMHD_Chunk>();
+		if (!imhdData)
+		{
+			return;
+		}
+
+		parsing::Chunk* rmda = obim->GetParent();
+		if (!rmda)
+		{
+			return;
+		}
+
+		if (rmda->GetTag() != parsing::RMDA_CHUNK_ID)
+		{
+			return;
+		}
+
+		parsing::Chunk* apal = rmda->TryFindChild(parsing::APAL_CHUNK_ID);
+		if (!apal)
+		{
+			return;
+		}
+
+		parsing::APAL_Chunk* apalData = apal->GetData().dataAs<parsing::APAL_Chunk>();
+		if (!apalData)
+		{
+			return;
+		}
+
+		parsing::Chunk* trns = rmda->TryFindChild(parsing::TRNS_CHUNK_ID);
+		if (!trns)
+		{
+			return;
+		}
+
+		parsing::TRNS_Chunk* trnsData = trns->GetData().dataAs<parsing::TRNS_Chunk>();
+		if (!trnsData)
+		{
+			return;
+		}
+
+		const size_t num_strips = static_cast<size_t>(static_cast<size_t>(floor(static_cast<double>(imhdData->width / StripWidth))));
+
+		std::vector<uint32_t> offsets;
+		int j = 0;
+		for (size_t i = 0; i < num_strips; i++, j += sizeof(uint32_t))
+		{
+			uint32_t number = *reinterpret_cast<uint32_t*>(core::add(smap->GetData().data(), j));
+			offsets.push_back(number);
+		}
+
+		struct offset_pair
+		{
+			size_t start, end;
+		};
+
+		std::vector<offset_pair> index;
+		for (size_t i = 0; i < offsets.size(); i++)
+		{
+			index.push_back({ offsets[i], (i + 1) == offsets.size() ? smap->GetData().size() : offsets[i + 1]});
+		}
+
+		struct strip
+		{
+			core::Data data;
+		};
+
+		std::vector<strip> strips;
+		for (size_t i = 0; i < num_strips; i++)
+		{
+			strip str;
+			str.data = core::Data(core::add(smap->GetData().data(), index[i].start), index[i].end - index[i].start);
+			strips.push_back(str);
+		}
+
+		struct IndexColor
+		{
+			uint8_t index = 0;
+			uint8_t trans_color = 0;
+
+			IndexColor(uint8_t index, uint8_t trans_color)
+			{
+				this->index = index;
+				this->trans_color = trans_color;
+			}
+
+			IndexColor()
+			{
+			}
+		};
+
+		size_t total_size = 0;
+		std::vector< std::vector<std::vector<IndexColor>>> data_blocks;
+
+		m_ImageData = core::Data(imhdData->width * imhdData->height);
+		for (auto& strip : strips)
+		{
+			std::vector<std::vector<IndexColor>> data_new_block;
+
+			const uint8_t code = strip.data[0];
+
+			bool horizontal = true;
+			if (code >= 0x03 && code <= 0x12 || code >= 0x22 && code <= 0x26)
+			{
+				horizontal = false;
+			}
+
+			const bool he_transparent = code >= 0x22 && code <= 0x30 || code >= 0x54 && code <= 0x80 || code >= 0x8F;
+
+			const int palen = code % 10;
+
+			const uint8_t color = strip.data[1];
+
+			if (code >= 0x40 && code <= 0x80)
+			{
+				if (!DecodeMajmin(color, strip.data, StripWidth, imhdData->height, palen, m_ImageData, he_transparent))
+				{
+					return;
+				}
+			}
+			else if (code >= 0x0E && code <= 0x30)
+			{
+				if (!DecodeBasic(color, strip.data, StripWidth, imhdData->height, palen, m_ImageData, he_transparent))
+				{
+					return;
+				}
+			}
+			else if (code >= 0x86 && code <= 0x94)
+			{
+				if (!DecodeHE(color, strip.data, StripWidth, imhdData->height, palen, m_ImageData, he_transparent))
+				{
+					return;
+				}
+			}
+			else if (code >= 0x01 && code <= 0x95)
+			{
+				if (!DecodeRaw(strip.data, m_ImageData))
+				{
+					return;
+				}
+			}
+		}
 	}
 
 	//---------------------------------------------------------------------

@@ -54,7 +54,7 @@ namespace humongousexplorer::resources
 		virtual void Open() {};
 		virtual void Replace(const core::Data& a_Data) {};
 	protected:
-		parsing::Chunk* m_pChunk;
+		parsing::Chunk* m_pChunk = nullptr;
 		ResourceType m_eResourceType;
 		std::string m_sName;
 	};
@@ -73,7 +73,7 @@ namespace humongousexplorer::resources
 
 		std::string GetDurationStr() const override;
 	protected:
-		uint16_t m_iSampleRate;
+		uint16_t m_iSampleRate = 0;
 		parsing::Chunk* m_pDataChunk = nullptr;
 	};
 
@@ -157,11 +157,11 @@ namespace humongousexplorer::resources
 	};
 
 	//---------------------------------------------------------------------
-	class RoomBackgroundResource : public Resource
+	class ImageResource : public Resource
 	{
 	public:
-		RoomBackgroundResource();
-		~RoomBackgroundResource();
+		ImageResource();
+		~ImageResource();
 
 		core::Data GetData() const;
 		void SetDataChunk(parsing::Chunk* a_pChunk);
@@ -170,8 +170,6 @@ namespace humongousexplorer::resources
 		ID3D11ShaderResourceView* GetSRV();
 
 		std::string GetSize() const override;
-
-		void Open() override;
 
 		std::string GetDimensions() const override;
 		uint16_t GetWidth() const;
@@ -188,18 +186,20 @@ namespace humongousexplorer::resources
 	};
 
 	//---------------------------------------------------------------------
-	class RoomImageResource : public Resource
+	class RoomBackgroundResource : public ImageResource
+	{
+	public:
+		RoomBackgroundResource();
+
+		void Open() override;
+	};
+
+	//---------------------------------------------------------------------
+	class RoomImageResource : public ImageResource
 	{
 	public:
 		RoomImageResource();
 
-		core::Data GetData() const;
-		void SetDataChunk(parsing::Chunk* a_pChunk);
-
-		std::string GetSize() const override;
-
 		void Open() override;
-	protected:
-		parsing::Chunk* m_pDataChunk = nullptr;
 	};
 }

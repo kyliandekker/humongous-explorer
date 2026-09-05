@@ -3,11 +3,11 @@
 #include <filesystem>
 #include <string>
 
-#include "archive/Archive.h"
-#include "core/Log.h"
-#include "core/DataStream.h"
-#include "file/file.h"
-#include "core/Memory.h"
+#include "helib/archive/Archive.h"
+#include "helib/core/Log.h"
+#include "helib/core/DataStream.h"
+#include "helib/file/file.h"
+#include "helib/core/Memory.h"
 
 #include "cmd/CommandParser.h"
 

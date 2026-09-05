@@ -6,9 +6,9 @@
 #include <algorithm>
 #include <vector>
 
-#include "archive/Archive.h"
-#include "core/Log.h"
-#include "parsing/Chunk.h"
+#include "helib/archive/Archive.h"
+#include "helib/core/Log.h"
+#include "helib/parsing/Chunk.h"
 
 #include "../CommandParser.h"
 

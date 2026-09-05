@@ -5,10 +5,10 @@
 
 #include "tinyxml/tinyxml2.h"
 
-#include "archive/Archive.h"
-#include "core/Log.h"
-#include "xml/XMLCreator.h"
-#include "xml/XMLStruct.h"
+#include "helib/archive/Archive.h"
+#include "helib/core/Log.h"
+#include "helib/xml/XMLCreator.h"
+#include "helib/xml/XMLStruct.h"
 
 #include "cmd/CommandParser.h"
 
