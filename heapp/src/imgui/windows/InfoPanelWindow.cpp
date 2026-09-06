@@ -87,7 +87,7 @@ namespace humongousexplorer::imgui
 		}
 		if (resource->GetResourceType() == resources::ResourceType::RoomBackground)
 		{
-			resources::RoomBackgroundResource* roomBackgroundResource = dynamic_cast<resources::RoomBackgroundResource*>(resource);
+			resources::ImageResource* roomBackgroundResource = dynamic_cast<resources::ImageResource*>(resource);
 
 			// Palette child
 			if (ImGui::BeginChild("Palette", ImVec2(0, 0), ImGuiChildFlags_Borders))

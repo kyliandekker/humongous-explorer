@@ -19,6 +19,14 @@
 namespace humongousexplorer::resources
 {
 	//---------------------------------------------------------------------
+	// Resource
+	//---------------------------------------------------------------------
+	void Resource::SetChunk(parsing::Chunk* a_pChunk)
+	{
+		m_pChunk = a_pChunk;
+	}
+
+	//---------------------------------------------------------------------
 	// SongResource
 	//---------------------------------------------------------------------
 	uint16_t SoundResource::GetSampleRate() const
@@ -678,6 +686,9 @@ namespace humongousexplorer::resources
 			return;
 		}
 
+		m_iWidth = imhdData->width;
+		m_iHeight = imhdData->height;
+
 		parsing::Chunk* rmda = obim->GetParent();
 		if (!rmda)
 		{
@@ -713,14 +724,14 @@ namespace humongousexplorer::resources
 			return;
 		}
 
-		const size_t num_strips = static_cast<size_t>(static_cast<size_t>(floor(static_cast<double>(imhdData->width / StripWidth))));
+		const size_t num_strips = static_cast<size_t>(imhdData->width / StripWidth);
 
 		std::vector<uint32_t> offsets;
 		int j = 0;
 		for (size_t i = 0; i < num_strips; i++, j += sizeof(uint32_t))
 		{
-			uint32_t number = *reinterpret_cast<uint32_t*>(core::add(smap->GetData().data(), j));
-			offsets.push_back(number);
+			uint32_t number = *reinterpret_cast<const uint32_t*>(core::add(smap->GetData().data(), j));
+			offsets.push_back(number - 8);
 		}
 
 		struct offset_pair
@@ -734,91 +745,162 @@ namespace humongousexplorer::resources
 			index.push_back({ offsets[i], (i + 1) == offsets.size() ? smap->GetData().size() : offsets[i + 1]});
 		}
 
-		struct strip
-		{
-			core::Data data;
-		};
+		std::vector<uint8_t> allIndices(static_cast<size_t>(imhdData->width) * imhdData->height);
 
-		std::vector<strip> strips;
-		for (size_t i = 0; i < num_strips; i++)
+		for (size_t stripIdx = 0; stripIdx < num_strips; stripIdx++)
 		{
-			strip str;
-			str.data = core::Data(core::add(smap->GetData().data(), index[i].start), index[i].end - index[i].start);
-			strips.push_back(str);
-		}
+			const uint8_t* stripStart = static_cast<const uint8_t*>(core::add(smap->GetData().data(), index[stripIdx].start));
+			const size_t stripSize = index[stripIdx].end - index[stripIdx].start;
 
-		struct IndexColor
-		{
-			uint8_t index = 0;
-			uint8_t trans_color = 0;
-
-			IndexColor(uint8_t index, uint8_t trans_color)
+			if (stripSize == 0)
 			{
-				this->index = index;
-				this->trans_color = trans_color;
+				continue;
 			}
 
-			IndexColor()
-			{
-			}
-		};
-
-		size_t total_size = 0;
-		std::vector< std::vector<std::vector<IndexColor>>> data_blocks;
-
-		m_ImageData = core::Data(imhdData->width * imhdData->height);
-		for (auto& strip : strips)
-		{
-			std::vector<std::vector<IndexColor>> data_new_block;
-
-			const uint8_t code = strip.data[0];
+			const uint8_t code = stripStart[0];
 
 			bool horizontal = true;
-			if (code >= 0x03 && code <= 0x12 || code >= 0x22 && code <= 0x26)
+			if ((code >= 0x03 && code <= 0x12) || (code >= 0x22 && code <= 0x26))
 			{
 				horizontal = false;
 			}
 
-			const bool he_transparent = code >= 0x22 && code <= 0x30 || code >= 0x54 && code <= 0x80 || code >= 0x8F;
+			const bool he_transparent = (code >= 0x22 && code <= 0x30) || (code >= 0x54 && code <= 0x80) || (code >= 0x8F);
 
 			const int palen = code % 10;
 
-			const uint8_t color = strip.data[1];
+			core::Data encodedData;
+
+			if (code == 0x01 || code == 0x95)
+			{
+				if (stripSize > 1)
+				{
+					encodedData = core::Data(core::add(stripStart, 1), stripSize - 1);
+				}
+			}
+			else
+			{
+				if (stripSize > 2)
+				{
+					encodedData = core::Data(core::add(stripStart, 2), stripSize - 2);
+				}
+			}
+
+			core::Data stripDecoded;
 
 			if (code >= 0x40 && code <= 0x80)
 			{
-				if (!DecodeMajmin(color, strip.data, StripWidth, imhdData->height, palen, m_ImageData, he_transparent))
+				const uint8_t color = stripStart[1];
+				if (!DecodeMajmin(color, encodedData, StripWidth, imhdData->height, palen, stripDecoded, he_transparent))
 				{
 					return;
 				}
 			}
 			else if (code >= 0x0E && code <= 0x30)
 			{
-				if (!DecodeBasic(color, strip.data, StripWidth, imhdData->height, palen, m_ImageData, he_transparent))
+				const uint8_t color = stripStart[1];
+				if (!DecodeBasic(color, encodedData, StripWidth, imhdData->height, palen, stripDecoded, he_transparent))
 				{
 					return;
 				}
 			}
 			else if (code >= 0x86 && code <= 0x94)
 			{
-				if (!DecodeHE(color, strip.data, StripWidth, imhdData->height, palen, m_ImageData, he_transparent))
+				const uint8_t color = stripStart[1];
+				if (!DecodeHE(color, encodedData, StripWidth, imhdData->height, palen, stripDecoded, he_transparent))
 				{
 					return;
 				}
 			}
-			else if (code >= 0x01 && code <= 0x95)
+			else if (code == 0x01 || code == 0x95)
 			{
-				if (!DecodeRaw(strip.data, m_ImageData))
+				if (!DecodeRaw(encodedData, stripDecoded))
 				{
 					return;
 				}
 			}
+			else
+			{
+				continue;
+			}
+
+			const uint8_t* stripPixels = stripDecoded.dataAs<uint8_t>();
+			const size_t stripPixelCount = StripWidth * imhdData->height;
+
+			if (horizontal)
+			{
+				for (size_t y = 0; y < imhdData->height; y++)
+				{
+					for (size_t x = 0; x < StripWidth; x++)
+					{
+						size_t srcIdx = y * StripWidth + x;
+						size_t dstIdx = static_cast<size_t>(y) * imhdData->width + stripIdx * StripWidth + x;
+						if (srcIdx < stripPixelCount && dstIdx < allIndices.size())
+						{
+							allIndices[dstIdx] = stripPixels[srcIdx];
+						}
+					}
+				}
+			}
+			else
+			{
+				for (size_t col = 0; col < StripWidth; col++)
+				{
+					for (size_t row = 0; row < imhdData->height; row++)
+					{
+						size_t srcIdx = col * imhdData->height + row;
+						size_t dstIdx = static_cast<size_t>(row) * imhdData->width + stripIdx * StripWidth + col;
+						if (srcIdx < stripPixelCount && dstIdx < allIndices.size())
+						{
+							allIndices[dstIdx] = stripPixels[srcIdx];
+						}
+					}
+				}
+			}
+		}
+
+		std::vector<uint8_t> rgba;
+		rgba.reserve(allIndices.size() * 4);
+		for (size_t i = 0; i < allIndices.size(); i++)
+		{
+			uint8_t idx = allIndices[i];
+			rgba.push_back(apalData->data[idx * 3]);
+			rgba.push_back(apalData->data[idx * 3 + 1]);
+			rgba.push_back(apalData->data[idx * 3 + 2]);
+			if (idx == trnsData->trns_val)
+			{
+				rgba.push_back(0);
+			}
+			else
+			{
+				rgba.push_back(255);
+			}
+		}
+
+		if (!rgba.empty())
+		{
+			m_ImageData = core::Data(rgba.data(), rgba.size());
+		}
+
+		for (size_t i = 0; i < 256; i++)
+		{
+			m_aColors.push_back({
+				apalData->data[i * 3],
+				apalData->data[i * 3 + 1],
+				apalData->data[i * 3 + 2]
+			});
 		}
 	}
 
 	//---------------------------------------------------------------------
-	void Resource::SetChunk(parsing::Chunk* a_pChunk)
+	bool RoomImageResource::ShowAsLayer() const
 	{
-		m_pChunk = a_pChunk;
+		return m_bShowAsLayer;
+	}
+
+	//---------------------------------------------------------------------
+	void RoomImageResource::SetShowAsLayer(bool a_bShowAsLayer)
+	{
+		m_bShowAsLayer = a_bShowAsLayer;
 	}
 }

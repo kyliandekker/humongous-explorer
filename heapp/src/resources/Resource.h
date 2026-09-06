@@ -201,5 +201,10 @@ namespace humongousexplorer::resources
 		RoomImageResource();
 
 		void Open() override;
+
+		bool ShowAsLayer() const;
+		void SetShowAsLayer(bool a_bShowAsLayer);
+	private:
+		bool m_bShowAsLayer = false;
 	};
 }

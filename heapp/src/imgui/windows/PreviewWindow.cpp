@@ -270,17 +270,15 @@ namespace humongousexplorer::imgui
 		float imgH = 200.0f;
 		ID3D11ShaderResourceView* srv = nullptr;
 
-		if (resource->GetResourceType() == resources::ResourceType::RoomBackground)
+		resources::ImageResource* imageResource = dynamic_cast<resources::ImageResource*>(resource);
+		if (!imageResource)
 		{
-			resources::RoomBackgroundResource* rb = dynamic_cast<resources::RoomBackgroundResource*>(resource);
-			imgW = static_cast<float>(rb->GetWidth());
-			imgH = static_cast<float>(rb->GetHeight());
-			srv = rb->GetSRV();
+			return;
 		}
-		else if (resource->GetResourceType() == resources::ResourceType::RoomImage)
-		{
-			// TODO: support RoomImage
-		}
+
+		imgW = static_cast<float>(imageResource->GetWidth());
+		imgH = static_cast<float>(imageResource->GetHeight());
+		srv = imageResource->GetSRV();
 
 		imgW *= m_fZoom;
 		imgH *= m_fZoom;
